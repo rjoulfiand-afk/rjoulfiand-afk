@@ -15,8 +15,6 @@
 <br/>
 
 ### 👨‍💻 ABOUT JULL
-
-### 🛠️ TEKNOLOGI & SENJATA UTAMA
 <!-- Logo asli (Original & High-Res) dipanggil langsung dari server Devicon -->
 <p align="center">
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="60" height="60" style="margin: 10px;" alt="Python"/>
