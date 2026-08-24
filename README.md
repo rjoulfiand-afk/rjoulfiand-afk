@@ -11,7 +11,7 @@
   <br><br><br>
 
   <!-- ⚡ ANIMATED IDENTITY -->
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=28&pause=1000&color=00FF00&center=true&vCenter=true&width=600&lines=R+I+X+S+A+N;Web+%26+Desktop+Developer;System+%26+Bot+Architect" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=28&pause=1000&color=000000&center=true&vCenter=true&width=600&lines=software+engineer;Cyber+Security;Analist+data+IPYNB" alt="Typing SVG" />
 
 
 </div>
