@@ -1,41 +1,33 @@
-<!-- Banner Atas -->
 <div align="center">
-  <img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=250&section=header&text=RJOULFIAND-AFK&fontSize=50&fontAlignY=35&animation=fadeIn&desc=Arsitek%20Digital%20%7C%20SMKN%2010%20Surabaya&descAlignY=55&descAlign=50" width="100%"/>
-</div>
 
-<br/>
+  <!-- 🚀 MAIN SHOWCASE: High-Res Tools Logos -->
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="80" style="margin: 15px;" alt="Python"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" width="80" style="margin: 15px;" alt="JS"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg" width="80" style="margin: 15px;" alt="PHP"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg" width="80" style="margin: 15px;" alt="HTML5"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg" width="80" style="margin: 15px;" alt="CSS3"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original-wordmark.svg" width="80" style="margin: 15px;" alt="MySQL"/>
 
-<!-- Laba-laba 3D & Jaring Digital -->
-<div align="center">
-  <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Animals/Spider.png" alt="Spider" width="100" style="margin-right: -20px; z-index: 2; position: relative;" />
-  <img src="https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Animals/Web.png" alt="Web" width="80" />
-  <h3 style="color: #555;">WEAVING CODE & DIGITAL NETWORKS</h3>
-</div>
+  <br><br><br>
 
-<br/>
+  <!-- ⚡ ANIMATED IDENTITY -->
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=28&pause=1000&color=00FF00&center=true&vCenter=true&width=600&lines=R+I+X+S+A+N;Web+%26+Desktop+Developer;System+%26+Bot+Architect" alt="Typing SVG" />
 
-### 👨‍💻 ABOUT JULL
-<!-- Logo asli (Original & High-Res) dipanggil langsung dari server Devicon -->
-<p align="center">
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="60" height="60" style="margin: 10px;" alt="Python"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg" width="60" height="60" style="margin: 10px;" alt="PHP"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" width="60" height="60" style="margin: 10px;" alt="JS"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg" width="60" height="60" style="margin: 10px;" alt="HTML"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg" width="60" height="60" style="margin: 10px;" alt="CSS"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original-wordmark.svg" width="60" height="60" style="margin: 10px;" alt="MySQL"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/qt/qt-original.svg" width="60" height="60" style="margin: 10px;" alt="Qt"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/linux/linux-original.svg" width="60" height="60" style="margin: 10px;" alt="Linux"/>
-</p>
+  <br><br><br>
 
-### 🕸️ AKTIVITAS JARINGAN SISTEM
-<!-- Grafik garis dinamis yang membaca aktivitas coding lu, terlihat seperti blueprint/radar -->
-<div align="center">
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=rjoulfiand-afk&theme=dracula&hide_border=true&area=true" width="100%" alt="Activity Graph" />
-</div>
+  <!-- 📊 CLEAN DASHBOARD STATS (Side-by-Side) -->
+  <p align="center">
+    <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=transparent&hide_border=true&title_color=58A6FF&text_color=8b949e&icon_color=58A6FF" height="165" alt="GitHub Stats" />
+    <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=rjoulfiand-afk&layout=compact&theme=transparent&hide_border=true&title_color=58A6FF&text_color=8b949e" height="165" alt="Top Languages" />
+  </p>
 
-<br/>
+  <br>
 
----
-<div align="center">
-  <b>Dukung eksperimen gue selanjutnya via <a href="#">DANA</a>!</b> ☕
+  <!-- 📈 SEAMLESS ACTIVITY GRAPH -->
+  <img src="https://github-readme-activity-graph.vercel.app/graph?username=rjoulfiand-afk&theme=transparent&hide_border=true&area=true&color=58A6FF&line=00FF00&point=FFFFFF" width="100%" alt="Activity Graph" />
+
+  <br><br>
+  
+  <b>☕ Support my works via <a href="#">DANA</a></b>
+
 </div>
