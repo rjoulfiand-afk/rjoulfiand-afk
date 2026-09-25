@@ -38,10 +38,9 @@
 - 🤝 Open to collaborations on open-source projects, freelance opportunities, or exchanging ideas on backend infrastructure.
 
 - 💬 Always eager to discuss system architecture, clean code practices, or project implementations. Feel free to explore my repositories!
-
 <div align="center">
 
-  <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=default&hide_border=true" alt="GitHub Stats" height="165"/>
-  <img src="https://github-readme-streak-stats.herokuapp.com/?user=rjoulfiand-afk&hide_border=true" alt="GitHub Streak" height="165"/>
+  <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=tokyonight&hide_border=true&bg_color=0D1117" alt="GitHub Stats" height="165"/>
+  <img src="https://github-readme-streak-stats.herokuapp.com/?user=rjoulfiand-afk&theme=tokyonight&hide_border=true&background=0D1117" alt="GitHub Streak" height="165"/>
 
 </div>
