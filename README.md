@@ -30,7 +30,6 @@
   <br><br>
 
 </div>
-- 🔭 Currently architecting Prime Notes — a comprehensive personal productivity ecosystem (Powered by Laravel & Livewire on the web, React Native/Expo on mobile).
 
 - 🌱 Continuously refining my expertise in full-stack development, mastering complex architectures one project at a time.
 
