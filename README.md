@@ -1,20 +1,12 @@
 <div align="center">
 
   <h1>Hi, I'm Rixsan Joulfiand 👋</h1>
-  <p>Student · Building web, mobile, and desktop apps · Learning something new every day</p>
+  <p>Student · Building web & mobile apps · Learning something new every day</p>
 
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=24&pause=1000&color=4F46E5&center=true&vCenter=true&width=600&lines=Student+%26+Aspiring+Software+Engineer;Full-Stack+%26+Scripting+Enthusiast;Currently+Building+Prime+Notes" alt="Typing SVG" />
-
-  <br><br>
-
-  <!-- Social Badges -->
-  <a href="mailto:email-lu@gmail.com"><img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" /></a>
-  <a href="https://linkedin.com/in/username-lu"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=24&pause=1000&color=4F46E5&center=true&vCenter=true&width=600&lines=Student+%26+Aspiring+Software+Engineer;Laravel+%2B+Livewire+Enthusiast;Currently+Building+Prime+Notes" alt="Typing SVG" />
 
   <br><br>
 
-  <!-- Tech Stack Icons -->
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="50" style="margin: 10px;" alt="Python"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg" width="50" style="margin: 10px;" alt="PHP"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/laravel/laravel-original.svg" width="50" style="margin: 10px;" alt="Laravel"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" width="50" style="margin: 10px;" alt="JavaScript"/>
@@ -42,8 +34,7 @@
 
 <div align="center">
 
-  <!-- Ubah theme=radical biar lebih keren -->
-  <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=radical&hide_border=true&count_private=true" alt="GitHub Stats" height="165"/>
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=rjoulfiand-afk&layout=compact&theme=radical&hide_border=true" alt="Top Languages" height="165"/>
+  <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=default&hide_border=true" alt="GitHub Stats" height="165"/>
+  <img src="https://github-readme-streak-stats.herokuapp.com/?user=rjoulfiand-afk&hide_border=true" alt="GitHub Streak" height="165"/>
 
 </div>
