@@ -30,10 +30,15 @@
   <br><br>
 
 </div>
+- 🔭 Currently architecting Prime Notes — a comprehensive personal productivity ecosystem (Powered by Laravel & Livewire on the web, React Native/Expo on mobile).
 
-- 🔭 Lagi bangun **Prime Notes** — aplikasi produktivitas pribadi (Laravel + Livewire di web, React Native/Expo di mobile)
-- 🌱 Terus belajar full-stack development satu project pada satu waktu
-- 💬 Kalau ada yang mau ditanya soal project di atas, mampir aja ke repo-nya
+- 🌱 Continuously refining my expertise in full-stack development, mastering complex architectures one project at a time.
+
+- ⚡ Engineering automated monitoring scripts, custom command-line interfaces, and localized security simulations.
+
+- 🤝 Open to collaborations on open-source projects, freelance opportunities, or exchanging ideas on backend infrastructure.
+
+- 💬 Always eager to discuss system architecture, clean code practices, or project implementations. Feel free to explore my repositories!
 
 <div align="center">
 
