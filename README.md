@@ -38,9 +38,35 @@
 - 🤝 Open to collaborations on open-source projects, freelance opportunities, or exchanging ideas on backend infrastructure.
 
 - 💬 Always eager to discuss system architecture, clean code practices, or project implementations. Feel free to explore my repositories!
+<!-- ───────────────── CYBER DASHBOARD STATS ───────────────── -->
 <div align="center">
+  <h2>🖥️ System Statistics</h2>
+  <br>
 
-  <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=tokyonight&hide_border=true&bg_color=0D1117" alt="GitHub Stats" height="165"/>
-  <img src="https://github-readme-streak-stats.herokuapp.com/?user=rjoulfiand-afk&theme=tokyonight&hide_border=true&background=0D1117" alt="GitHub Streak" height="165"/>
+  <!-- GitHub Trophies (Menambah kompleksitas visual ala dashboard hacker) -->
+  <a href="https://github.com/ryo-ma/github-profile-trophy">
+    <img src="https://github-profile-trophy.vercel.app/?username=rjoulfiand-afk&theme=tokyonight&margin-w=15&margin-h=15&no-frame=true&column=6&bg_color=0D1117" alt="GitHub Trophies" />
+  </a>
+  
+  <br><br>
 
+  <!-- Menggunakan tabel agar kartu General Stats dan Top Languages sejajar rapi (Desktop) -->
+  <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+    <tr>
+      <td align="center" style="border: none; padding: 5px;">
+        <!-- Tambahan parameter &v=1 dan count_private=true untuk memaksa bypass cache jika gambar rusak -->
+        <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=tokyonight&hide_border=true&bg_color=0D1117&count_private=true&v=1" alt="GitHub Stats" />
+      </td>
+      <td align="center" style="border: none; padding: 5px;">
+        <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=rjoulfiand-afk&layout=compact&theme=tokyonight&hide_border=true&bg_color=0D1117&v=1" alt="Top Languages" />
+      </td>
+    </tr>
+  </table>
+
+  <br>
+  
+  <!-- Streak Stats memanjang di bagian paling bawah dashboard -->
+  <img src="https://github-readme-streak-stats.herokuapp.com/?user=rjoulfiand-afk&theme=tokyonight&hide_border=true&background=0D1117" alt="GitHub Streak" />
+  
+  <br><br>
 </div>
