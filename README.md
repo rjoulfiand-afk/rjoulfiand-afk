@@ -1,58 +1,56 @@
 <div align="center">
 
-  <h1>Hi, I'm Rixsan Joulfiand 👋</h1>
-  <p>Student · Building web & mobile apps · Learning something new every day</p>
+# Rixsan Joulfiand
 
-  <!-- ⚡ ANIMATED IDENTITY -->
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=700&size=24&pause=1000&color=4F46E5&center=true&vCenter=true&width=600&lines=Student+%26+Aspiring+Software+Engineer;Laravel+%2B+Livewire+Enthusiast;Currently+Building+Prime+Notes" alt="Typing SVG" />
+```bash
+$ whoami
+> rixsanjoulfiand
+$ cat status.txt
+> student | full-stack builder | currently shipping Prime Notes
+```
 
-  <br><br>
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&duration=2200&pause=700&color=39FF14&center=true&vCenter=true&width=650&height=50&lines=INITIALIZING_SYSTEM...;ACCESS_GRANTED;LOADING_PROFILE%3A_RIXSAN_JOULFIAND;STACK%3A_LARAVEL_%2B_LIVEWIRE_%2B_REACT_NATIVE;STATUS%3A_BUILDING_PRIME_NOTES" alt="Typing SVG" />
 
-  <!-- 🚀 TECH STACK -->
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg" width="50" style="margin: 10px;" alt="PHP"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/laravel/laravel-original.svg" width="50" style="margin: 10px;" alt="Laravel"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" width="50" style="margin: 10px;" alt="JavaScript"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" width="50" style="margin: 10px;" alt="TypeScript"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" width="50" style="margin: 10px;" alt="React"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg" width="50" style="margin: 10px;" alt="HTML5"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg" width="50" style="margin: 10px;" alt="CSS3"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg" width="50" style="margin: 10px;" alt="Tailwind CSS"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original-wordmark.svg" width="50" style="margin: 10px;" alt="MySQL"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" width="50" style="margin: 10px;" alt="Git"/>
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg" width="50" style="margin: 10px;" alt="VS Code"/>
+<br>
 
-  <br>
+**LANGUAGES**
 
-  <!-- Livewire & Alpine.js belum ada di devicon, jadi pakai badge warna resminya -->
-  <img src="https://img.shields.io/badge/Livewire-FB70A9?style=for-the-badge&logo=livewire&logoColor=white" alt="Livewire"/>
-  <img src="https://img.shields.io/badge/Alpine.js-8BC0D0?style=for-the-badge&logo=alpinedotjs&logoColor=white" alt="Alpine.js"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg" width="45" style="margin: 8px;" alt="PHP"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" width="45" style="margin: 8px;" alt="JavaScript"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" width="45" style="margin: 8px;" alt="TypeScript"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg" width="45" style="margin: 8px;" alt="HTML5"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg" width="45" style="margin: 8px;" alt="CSS3"/>
 
-  <br><br>
+**FRAMEWORKS**
 
-</div>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/laravel/laravel-original.svg" width="45" style="margin: 8px;" alt="Laravel"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" width="45" style="margin: 8px;" alt="React"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg" width="45" style="margin: 8px;" alt="Tailwind CSS"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/expo/expo-original.svg" width="45" style="margin: 8px;" alt="Expo"/>
+<img src="https://img.shields.io/badge/Livewire-FB70A9?style=for-the-badge&logo=livewire&logoColor=white" style="margin: 4px;" alt="Livewire"/>
+<img src="https://img.shields.io/badge/Alpine.js-8BC0D0?style=for-the-badge&logo=alpinedotjs&logoColor=white" style="margin: 4px;" alt="Alpine.js"/>
 
-- 🌱 Continuously refining my expertise in full-stack development, mastering complex architectures one project at a time.
+**DATABASE & TOOLS**
 
-- ⚡ Engineering automated monitoring scripts, custom command-line interfaces, and localized security simulations.
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original-wordmark.svg" width="45" style="margin: 8px;" alt="MySQL"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg" width="45" style="margin: 8px;" alt="SQLite"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/composer/composer-original.svg" width="45" style="margin: 8px;" alt="Composer"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" width="45" style="margin: 8px;" alt="Git"/>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg" width="45" style="margin: 8px;" alt="VS Code"/>
 
-- 🤝 Open to collaborations on open-source projects, freelance opportunities, or exchanging ideas on backend infrastructure.
+<br><br>
 
-- 💬 Always eager to discuss system architecture, clean code practices, or project implementations. Feel free to explore my repositories!
-<!-- ───────────────── CYBER DASHBOARD STATS ───────────────── -->
-<div align="center">
-  <h2>🖥️ System Statistics</h2>
-  <br>
+- 🔭 Currently building **Prime Notes** — a personal productivity app (Laravel + Livewire on web, React Native/Expo on mobile)
+- 🌱 Learning full-stack development, one project at a time
+- 💬 Open to talk about Laravel, Livewire, or anything in the repos above
 
-  <!-- Format Markdown Murni untuk mem-bypass cache blocker HTML -->
-  [![GitHub Trophies](https://github-profile-trophy.vercel.app/?username=rjoulfiand-afk&theme=tokyonight&margin-w=15&margin-h=15&no-frame=true&column=6&bg_color=0D1117)](https://github.com/ryo-ma/github-profile-trophy)
+<br>
 
-  <br><br>
+<img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&hide_border=true&bg_color=0D1117&title_color=39FF14&text_color=00FF41&icon_color=39FF14" alt="GitHub Stats" height="165"/>
+<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=rjoulfiand-afk&layout=compact&hide_border=true&bg_color=0D1117&title_color=39FF14&text_color=00FF41" alt="Top Languages" height="165"/>
 
-  [![GitHub Stats](https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=tokyonight&hide_border=true&bg_color=0D1117)](https://github.com/anuraghazra/github-readme-stats)
-  [![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=rjoulfiand-afk&layout=compact&theme=tokyonight&hide_border=true&bg_color=0D1117)](https://github.com/anuraghazra/github-readme-stats)
+<br>
 
-  <br><br>
-  
-  [![GitHub Streak](https://github-readme-streak-stats.herokuapp.com/?user=rjoulfiand-afk&theme=tokyonight&hide_border=true&background=0D1117)](https://github.com/DenverCoder1/github-readme-streak-stats)
-  
+<img src="https://github-readme-streak-stats.herokuapp.com/?user=rjoulfiand-afk&hide_border=true&background=0D1117&ring=39FF14&fire=39FF14&currStreakLabel=39FF14&sideLabels=00FF41&sideNums=00FF41&currStreakNum=39FF14&dates=00FF41&stroke=39FF14" alt="GitHub Streak"/>
+
 </div>
