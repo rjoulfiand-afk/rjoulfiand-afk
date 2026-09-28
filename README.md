@@ -6,11 +6,10 @@
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=24&duration=2500&pause=1000&color=A855F7&center=true&vCenter=true&width=650&height=50&lines=Software+Engineer;Full-Stack+Developer;Architecting+Scalable+Solutions;Currently+Shipping+Prime+Notes" alt="Typing SVG" />
 </p>
 
-> *"Crafting elegant architectures and seamless user experiences."*
 
-<br><br>
+<br>
 
-### 💻 TECH STACK & ARSENAL
+###  TECH STACK & ARSENAL
 
 **Frontend Development**<br><br>
 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg" height="55" alt="HTML5" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
