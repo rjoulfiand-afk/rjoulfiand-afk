@@ -5,7 +5,7 @@
 ```bash
 $ whoami
 > rixsanjoulfiand
-$ cat status.txt
+$ cat status.txt 
 > student | full-stack builder | currently shipping Prime Notes
 ```
 
