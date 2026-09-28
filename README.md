@@ -1,45 +1,44 @@
 <div align="center">
 
 # ⚡ Rixsan Joulfiand
-### Software Engineer | Full-Stack Developer
 
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=20&duration=2500&pause=1000&color=A855F7&center=true&vCenter=true&width=650&height=50&lines=System.out.println(%22Hello+World!%22);Architecting+Scalable+Solutions;Building+Full-Stack+Applications;Currently+Shipping+Prime+Notes" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=24&duration=2500&pause=1000&color=A855F7&center=true&vCenter=true&width=650&height=50&lines=Software+Engineer;Full-Stack+Developer;Architecting+Scalable+Solutions;Currently+Shipping+Prime+Notes" alt="Typing SVG" />
 </p>
 
 > *"Crafting elegant architectures and seamless user experiences."*
 
-<br>
+<br><br>
 
 ### 💻 TECH STACK & ARSENAL
 
-**Frontend Development**<br>
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg" height="40" alt="HTML5" style="margin: 8px;" />
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg" height="40" alt="CSS3" style="margin: 8px;" />
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" height="40" alt="JavaScript" style="margin: 8px;" />
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" height="40" alt="TypeScript" style="margin: 8px;" />
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" height="40" alt="React" style="margin: 8px;" />
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg" height="40" alt="Tailwind CSS" style="margin: 8px;" />
-<img src="https://cdn.simpleicons.org/alpinedotjs/8BC0D0" height="40" alt="Alpine.js" style="margin: 8px;" />
+**Frontend Development**<br><br>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg" height="55" alt="HTML5" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg" height="55" alt="CSS3" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg" height="55" alt="JavaScript" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" height="55" alt="TypeScript" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" height="55" alt="React" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg" height="55" alt="Tailwind CSS" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://cdn.simpleicons.org/alpinedotjs/8BC0D0" height="55" alt="Alpine.js" />
 
-<br>
+<br><br><br>
 
-**Backend & Database**<br>
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg" height="40" alt="PHP" style="margin: 8px;" />
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/laravel/laravel-original.svg" height="40" alt="Laravel" style="margin: 8px;" />
-<img src="https://cdn.simpleicons.org/livewire/FB70A9" height="40" alt="Livewire" style="margin: 8px;" />
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original-wordmark.svg" height="40" alt="MySQL" style="margin: 8px;" />
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg" height="40" alt="SQLite" style="margin: 8px;" />
+**Backend & Database**<br><br>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg" height="55" alt="PHP" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/laravel/laravel-original.svg" height="55" alt="Laravel" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://cdn.simpleicons.org/livewire/FB70A9" height="55" alt="Livewire" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original-wordmark.svg" height="55" alt="MySQL" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/sqlite/sqlite-original.svg" height="55" alt="SQLite" />
 
-<br>
+<br><br><br>
 
-**Tools & Environment**<br>
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" height="40" alt="Git" style="margin: 8px;" />
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg" height="40" alt="VS Code" style="margin: 8px;" />
-<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/composer/composer-original.svg" height="40" alt="Composer" style="margin: 8px;" />
-<img src="https://cdn.simpleicons.org/expo/white" height="40" alt="Expo" style="margin: 8px;" />
+**Tools & Environment**<br><br>
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" height="55" alt="Git" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg" height="55" alt="VS Code" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/composer/composer-original.svg" height="55" alt="Composer" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<img src="https://cdn.simpleicons.org/expo/white" height="55" alt="Expo" />
 
-<br><br>
+<br><br><br>
 
 ### 🚀 CURRENT DIRECTIVE
 
