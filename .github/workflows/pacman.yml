@@ -18,28 +18,71 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1. Bikin animasi Pac-Man & Monster dari kontribusi asli kamu
+      # 1. Generate animasi Pac-Man dari kontribusi asli kamu
       - name: Generate Pac-Man SVGs
         uses: abozanona/pacman-contribution-graph@main
         with:
           github_user_name: ${{ github.repository_owner }}
           games: 'pacman'
 
-      # 2. Magic Styling: Mengubah background putih silau jadi Dark Neon Purple!
-      - name: Transform to Dark Neon Aesthetic
+      # 2. Engine Styling: Warna Dark Neon Purple (Persis Screenshot) + 60fps Smooth
+      - name: Transform to Dark Neon Purple & Smooth Speed
         run: |
-          sed -i 's/#ffffff/#0d1117/g' dist/pacman-contribution-graph.svg
-          sed -i 's/#fff/#0d1117/g' dist/pacman-contribution-graph.svg
-          sed -i 's/#ebedf0/#161b22/g' dist/pacman-contribution-graph.svg
-          sed -i 's/#9be9a8/#3b0764/g' dist/pacman-contribution-graph.svg
-          sed -i 's/#40c463/#7e22ce/g' dist/pacman-contribution-graph.svg
-          sed -i 's/#30a14e/#a855f7/g' dist/pacman-contribution-graph.svg
-          sed -i 's/#216e39/#d8b4fe/g' dist/pacman-contribution-graph.svg
-          sed -i 's/#000000/#a855f7/g' dist/pacman-contribution-graph.svg
-          sed -i 's/black/#a855f7/g' dist/pacman-contribution-graph.svg
-          cp dist/pacman-contribution-graph.svg dist/pacman-contribution-graph-dark.svg
+          python3 -c "
+          import re, glob, shutil
 
-      # 3. Push hasil gambar yang sudah estetik ke branch output
+          svg_files = glob.glob('dist/*.svg')
+          print('Found SVGs to process:', svg_files)
+
+          for file_path in svg_files:
+              with open(file_path, 'r', encoding='utf-8') as f:
+                  content = f.read()
+
+              # A. Background Gelap & Kotak Kosong
+              content = re.sub(r'#ffffff|#fff', '#0d1117', content, flags=re.IGNORECASE)
+              content = re.sub(r'#ebedf0', '#161b22', content, flags=re.IGNORECASE)
+
+              # B. Garis Labirin (Hitam jadi Ungu Neon #a855f7 persis seperti di screenshot)
+              content = re.sub(r'#000000|\bblack\b', '#a855f7', content, flags=re.IGNORECASE)
+
+              # C. Ubah SEMUA Variasi Hijau (Huruf Besar & Kecil) Menjadi Gradasi Ungu Neon
+              purple_palette = [
+                  (r'#9be9a8|#0e4429', '#3b0764'),  # Level 1
+                  (r'#40c463|#006d32', '#7e22ce'),  # Level 2
+                  (r'#30a14e|#26a641', '#a855f7'),  # Level 3
+                  (r'#216e39|#39d353', '#d8b4fe'),  # Level 4
+                  (r'#196127|#2ea44f|#238636', '#c084fc'), # Extra greens fallback
+              ]
+              for green_pattern, purple_val in purple_palette:
+                  content = re.sub(green_pattern, purple_val, content, flags=re.IGNORECASE)
+
+              # D. Hilangkan Delay & Percepat Gerakan (2.3x Lebih Cepat & Mulus)
+              def scale_dur(m):
+                  val = float(m.group(1))
+                  return f'dur=\"{round(max(val * 0.42, 0.08), 2)}s\"'
+
+              def scale_begin(m):
+                  val = float(m.group(1))
+                  return f'begin=\"{round(val * 0.42, 2)}s\"'
+
+              content = re.sub(r'dur=\"([0-9\.]+)s\"', scale_dur, content)
+              content = re.sub(r'begin=\"([0-9\.]+)s\"', scale_begin, content)
+
+              # E. Pastikan Render Halus
+              if '<svg ' in content and 'shape-rendering' not in content:
+                  content = content.replace('<svg ', '<svg shape-rendering=\"geometricPrecision\" ')
+
+              with open(file_path, 'w', encoding='utf-8') as f:
+                  f.write(content)
+              print(f'Transformed: {file_path}')
+
+          # Salin ke pacman-contribution-graph-dark.svg agar link README selalu sinkron
+          if 'dist/pacman-contribution-graph.svg' in svg_files:
+              shutil.copy('dist/pacman-contribution-graph.svg', 'dist/pacman-contribution-graph-dark.svg')
+          print('All SVGs converted to smooth purple arcade!')
+          "
+
+      # 3. Push hasil gambar ke branch output
       - name: Push SVGs to output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
