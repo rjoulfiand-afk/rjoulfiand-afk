@@ -8,89 +8,40 @@ on:
     branches:
       - main
 
+concurrency:
+  group: pacman-graph
+  cancel-in-progress: true
+
 jobs:
   generate:
     permissions:
       contents: write
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1. Generate animasi Pac-Man dari kontribusi asli kamu
-      - name: Generate Pac-Man SVGs
-        uses: abozanona/pacman-contribution-graph@main
-        with:
-          github_user_name: ${{ github.repository_owner }}
-          games: 'pacman'
-
-      # 2. Engine Styling: Dark Neon Purple + Gerakan Cepat & Halus + Validasi XML 100% Aman
-      - name: Transform to Smooth Neon Purple Arcade
+      # Menjalankan Engine Simulator Pac-Man Python yang sudah di-upgrade
+      - name: Generate Pac-Man SVG
+        env:
+          GH_API_TOKEN: ${{ secrets.PROFILE_TOKEN || github.token }}
         run: |
-          python3 -c "
-          import re, glob, shutil, xml.etree.ElementTree as ET
+          python3 .github/scripts/pacman_graph.py \
+            --user "${{ github.repository_owner }}" \
+            --theme purple \
+            --title "Chomping XP" \
+            --out dist
 
-          svg_files = glob.glob('dist/*.svg')
-          print('Processing SVGs:', svg_files)
-
-          for file_path in svg_files:
-              with open(file_path, 'r', encoding='utf-8') as f:
-                  content = f.read()
-
-              # A. Ubah Warna Background & Labirin (Persis Screenshot yang Kamu Suka)
-              color_map = [
-                  (r'#ffffff|#fff', '#0d1117'),         # Background Gelap
-                  (r'#ebedf0', '#161b22'),               # Kotak Kosong
-                  (r'#000000|\bblack\b', '#a855f7'),     # Garis Labirin Ungu Neon
-                  (r'#9be9a8|#0e4429', '#3b0764'),       # Kontribusi Level 1
-                  (r'#40c463|#006d32', '#7e22ce'),       # Kontribusi Level 2
-                  (r'#30a14e|#26a641', '#a855f7'),       # Kontribusi Level 3
-                  (r'#216e39|#39d353', '#d8b4fe'),       # Kontribusi Level 4
-                  (r'#196127', '#f3e8ff'),               # Supernova High
-              ]
-              for pattern, repl in color_map:
-                  content = re.sub(pattern, repl, content, flags=re.IGNORECASE)
-
-              # B. Ubah Mode Animasi Menjadi Linear (Menghilangkan Stutter / Nyandet)
-              content = content.replace('calcMode=\"discrete\"', 'calcMode=\"linear\"')
-
-              # C. Percepat Gerakan (2.5x Lebih Cepat & Gesit, Menghilangkan Jeda/Delay)
-              def scale_dur(m):
-                  val = float(m.group(1))
-                  new_val = round(max(val * 0.4, 0.08), 2)
-                  return f'dur=\"{new_val}s\"'
-
-              def scale_begin(m):
-                  val = float(m.group(1))
-                  new_val = round(val * 0.4, 2)
-                  return f'begin=\"{new_val}s\"'
-
-              content = re.sub(r'dur=\"([0-9\.]+)s\"', scale_dur, content)
-              content = re.sub(r'begin=\"([0-9\.]+)s\"', scale_begin, content)
-
-              # D. Validasi Struktur XML (Memastikan File Tidak Pernah Rusak / Corrupt)
-              try:
-                  ET.fromstring(content)
-                  print(f'XML Validation SUCCESS: {file_path} is 100% valid!')
-              except Exception as err:
-                  print(f'FATAL: XML is malformed in {file_path}: {err}')
-                  raise err
-
-              with open(file_path, 'w', encoding='utf-8') as f:
-                  f.write(content)
-
-          # Sinkronkan ke pacman-contribution-graph-dark.svg
-          if 'dist/pacman-contribution-graph.svg' in svg_files:
-              shutil.copy('dist/pacman-contribution-graph.svg', 'dist/pacman-contribution-graph-dark.svg')
-          print('All SVGs processed, validated, and ready!')
-          "
-
-      # 3. Deploy file SVG yang valid ke branch output
-      - name: Push SVGs to output branch
-        uses: crazy-max/ghaction-github-pages@v3.1.0
-        with:
-          target_branch: output
-          build_dir: dist
+      # Push langsung menggunakan Native Git (Cepat, Ringan & 100% Anti-Error Token)
+      - name: Push SVG to output branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd dist
+          git init -q -b output
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "chore: deploy cyberpunk pacman contribution graph"
+          git push -f "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" output
