@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Pac-Man Cyberpunk Matrix Arcade Generator (100% Fixed & Validated)
+Pac-Man Cyberpunk Matrix Arcade Generator
+Features:
+- Real Maze BFS AI for Ghosts (No sticking, full roaming)
+- Smooth Arcade Tempo (0.185s/step)
+- Real-time Multi-Colored Energy Harvest Bar (Synced with eaten contribution boxes)
 """
 import argparse
 import datetime as dt
@@ -20,7 +24,7 @@ from html import escape
 
 PALETTES = {
     "purple": dict(
-        card_a="#0d1117", card_b="#06080d", tile="#121620", tile_edge="#1a2130",
+        card_a="#0d1117", card_b="#06080d", tile="#131722", tile_edge="#1f2638",
         levels=["#4c1d95", "#7e22ce", "#a855f7", "#e9d5ff"],
         accent="#a855f7", wall="#a855f7", glow="#c084fc", text="#f5f3ff", muted="#94a3b8"
     )
@@ -37,14 +41,10 @@ S, G = 16, 4
 P = S + G
 DIRS = [(0, -1), (-1, 0), (0, 1), (1, 0)]
 ANGLE = {(1, 0): 0, (0, 1): 90, (-1, 0): 180, (0, -1): 270}
-PUPIL = {(1, 0): (1.2, 0.0), (-1, 0): (-1.2, 0.0), (0, -1): (0.0, -1.3), (0, 1): (0.0, 1.3)}
+RELEASE = [0, 6, 16, 28]
 
-K_READY = 18
-K_END = 28
-FRIGHT_TICKS = 56
-BLINK_TICKS = 14
-RELEASE = [0, 8, 20, 34]
-SCHEDULE = [("s", 26), ("c", 90), ("s", 22), ("c", 100), ("s", 18), ("c", 10 ** 9)]
+K_READY = 16
+K_END = 26
 
 def num(x, n=2):
     s = f"{x:.{n}f}"
@@ -53,7 +53,6 @@ def num(x, n=2):
 
 def kt(x): return num(min(1.0, max(0.0, x)), 5)
 
-# FIX UTAMA: Otomatis konversi format 3-digit (#fff) menjadi 6-digit (#ffffff) agar tidak ValueError
 def hex2rgb(h):
     h = h.lstrip("#")
     if len(h) == 3:
@@ -126,7 +125,7 @@ def load_days(user):
     return demo_days(42)
 
 class Maze:
-    def __init__(self, cells, rng, density=0.24):
+    def __init__(self, cells, rng, density=0.22):
         self.cells = set(cells)
         self.rng = rng
         self.blocked = set()
@@ -171,7 +170,7 @@ class Maze:
             tries += 1
             c = self.rng.choice(cells)
             vert = self.rng.random() < 0.5
-            for i in range(self.rng.choice([2, 3, 4])):
+            for i in range(self.rng.choice([2, 3])):
                 a = (c[0], c[1] + i) if vert else (c[0] + i, c[1])
                 b = (a[0] + 1, a[1]) if vert else (a[0], a[1] + 1)
                 if a not in self.cells or b not in self.cells or not self._try(a, b): break
@@ -204,10 +203,11 @@ class Maze:
         return "".join(d)
 
 class GhostAI:
-    def __init__(self, idx, name, cell, release, scatter):
-        self.idx, self.name, self.cell, self.start = idx, name, cell, cell
-        self.prev, self.mode, self.release, self.scatter = None, "n", release, scatter
-        self.dir, self.released = (1, 0), False
+    def __init__(self, idx, name, cell, release):
+        self.idx, self.name, self.cell = idx, name, cell
+        self.prev = None
+        self.release = release
+        self.released = False
 
 def bfs_all(maze, sources):
     dist = {s: 0 for s in sources}
@@ -216,7 +216,8 @@ def bfs_all(maze, sources):
         c = dq.popleft()
         for n in maze.adj[c]:
             if n not in dist:
-                dist[n] = dist[c] + 1; dq.append(n)
+                dist[n] = dist[c] + 1
+                dq.append(n)
     return dist
 
 def simulate(maze, pellets, power, rng, W):
@@ -226,38 +227,34 @@ def simulate(maze, pellets, power, rng, W):
     used = set()
     pac = min(free, key=lambda c: (c[0]-cx)**2 + (c[1]-5)**2)
     used.add(pac)
-    offs = [(0, 2), (-1, 3), (1, 3), (0, 3)]
-    corners = [(W + 2, -2), (-2, -2), (W + 2, 9), (-2, 9)]
+    
+    # Spawn posisi hantu di tengah lorong
+    offs = [(0, 1), (-1, 2), (1, 2), (0, 3)]
     ghosts = []
     for i, (name, _, _) in enumerate(GHOSTS):
         c = min([c for c in cells if c not in used], key=lambda c: (c[0]-cx-offs[i][0])**2 + (c[1]-offs[i][1])**2)
         used.add(c)
-        ghosts.append(GhostAI(i, name, c, RELEASE[i], corners[i]))
-    home = min(cells, key=lambda c: (c[0]-cx)**2 + (c[1]-3)**2)
-    dist_home = bfs_all(maze, [home])
-    left = set(pellets)
-    pdir, power_timer, chain = (1, 0), 0, 0
-    pac_pos, pac_dirs = [], []
-    g_pos = [[] for _ in ghosts]
-    g_modes = [[] for _ in ghosts]
-    g_dirs = [[] for _ in ghosts]
-    eaten, popups = [], []
+        ghosts.append(GhostAI(i, name, c, RELEASE[i]))
 
-    for t in range(3500):
-        if not left and t >= (0 if pellets else 60): break
-        if power_timer > 0:
-            power_timer -= 1
-            if power_timer == 0:
-                for g in ghosts:
-                    if g.mode == "f": g.mode = "n"
+    left = set(pellets)
+    pdir = (1, 0)
+    pac_pos = []
+    g_pos = [[] for _ in ghosts]
+    eaten = []
+
+    # Batas langkah optimal agar durasi video/animasi pas
+    max_steps = min(280, max(160, len(pellets) * 3 + 30))
+
+    for t in range(max_steps):
+        if not left: break
 
         pac_pos.append(pac)
         for g in ghosts:
             g_pos[g.idx].append(g.cell)
-            g_modes[g.idx].append("b" if g.mode == "f" and power_timer <= BLINK_TICKS else g.mode)
 
-        dangerous = [g for g in ghosts if g.mode == "n"]
-        gd = bfs_all(maze, [g.cell for g in dangerous]) if dangerous else {}
+        # 1. AI PAC-MAN (Mencari kotak terdekat sambil menghindari hantu aktif)
+        active_ghosts = [g for g in ghosts if g.released]
+        gd = bfs_all(maze, [g.cell for g in active_ghosts]) if active_ghosts else {}
         gdist = lambda c: gd.get(c, 99)
 
         dist, first = {pac: 0.0}, {}
@@ -266,65 +263,74 @@ def simulate(maze, pellets, power, rng, W):
             d, c = heapq.heappop(pq)
             if d > dist[c]: continue
             for n in maze.adj[c]:
-                cost = 1.0 + ((60, 30, 9, 2.5)[gdist(n)] if gdist(n) <= 3 else 0)
-                if n in power and n in left: cost += 14
-                nd = d + cost
+                prox = gdist(n)
+                penalty = 120.0 if prox <= 1 else (40.0 if prox <= 2 else (12.0 if prox <= 3 else 0.0))
+                nd = d + 1.0 + penalty
                 if nd < dist.get(n, 1e9):
                     dist[n] = nd; first[n] = n if c == pac else first[c]
                     heapq.heappush(pq, (nd, n))
 
         cands = []
-        for p in (left - power if left - power else (left & power)):
+        for p in left:
             if p in dist and first.get(p) and gdist(first[p]) >= 2:
                 cands.append((dist[p], first[p]))
-        pac_new = min(cands, key=lambda x: x[0])[1] if cands else (
-            max([n for n in maze.adj[pac] if gdist(n) >= 2], key=gdist, default=pac)
-        )
-        if pac_new != pac: pdir = (pac_new[0]-pac[0], pac_new[1]-pac[1])
 
-        for g in ghosts:
-            if g.mode == "f" and g.cell == pac_new:
-                g.mode, g.prev = "e", None
-                pts = 200 * (2 ** min(chain, 3))
-                chain += 1
-                popups.append((t, pac_new, pts))
+        if cands:
+            pac_new = min(cands, key=lambda x: x[0])[1]
+        else:
+            safe_opts = [n for n in maze.adj[pac] if gdist(n) >= 2]
+            pac_new = max(safe_opts, key=gdist) if safe_opts else max(maze.adj[pac], key=gdist, default=pac)
 
-        for g in ghosts:
-            old = g.cell
-            if g.mode == "n" and not g.released:
-                if t >= g.release: g.released = True
-                else: g_dirs[g.idx].append(g.dir); continue
-            nxt = None
-            if g.mode == "e":
-                if g.cell == home: g.mode, g.prev = "n", None
-                else: nxt = min(maze.adj[g.cell], key=lambda n: dist_home[n])
-            elif g.mode == "f":
-                if t % 2 == 0:
-                    opts = [n for n in maze.adj[g.cell] if n != g.prev] or maze.adj[g.cell]
-                    nxt = rng.choice(opts)
-            else:
-                opts = [n for n in maze.adj[g.cell] if n != g.prev] or maze.adj[g.cell]
-                tg = pac_new if g.name == "blinky" else g.scatter
-                nxt = min(opts, key=lambda n: (n[0]-tg[0])**2 + (n[1]-tg[1])**2)
-            if nxt:
-                g.prev, g.cell = old, nxt
-                g.dir = (nxt[0]-old[0], nxt[1]-old[1])
-            g_dirs[g.idx].append(g.dir)
-
+        if pac_new != pac:
+            pdir = (pac_new[0] - pac[0], pac_new[1] - pac[1])
         pac = pac_new
-        pac_dirs.append(pdir)
+
+        # 2. MAZE AI UNTUK HANTU (Pathfinding BFS koridor nyata, tidak akan macet)
+        dist_pac = bfs_all(maze, [pac])
+
+        for g in ghosts:
+            if not g.released:
+                if t >= g.release:
+                    g.released = True
+                else:
+                    continue
+
+            # Target cerdas per hantu
+            if g.name == "blinky":
+                target = pac  # Chaser langsung
+            elif g.name == "pinky":
+                # Ambusher: 3 langkah di depan Pac-Man
+                ahead = (pac[0] + pdir[0] * 3, pac[1] + pdir[1] * 3)
+                target = min(cells, key=lambda c: (c[0]-ahead[0])**2 + (c[1]-ahead[1])**2)
+            elif g.name == "inky":
+                # Flanker: menjaga lorong bawah
+                flank = (pac[0] - pdir[0] * 2, 6 if pac[1] < 4 else 0)
+                target = min(cells, key=lambda c: (c[0]-flank[0])**2 + (c[1]-flank[1])**2)
+            else:
+                # Clyde: Patroli bebas
+                d_clyde = abs(g.cell[0] - pac[0]) + abs(g.cell[1] - pac[1])
+                target = pac if d_clyde > 7 else min(cells, key=lambda c: c[0]**2 + (c[1]-6)**2)
+
+            dist_tg = bfs_all(maze, [target])
+            opts = [n for n in maze.adj[g.cell] if n != g.prev] or maze.adj[g.cell]
+
+            # 18% kebebasan belok agar hantu tidak berkumpul di satu titik
+            if rng.random() < 0.18 and len(opts) > 1:
+                nxt = rng.choice(opts)
+            else:
+                nxt = min(opts, key=lambda n: dist_tg.get(n, 999))
+
+            g.prev = g.cell
+            g.cell = nxt
+
+        # Catat kotak yang dimakan beserta level kontribusinya
         if pac in left:
             left.discard(pac)
-            eaten.append((t, pac))
-            if pac in power:
-                power_timer, chain = FRIGHT_TICKS, 0
-                for g in ghosts:
-                    if g.mode == "n" and g.released: g.mode, g.prev = "f", None
+            eaten.append((t, pac, pellets[pac].level))
 
     pac_pos.append(pac)
     for g in ghosts: g_pos[g.idx].append(g.cell)
-    return dict(pac_pos=pac_pos, pac_dirs=pac_dirs, g_pos=g_pos, g_modes=g_modes, g_dirs=g_dirs,
-                eaten=eaten, popups=popups, n=len(pac_dirs))
+    return dict(pac_pos=pac_pos, g_pos=g_pos, eaten=eaten, n=len(pac_pos) - 1)
 
 def pac_d(r, deg):
     a = math.radians(deg)
@@ -352,17 +358,18 @@ def build_svg(days, user, title):
         if pool: power.add(max(pool)[1])
 
     rng = random.Random(7)
-    maze = Maze(cellset, rng, 0.24)
+    maze = Maze(cellset, rng, 0.22)
     sim = simulate(maze, pellets, power, rng, W)
 
     x0, y0 = 58, 114
     gw, gh = W * P - G, 7 * P - G
-    Wt, Ht = x0 + gw + 36, 388
+    Wt, Ht = x0 + gw + 36, 396
     cxp = lambda c: x0 + c * P + S / 2
     cyp = lambda r: y0 + r * P + S / 2
 
     N = K_READY + sim["n"] + K_END
-    T = N * 0.072
+    # KECEPATAN SMOOTH ARCADE (0.185s per kotak)
+    T = N * 0.185
     tm = lambda k, off=0.0: (K_READY + k + off) / N
     L = PALETTES["purple"]["levels"]
 
@@ -376,8 +383,6 @@ def build_svg(days, user, title):
         '<pattern id="crt" width="100" height="4" patternUnits="userSpaceOnUse"><line x1="0" y1="0" x2="100" y2="0" stroke="#a855f7" stroke-opacity="0.04" stroke-width="1"/></pattern>',
         '<radialGradient id="pacg" cx=".36" cy=".3" r=".85"><stop offset="0" stop-color="#fffbeb"/><stop offset=".45" stop-color="#fbbf24"/><stop offset="1" stop-color="#d97706"/></radialGradient>',
         '<radialGradient id="halo-pac"><stop offset="0" stop-color="#fbbf24" stop-opacity=".5"/><stop offset="1" stop-color="#fbbf24" stop-opacity="0"/></radialGradient>',
-        '<linearGradient id="gfright" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#1e40af"/></linearGradient>',
-        '<clipPath id="odo"><rect x="0" y="-21" width="15" height="27"/></clipPath>'
     ]
     for i, c in enumerate(L, 1):
         defs.append(f'<linearGradient id="cg{i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{mix(c, "#ffffff", .35)}"/><stop offset=".55" stop-color="{c}"/><stop offset="1" stop-color="{mix(c, "#000000", .32)}"/></linearGradient>')
@@ -393,7 +398,7 @@ def build_svg(days, user, title):
         f'.ti{{font-size:21px;font-weight:800;letter-spacing:.04em;fill:url(#ttl)}}.su{{font-size:12px;fill:{PALETTES["purple"]["muted"]}}}'
         f'.mo,.wd{{font-size:10.5px;fill:{PALETTES["purple"]["muted"]}}}.hl{{font-size:11px;font-weight:700;letter-spacing:.08em;fill:{PALETTES["purple"]["accent"]}}}'
         f'.nu{{font-size:24px;font-weight:800;fill:{PALETTES["purple"]["text"]}}}.lg1{{font-size:11.5px;font-weight:700;fill:{PALETTES["purple"]["text"]}}}'
-        f'.lg2{{font-size:10.5px;fill:{PALETTES["purple"]["muted"]}}}.ar{{font-weight:900;letter-spacing:.22em}}'
+        f'.lg2{{font-size:10px;fill:{PALETTES["purple"]["muted"]}}}.ar{{font-weight:900;letter-spacing:.22em}}'
         '@media(max-width:760px){.spr{transform:scale(1.25)}}'
         '@media(max-width:640px){.wd,.lg2{display:none}.ti{font-size:27px}.su{font-size:15px}.hl{font-size:14px}.lg1{font-size:14px}.spr{transform:scale(1.55)}}'
         '@media(max-width:440px){.mo,.su{display:none}.ti{font-size:32px}.spr{transform:scale(1.8)}}'
@@ -418,38 +423,87 @@ def build_svg(days, user, title):
     wp = maze.wall_path(lambda X: x0 + X * P - G / 2, lambda Y: y0 + Y * P - G / 2)
     A.append(f'<g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="{wp}" stroke="{PALETTES["purple"]["glow"]}" stroke-opacity=".65" stroke-width="4.2" filter="url(#glow)"/><path d="{wp}" stroke="{PALETTES["purple"]["wall"]}" stroke-width="1.8"/></g>')
 
-    # Sel Kontribusi
-    eat_time = {cell: tm(k, 0.5) for k, cell in sim["eaten"]}
+    # Sel Kontribusi di atas papan (Selalu muncul di awal, dan hilang saat dimakan)
+    eat_time = {cell: tm(t_eat, 0.5) for t_eat, cell, _ in sim["eaten"]}
     for cell, d in sorted(pellets.items()):
         c, r = cell
-        te = eat_time.get(cell, 1.0)
-        kts = f"0;{kt(te)};{kt(te + 0.9/N)};{kt(te + 2.3/N)};1"
-        ring = f'<rect x="-9" y="-9" width="18" height="18" rx="5.5" fill="none" stroke="{L[3]}" stroke-width="1.8"><animate attributeName="opacity" values=".9;0" dur="1.2s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="scale" values="1;1.95" dur="1.2s" repeatCount="indefinite"/></rect>' if cell in power else ''
-        A.append(f'<g transform="translate({num(cxp(c))} {num(cyp(r))})"><g><animateTransform attributeName="transform" type="scale" dur="{num(T,3)}s" repeatCount="indefinite" keyTimes="{kts}" values="1;1;1.4;0;0"/><animate attributeName="opacity" dur="{num(T,3)}s" repeatCount="indefinite" keyTimes="{kts}" values="1;1;1;0;0"/>{ring}<use href="#cell{d.level}"/></g></g>')
+        te = eat_time.get(cell, None)
+        if te is not None:
+            t0 = max(0.001, min(0.985, te))
+            t1 = min(0.992, t0 + 0.004)
+            t2 = min(0.999, t0 + 0.012)
+            kts = f"0;{kt(t0)};{kt(t1)};{kt(t2)};1"
+            scale_anim = f'<animateTransform attributeName="transform" type="scale" dur="{num(T,3)}s" repeatCount="indefinite" keyTimes="{kts}" values="1;1;1.35;0;0"/>'
+            opacity_anim = f'<animate attributeName="opacity" dur="{num(T,3)}s" repeatCount="indefinite" keyTimes="{kts}" values="1;1;1;0;0"/>'
+        else:
+            scale_anim = ''
+            opacity_anim = ''
 
-    # Mover Actor
+        ring = f'<rect x="-9" y="-9" width="18" height="18" rx="5.5" fill="none" stroke="{L[3]}" stroke-width="1.8"><animate attributeName="opacity" values=".9;0" dur="1.2s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="scale" values="1;1.95" dur="1.2s" repeatCount="indefinite"/></rect>' if cell in power else ''
+        A.append(f'<g transform="translate({num(cxp(c))} {num(cyp(r))})"><g>{scale_anim}{opacity_anim}{ring}<use href="#cell{d.level}"/></g></g>')
+
+    # Pergerakan Pac-Man
     pad_arr = lambda arr: [arr[0]]*K_READY + list(arr) + [arr[-1]]*K_END
     px_pos = pad_arr([(cxp(c), cyp(r)) for c, r in sim["pac_pos"]])
     pos_str = ";".join(f"{num(x,1)} {num(y,1)}" for x, y in px_pos)
 
     p_open, p_shut = pac_d(9.6, 38), pac_d(9.6, 3)
-    pac_art = f'<circle r="19" fill="url(#halo-pac)"/><path fill="url(#pacg)" stroke="#fff3b0" stroke-opacity=".7" stroke-width=".9" d="{p_open}"><animate attributeName="d" dur=".24s" repeatCount="indefinite" values="{p_open};{p_shut};{p_open}"/></path><path d="M-5.4 -5.6A7.6 7.6 0 0 1 -0.8 -8" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.6" stroke-linecap="round"/><circle cx="1.9" cy="-5.1" r="1.6" fill="#2b1a00"/><circle cx="1.4" cy="-5.7" r=".6" fill="#fff"/>'
+    pac_art = f'<circle r="19" fill="url(#halo-pac)"/><path fill="url(#pacg)" stroke="#fff3b0" stroke-opacity=".7" stroke-width=".9" d="{p_open}"><animate attributeName="d" dur=".28s" repeatCount="indefinite" values="{p_open};{p_shut};{p_open}"/></path><path d="M-5.4 -5.6A7.6 7.6 0 0 1 -0.8 -8" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.6" stroke-linecap="round"/><circle cx="1.9" cy="-5.1" r="1.6" fill="#2b1a00"/><circle cx="1.4" cy="-5.7" r=".6" fill="#fff"/>'
     A.append(f'<g transform="translate({num(px_pos[0][0],1)} {num(px_pos[0][1],1)})"><animateTransform attributeName="transform" type="translate" dur="{num(T,3)}s" repeatCount="indefinite" values="{pos_str}"/><g class="spr">{pac_art}</g></g>')
 
-    # Hantu
+    # Pergerakan 4 Hantu (Menjelajah seluruh labirin)
     for g_i, (name, col, lt) in enumerate(GHOSTS):
         gp = pad_arr([(cxp(c), cyp(r)) for c, r in sim["g_pos"][g_i]])
         g_str = ";".join(f"{num(x,1)} {num(y,1)}" for x, y in gp)
-        wave = f'<animate attributeName="d" dur=".52s" repeatCount="indefinite" values="{GHOST_A};{GHOST_B};{GHOST_A}"/>'
+        wave = f'<animate attributeName="d" dur=".42s" repeatCount="indefinite" values="{GHOST_A};{GHOST_B};{GHOST_A}"/>'
         face = '<circle cx="-3.2" cy="-2.4" r="1.8" fill="#fff"/><circle cx="3.2" cy="-2.4" r="1.8" fill="#fff"/><circle cx="-3.4" cy="-2.4" r="1.1" fill="#0f172a"/><circle cx="3.4" cy="-2.4" r="1.1" fill="#0f172a"/>'
         gh_art = f'<circle r="18" fill="url(#halo{g_i})"/><path fill="url(#gg{g_i})" stroke="{lt}" stroke-opacity=".55" stroke-width=".9" d="{GHOST_A}">{wave}</path>{face}'
         A.append(f'<g transform="translate({num(gp[0][0],1)} {num(gp[0][1],1)})"><animateTransform attributeName="transform" type="translate" dur="{num(T,3)}s" repeatCount="indefinite" values="{g_str}"/><g class="spr">{gh_art}</g></g>')
 
-    # Odometer & Meter Bar
+    # Counter Total
     xr = Wt - 28
     A.append(f'<text class="hl" x="{num(xr)}" y="34" text-anchor="end">TOTAL CONTRIBUTIONS</text><text class="nu" x="{num(xr)}" y="68" text-anchor="end">{total}</text>')
-    bx, bw, by_, bh = x0 - 9, gw + 18, 298, 14
-    A.append(f'<text class="hl" x="{bx}" y="{by_ - 10}">CONTRIBUTION ENERGY METER</text><rect x="{bx}" y="{by_}" width="{bw}" height="{bh}" rx="7" fill="{L[2]}" opacity=".25"/><rect x="{bx}" y="{by_}" width="{bw}" height="{bh}" rx="7" fill="url(#cg3)"><animate attributeName="width" dur="{num(T,3)}s" repeatCount="indefinite" values="0;{bw}"/></rect>')
+
+    # PROGRESS BAR MULTI-WARNA REAL-TIME
+    bx, bw, by_, bh = x0 - 9, gw + 18, 304, 15
+    A.append(f'<text class="hl" x="{bx}" y="{by_ - 11}">CONTRIBUTION ENERGY METER (REAL-TIME HARVESTER)</text>')
+
+    # Legend Warna di Kanan
+    A.append(f'<g transform="translate({bx + bw - 190} {by_ - 20})">'
+             f'<rect x="0" y="0" width="9" height="9" rx="2" fill="{L[0]}"/>'
+             f'<rect x="14" y="0" width="9" height="9" rx="2" fill="{L[1]}"/>'
+             f'<rect x="28" y="0" width="9" height="9" rx="2" fill="{L[2]}"/>'
+             f'<rect x="42" y="0" width="9" height="9" rx="2" fill="{L[3]}"/>'
+             f'<text class="lg2" x="58" y="8">XP TIERS</text></g>')
+
+    # Slot Rel Bar
+    A.append(f'<rect x="{bx}" y="{by_}" width="{bw}" height="{bh}" rx="7.5" fill="#0c1017" stroke="#1f283d" stroke-width="1.2"/>')
+
+    total_eaten = len(sim["eaten"])
+    if total_eaten > 0:
+        seg_w = bw / total_eaten
+        for k, (t_eat, cell, lvl) in enumerate(sim["eaten"]):
+            sx = bx + k * seg_w
+            sw = max(1.6, seg_w - (0.5 if seg_w > 4 else 0.1))
+            col = L[min(3, max(0, lvl - 1))]
+
+            te = tm(t_eat, 0.5)
+            t0 = max(0.001, min(0.994, te))
+            t1 = min(0.998, t0 + 0.003)
+
+            anim = f'<animate attributeName="opacity" dur="{num(T,3)}s" repeatCount="indefinite" keyTimes="0;{kt(t0)};{kt(t1)};1" values="0;0;1;1"/>'
+            A.append(f'<rect x="{num(sx,2)}" y="{by_ + 1.5}" width="{num(sw,2)}" height="{bh - 3}" rx="2" fill="{col}" opacity="0">{anim}</rect>')
+
+        # Orb Penunjuk Energi di Ujung Bar
+        head_pos = [bx] * K_READY
+        cur_e = 0
+        for step in range(sim["n"]):
+            while cur_e < total_eaten and sim["eaten"][cur_e][0] <= step:
+                cur_e += 1
+            head_pos.append(bx + (cur_e / total_eaten) * bw)
+        head_pos += [bx + bw] * K_END
+        head_str = ";".join(f"{num(x, 1)} {num(by_ + bh/2, 1)}" for x in head_pos)
+        A.append(f'<g transform="translate({bx} {by_ + bh/2})"><animateTransform attributeName="transform" type="translate" dur="{num(T,3)}s" repeatCount="indefinite" values="{head_str}"/><circle r="6" fill="#fbbf24" filter="url(#glow)"/><circle r="3" fill="#ffffff"/></g>')
 
     A.append("</svg>")
     return "".join(A)
