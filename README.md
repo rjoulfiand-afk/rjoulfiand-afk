@@ -8,13 +8,6 @@
 
 <br>
 
-### 🏆 GITHUB ACHIEVEMENTS & TROPHIES
-<p align="center">
-  <img src="https://github-profile-trophy.vercel.app/?username=rjoulfiand-afk&theme=tokyonight&row=1&column=7&margin-w=10&no-frame=true" alt="GitHub Trophies" />
-</p>
-
-<br>
-
 ### 🛠️ CORE TECH STACK & ARSENAL
 
 #### Languages & Core Technologies
@@ -72,20 +65,20 @@
 
 ### 👾 PAC-MAN & MONSTERS CHOMPING XP
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg" alt="Pac-Man & Monsters eating contribution grid" width="850" />
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg" alt="Pac-Man & Monsters eating contribution grid" width="100%" style="max-width: 850px;" />
 </p>
 
 <br>
 
 ### 📊 DEVELOPER METRICS & ACTIVITY
 <p align="center">
-  <img src="https://github-readme-streak-stats.herokuapp.com/?user=rjoulfiand-afk&hide_border=false&border=A855F7&background=0D1117&ring=A855F7&fire=A855F7&currStreakLabel=E5E7EB&sideLabels=9CA3AF&sideNums=E5E7EB&currStreakNum=A855F7&dates=9CA3AF&stroke=A855F7&border_radius=12" alt="GitHub Streak" width="820" />
+  <img src="https://github-readme-streak-stats.herokuapp.com/?user=rjoulfiand-afk&hide_border=false&border=A855F7&background=0D1117&ring=A855F7&fire=A855F7&currStreakLabel=E5E7EB&sideLabels=9CA3AF&sideNums=E5E7EB&currStreakNum=A855F7&dates=9CA3AF&stroke=A855F7&border_radius=12" alt="GitHub Streak" width="100%" style="max-width: 820px;" />
 </p>
 
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=tokyonight&title_color=A855F7&text_color=E5E7EB&icon_color=C084FC&border_color=A855F7&bg_color=0D1117&hide_border=false&count_private=true&border_radius=12&cache_seconds=1800" alt="GitHub Stats" width="400" />
-  &nbsp;&nbsp;
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=rjoulfiand-afk&layout=compact&theme=tokyonight&title_color=A855F7&text_color=E5E7EB&border_color=A855F7&bg_color=0D1117&hide_border=false&border_radius=12&cache_seconds=1800" alt="Top Languages" width="400" />
+  <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=tokyonight&title_color=A855F7&text_color=E5E7EB&icon_color=C084FC&border_color=A855F7&bg_color=0D1117&hide_border=false&count_private=true&border_radius=12&cache_seconds=1800" alt="GitHub Stats" width="48%" style="max-width: 400px;" />
+  &nbsp;
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=rjoulfiand-afk&layout=compact&theme=tokyonight&title_color=A855F7&text_color=E5E7EB&border_color=A855F7&bg_color=0D1117&hide_border=false&border_radius=12&cache_seconds=1800" alt="Top Languages" width="48%" style="max-width: 400px;" />
 </p>
 
 <br>
