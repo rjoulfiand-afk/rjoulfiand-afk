@@ -8,7 +8,7 @@
 
 <br>
 
-### 🏆 GITHUB HALL OF FAME & ACHIEVEMENTS
+### 🏆 GITHUB ACHIEVEMENTS & TROPHIES
 <p align="center">
   <img src="https://github-profile-trophy.vercel.app/?username=rjoulfiand-afk&theme=onedark&no-frame=true&no-bg=true&margin_w=8&row=1&column=7" alt="GitHub Trophies" />
 </p>
@@ -70,15 +70,27 @@
 
 <br>
 
+### 👾 CONTRIBUTION MATRIX (CHOMPING XP)
+<p align="center">
+  <!-- Animasi Monster Pacman sedang memakan titik-titik kontribusi -->
+  <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="480" alt="Pac-Man Chomping Contribution" />
+</p>
+<p align="center">
+  <!-- Kotak-kotak kontribusi asli akun rjoulfiand-afk dengan warna ungu neon #A855F7 -->
+  <img src="https://ghchart.rshah.org/A855F7/rjoulfiand-afk" alt="Contribution Grid" width="850" />
+</p>
+
+<br>
+
 ### 📊 DEVELOPER METRICS & ACTIVITY
 <p align="center">
-  <img src="https://github-readme-streak-stats.herokuapp.com/?user=rjoulfiand-afk&hide_border=false&border=A855F7&background=0D1117&ring=A855F7&fire=A855F7&currStreakLabel=E5E7EB&sideLabels=9CA3AF&sideNums=E5E7EB&currStreakNum=A855F7&dates=9CA3AF&stroke=A855F7&border_radius=12" alt="GitHub Streak" width="800" />
+  <img src="https://github-readme-streak-stats.herokuapp.com/?user=rjoulfiand-afk&hide_border=false&border=A855F7&background=0D1117&ring=A855F7&fire=A855F7&currStreakLabel=E5E7EB&sideLabels=9CA3AF&sideNums=E5E7EB&currStreakNum=A855F7&dates=9CA3AF&stroke=A855F7&border_radius=12" alt="GitHub Streak" width="820" />
 </p>
 
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=transparent&title_color=A855F7&text_color=9CA3AF&icon_color=C084FC&border_color=A855F7&hide_border=false&count_private=true&border_radius=12" alt="GitHub Stats" height="175" />
+  <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=tokyonight&title_color=A855F7&text_color=9CA3AF&icon_color=C084FC&border_color=A855F7&hide_border=false&count_private=true&border_radius=12" alt="GitHub Stats" width="395" />
   &nbsp;&nbsp;
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=rjoulfiand-afk&layout=compact&theme=transparent&title_color=A855F7&text_color=9CA3AF&border_color=A855F7&hide_border=false&border_radius=12" alt="Top Languages" height="175" />
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=rjoulfiand-afk&layout=compact&theme=tokyonight&title_color=A855F7&text_color=9CA3AF&border_color=A855F7&hide_border=false&border_radius=12" alt="Top Languages" width="395" />
 </p>
 
 <br>
