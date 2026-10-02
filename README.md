@@ -8,6 +8,13 @@
 
 <br>
 
+### 🏆 GITHUB HALL OF FAME & ACHIEVEMENTS
+<p align="center">
+  <img src="https://github-profile-trophy.vercel.app/?username=rjoulfiand-afk&theme=onedark&no-frame=true&no-bg=true&margin_w=8&row=1&column=7" alt="GitHub Trophies" />
+</p>
+
+<br>
+
 ### 🛠️ CORE TECH STACK & ARSENAL
 
 #### Languages & Core Technologies
@@ -63,33 +70,15 @@
 
 <br>
 
-### 📈 CONTRIBUTION ACTIVITY & PULSE
+### 📊 DEVELOPER METRICS & ACTIVITY
 <p align="center">
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=rjoulfiand-afk&bg_color=0D1117&color=A855F7&line=A855F7&point=D8B4FE&area=true&hide_border=false&border_color=A855F7&radius=12" alt="Contribution Graph" width="95%" />
-</p>
-
-<br>
-
-### 🐍 CONTRIBUTION SNAKE
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/github-contribution-grid-snake-dark.svg" />
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/github-contribution-grid-snake.svg" />
-    <img alt="Snake eating my contributions" src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/github-contribution-grid-snake-dark.svg" />
-  </picture>
-</p>
-
-<br>
-
-### 📊 DEVELOPER METRICS & ANALYTICS
-<p align="center">
-  <img src="https://github-readme-streak-stats.herokuapp.com/?user=rjoulfiand-afk&hide_border=false&border=A855F7&background=0D1117&ring=A855F7&fire=A855F7&currStreakLabel=E5E7EB&sideLabels=9CA3AF&sideNums=E5E7EB&currStreakNum=A855F7&dates=9CA3AF&stroke=A855F7&border_radius=12" alt="GitHub Streak" width="95%" />
+  <img src="https://github-readme-streak-stats.herokuapp.com/?user=rjoulfiand-afk&hide_border=false&border=A855F7&background=0D1117&ring=A855F7&fire=A855F7&currStreakLabel=E5E7EB&sideLabels=9CA3AF&sideNums=E5E7EB&currStreakNum=A855F7&dates=9CA3AF&stroke=A855F7&border_radius=12" alt="GitHub Streak" width="800" />
 </p>
 
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=transparent&title_color=A855F7&text_color=9CA3AF&icon_color=C084FC&border_color=A855F7&hide_border=false&count_private=true&border_radius=12" alt="GitHub Stats" width="47%" />
-  &nbsp;
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=rjoulfiand-afk&layout=compact&theme=transparent&title_color=A855F7&text_color=9CA3AF&border_color=A855F7&hide_border=false&border_radius=12" alt="Top Languages" width="47%" />
+  <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=transparent&title_color=A855F7&text_color=9CA3AF&icon_color=C084FC&border_color=A855F7&hide_border=false&count_private=true&border_radius=12" alt="GitHub Stats" height="175" />
+  &nbsp;&nbsp;
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=rjoulfiand-afk&layout=compact&theme=transparent&title_color=A855F7&text_color=9CA3AF&border_color=A855F7&hide_border=false&border_radius=12" alt="Top Languages" height="175" />
 </p>
 
 <br>
