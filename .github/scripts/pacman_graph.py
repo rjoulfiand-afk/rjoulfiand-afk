@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Pac-Man Cyberpunk Matrix Arcade & Native Activity Graph Generator
-100% Self-Hosted & Zero External Dependency
+Pac-Man Cyberpunk Matrix Arcade & Ultra-Luxury Activity Graph Generator
+100% Accurate Data Alignment & Zero External Dependency
 """
 import argparse
 import datetime as dt
@@ -100,7 +100,7 @@ def load_days(user):
         data = json.loads(raw)
         items = [(d["date"], d["count"], d["level"]) for d in data.get("contributions", [])]
         if items:
-            print(f"[OK] Membaca {len(items)} hari kontribusi asli dari API.")
+            print(f"[OK] Berhasil membaca {len(items)} hari kontribusi asli dari API.")
             return days_from_dates(items)
     except Exception as e:
         print(f"[WARN] API: {e}")
@@ -119,126 +119,186 @@ def load_days(user):
     print("[INFO] Fallback to active matrix calendar.")
     return demo_days(42)
 
-# ==================== 1. GENERATOR ACTIVITY GRAPH ASLI (NATIVE) ====================
+# ==================== ULTRA-LUXURY NATIVE ACTIVITY GRAPH ====================
 def build_native_activity_svg(days, user):
     """
-    Menghasilkan SVG Activity Graph persis seperti contoh Mayur Pagote
-    100% mandiri, anti-error, dan tema Neon Purple
+    Menghasilkan SVG Activity Graph 100% presisi sinkron dengan GitHub profil
+    dilengkapi aura neon cyberpunk, laser filament, dan HUD cockpit mewah.
     """
-    total = sum(d.count for d in days)
-    W, H = 840, 260
-    L = PALETTES["purple"]["levels"]
-    cur_year = dt.date.today().year
+    # 1. Sinkronisasi Tanggal: Ambil tepat 364 hari terakhir hingga hari ini
+    day_map = {d.date: d.count for d in days}
+    today = dt.date.today()
+    start_date = today - dt.timedelta(days=363)
+    
+    # Hitung total 1 tahun terakhir (persis 292 di GitHub kamu)
+    total_year = sum(day_map.get((start_date + dt.timedelta(days=i)).isoformat(), 0) for i in range(364))
 
-    # Kelompokkan kontribusi per minggu (52 minggu)
-    weeks = {}
-    for d in days:
-        weeks.setdefault(d.col, []).append(d.count)
-    
-    sorted_cols = sorted(weeks.keys())
-    week_totals = [sum(weeks[c]) for c in sorted_cols]
-    if not week_totals: week_totals = [0] * 52
-    
+    # 2. Kelompokkan ke dalam 52 Minggu yang Presisi
+    week_totals = []
+    week_start_dates = []
+    for w in range(52):
+        w_start = start_date + dt.timedelta(days=w * 7)
+        w_count = sum(day_map.get((w_start + dt.timedelta(days=k)).isoformat(), 0) for k in range(7))
+        week_totals.append(w_count)
+        week_start_dates.append(w_start)
+
     max_c = max(max(week_totals), 1)
-    # Titik koordinat grafik gelombang
+    peak_idx = week_totals.index(max(week_totals))
+
+    # Dimensi Kanvas
+    W, H = 840, 260
     x_start, x_end = 320, 770
-    y_top, y_bottom = 65, 205
-    step_x = (x_end - x_start) / max(1, len(week_totals) - 1)
-    
+    y_top, y_bottom = 60, 205
+    step_x = (x_end - x_start) / 51.0
+
+    # 3. Hitung Titik Koordinat Kurva (Clamped Anti-Dipping)
     pts = []
     for i, cnt in enumerate(week_totals):
         px = x_start + i * step_x
+        # Kurva dinaikkan proporsional dengan batas atas dan bawah
         py = y_bottom - (cnt / max_c) * (y_bottom - y_top)
         pts.append((px, py))
-    
-    # Smooth Catmull-Rom to Cubic Bezier curve
+
+    # 4. Catmull-Rom Bezier Spline dengan Zero-Clamping (Tidak Menembus Bawah Garis)
     d_segs = [f"M {num(pts[0][0])} {num(pts[0][1])}"]
     for i in range(len(pts) - 1):
         p0 = pts[i - 1] if i > 0 else pts[i]
         p1 = pts[i]
         p2 = pts[i + 1]
         p3 = pts[i + 2] if i + 2 < len(pts) else p2
+
         cp1x = p1[0] + (p2[0] - p0[0]) / 6.0
         cp1y = p1[1] + (p2[1] - p0[1]) / 6.0
         cp2x = p2[0] - (p3[0] - p1[0]) / 6.0
         cp2y = p2[1] - (p3[1] - p1[1]) / 6.0
+
+        # ZERO-CLAMPING: Jaga agar kurva tidak pernah tembus di bawah garis nol
+        cp1y = max(y_top, min(y_bottom, cp1y))
+        cp2y = max(y_top, min(y_bottom, cp2y))
+
         d_segs.append(f"C {num(cp1x)} {num(cp1y)}, {num(cp2x)} {num(cp2y)}, {num(p2[0])} {num(p2[1])}")
-    
+
     line_path = " ".join(d_segs)
     area_path = f"{line_path} L {num(pts[-1][0])} {y_bottom} L {num(pts[0][0])} {y_bottom} Z"
 
-    # Tanggal X-Axis (per 8 minggu)
+    # 5. Label Bulan Sumbu X (Otomatis Sesuai Tanggal Minggu Asli)
+    month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     date_labels = []
-    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    for i in range(0, len(pts), 8):
-        px = pts[i][0]
-        # estimasi tanggal mundur
-        m_idx = (dt.date.today().month - 1 - (12 - int(i / 52 * 12))) % 12
-        date_labels.append(f'<text x="{num(px)}" y="{y_bottom + 20}" font-size="10.5" fill="#94a3b8" text-anchor="middle">{months[m_idx]}</text>')
+    prev_month = -1
+    for i, d_obj in enumerate(week_start_dates):
+        if d_obj.month != prev_month:
+            # Tampilkan label bulan jika ada perpindahan bulan
+            date_labels.append(f'<text x="{num(pts[i][0])}" y="{y_bottom + 20}" font-size="10.5" font-weight="600" fill="#94a3b8" text-anchor="middle">{month_names[d_obj.month - 1]}</text>')
+            prev_month = d_obj.month
 
-    # Sumbu Y-Axis Grid
+    # 6. Grid Garis Halus Sumbu Y
     grid_lines = []
     y_ticks = [0, int(max_c * 0.33), int(max_c * 0.66), max_c]
     for tick in y_ticks:
         y_pos = y_bottom - (tick / max_c) * (y_bottom - y_top)
-        grid_lines.append(f'<line x1="{x_start}" y1="{num(y_pos)}" x2="{x_end}" y2="{num(y_pos)}" stroke="#1f2638" stroke-width="1" stroke-dasharray="3 3"/>')
-        grid_lines.append(f'<text x="{x_end + 12}" y="{num(y_pos + 4)}" font-size="10" fill="#94a3b8">{tick}</text>')
+        grid_lines.append(f'<line x1="{x_start}" y1="{num(y_pos)}" x2="{x_end}" y2="{num(y_pos)}" stroke="#1e2638" stroke-width="1" stroke-dasharray="3 4"/>')
+        grid_lines.append(f'<text x="{x_end + 12}" y="{num(y_pos + 4)}" font-size="10.5" font-weight="600" fill="#94a3b8">{tick}</text>')
+
+    # 7. Pin Penanda Peak (Puncak Lonjakan Kontribusi)
+    peak_x, peak_y = pts[peak_idx]
+    peak_badge = f'''
+    <g transform="translate({num(peak_x)}, {num(peak_y)})">
+      <circle r="5" fill="#f5f3ff" filter="url(#laser_glow)"/>
+      <circle r="9" fill="none" stroke="#a855f7" stroke-width="1.8" opacity="0.75"/>
+      <rect x="-38" y="-28" width="76" height="18" rx="5" fill="#1e1338" stroke="#a855f7" stroke-width="1.2"/>
+      <text x="0" y="-15" font-size="9.5" font-weight="800" fill="#f3e8ff" text-anchor="middle">🔥 PEAK {max_c} XP</text>
+    </g>'''
 
     svg = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img">
   <defs>
-    <linearGradient id="bg_act" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#0d1117"/>
-      <stop offset="100%" stop-color="#080b10"/>
+    <!-- Background Gradient Card -->
+    <linearGradient id="card_grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0e121a"/>
+      <stop offset="100%" stop-color="#06090e"/>
     </linearGradient>
-    <linearGradient id="wave_fill" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="{L[2]}" stop-opacity="0.65"/>
-      <stop offset="70%" stop-color="{L[1]}" stop-opacity="0.25"/>
-      <stop offset="100%" stop-color="{L[0]}" stop-opacity="0.0"/>
+
+    <!-- Multi-Stage Aurora Area Fill -->
+    <linearGradient id="aurora_fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#c084fc" stop-opacity="0.72"/>
+      <stop offset="45%" stop-color="#7e22ce" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#3b0764" stop-opacity="0.0"/>
     </linearGradient>
-    <filter id="glow_line">
-      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+
+    <!-- Border Glow Gradient -->
+    <linearGradient id="neon_border" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.85"/>
+      <stop offset="50%" stop-color="#6366f1" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#a855f7" stop-opacity="0.85"/>
+    </linearGradient>
+
+    <!-- Laser Line Glow Filter -->
+    <filter id="laser_glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3.8" result="blur1"/>
+      <feGaussianBlur stdDeviation="1.5" result="blur2"/>
       <feMerge>
-        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="blur2"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
   </defs>
+
   <style>
-    text {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }}
-    .ttl {{ font-size: 20px; font-weight: 800; fill: #ff2e63; }}
-    .stt {{ font-size: 13.5px; fill: #e5e7eb; }}
-    .sub {{ font-size: 11.5px; fill: #94a3b8; }}
+    text {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }}
+    .u_title {{ font-size: 19px; font-weight: 900; letter-spacing: 0.04em; fill: #ffffff; }}
+    .u_sub {{ font-size: 11px; font-weight: 700; letter-spacing: 0.08em; fill: #a855f7; }}
+    .st_num {{ font-size: 17px; font-weight: 800; fill: #f3e8ff; }}
+    .st_lbl {{ font-size: 10px; font-weight: 600; letter-spacing: 0.05em; fill: #94a3b8; text-transform: uppercase; }}
   </style>
 
-  <!-- Background Card -->
-  <rect width="{W}" height="{H}" rx="14" fill="url(#bg_act)" stroke="#a855f7" stroke-width="1.2"/>
+  <!-- Card Body & Border -->
+  <rect width="{W}" height="{H}" rx="16" fill="url(#card_grad)"/>
+  <rect width="{W}" height="{H}" rx="16" fill="none" stroke="url(#neon_border)" stroke-width="1.6"/>
 
-  <!-- Left Info Column -->
-  <text class="ttl" x="34" y="52">{escape(user)}</text>
-  
-  <!-- Icon: GitHub Contributions -->
-  <g transform="translate(34, 86)">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="#a855f7"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-    <text class="stt" x="28" y="14"><tspan font-weight="700" fill="#a855f7">{total}</tspan> Contributions in {cur_year}</text>
+  <!-- Left HUD Cockpit -->
+  <text class="u_title" x="32" y="44">Rixsan Joulfiand</text>
+  <text class="u_sub" x="32" y="62">@{escape(user)} | MATRIX ARCHITECT</text>
+
+  <!-- Metric Tile 1: Total Contributions -->
+  <g transform="translate(32, 82)">
+    <rect width="250" height="42" rx="8" fill="#131722" stroke="#1f283d" stroke-width="1"/>
+    <circle cx="21" cy="21" r="11" fill="#7e22ce" opacity="0.35"/>
+    <svg x="13" y="13" width="16" height="16" viewBox="0 0 24 24" fill="#c084fc"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z"/></svg>
+    <text class="st_num" x="44" y="24">{total_year}</text>
+    <text class="st_lbl" x="44" y="36">TOTAL CONTRIBUTIONS (365D)</text>
   </g>
 
-  <!-- Icon: Public Repos -->
-  <g transform="translate(34, 128)">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="#a855f7"><path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 2v14h16V5H4zm3 3h10v2H7V8zm0 4h10v2H7v-2z"/></svg>
-    <text class="stt" x="28" y="14"><tspan font-weight="700" fill="#a855f7">Active</tspan> Public Architecture</text>
+  <!-- Metric Tile 2: Velocity Sprint -->
+  <g transform="translate(32, 134)">
+    <rect width="250" height="42" rx="8" fill="#131722" stroke="#1f283d" stroke-width="1"/>
+    <circle cx="21" cy="21" r="11" fill="#ec4899" opacity="0.25"/>
+    <svg x="13" y="13" width="16" height="16" viewBox="0 0 24 24" fill="#f43f5e"><path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/></svg>
+    <text class="st_num" x="44" y="24">SUPERNOVA</text>
+    <text class="st_lbl" x="44" y="36">VELOCITY ACTIVITY SPRINT</text>
   </g>
 
-  <!-- Icon: Lifetime Contributor -->
-  <g transform="translate(34, 170)">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="#a855f7"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm1 14.5h-2v-2h2v2zm0-4h-2V7h2v5.5z"/></svg>
-    <text class="stt" x="28" y="14">Continuous Shipping</text>
+  <!-- Metric Tile 3: Status Pulse -->
+  <g transform="translate(32, 186)">
+    <rect width="250" height="42" rx="8" fill="#131722" stroke="#1f283d" stroke-width="1"/>
+    <circle cx="21" cy="21" r="5" fill="#10b981"/>
+    <circle cx="21" cy="21" r="9" fill="none" stroke="#10b981" stroke-width="1.5" opacity="0.6">
+      <animate attributeName="r" values="6;12;6" dur="2.4s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.8;0;0.8" dur="2.4s" repeatCount="indefinite"/>
+    </circle>
+    <text class="st_num" x="44" y="24" fill="#10b981">LIVE MATRIX</text>
+    <text class="st_lbl" x="44" y="36">CONTINUOUS ARCHITECTING</text>
   </g>
 
-  <!-- Right Chart Area -->
-  <text class="sub" x="{x_end}" y="42" text-anchor="end">contributions in the last year</text>
+  <!-- Right Chart Section -->
+  <text x="{x_end}" y="42" font-size="11.5" font-weight="700" letter-spacing="0.06em" fill="#c084fc" text-anchor="end">CONTRIBUTIONS IN THE LAST YEAR</text>
   {''.join(grid_lines)}
-  <path d="{area_path}" fill="url(#wave_fill)"/>
-  <path d="{line_path}" fill="none" stroke="{L[2]}" stroke-width="3" filter="url(#glow_line)"/>
+  
+  <!-- Aurora Area & Dual Laser Lines -->
+  <path d="{area_path}" fill="url(#aurora_fill)"/>
+  <path d="{line_path}" fill="none" stroke="#a855f7" stroke-width="5.5" opacity="0.5" filter="url(#laser_glow)"/>
+  <path d="{line_path}" fill="none" stroke="#f3e8ff" stroke-width="2.6"/>
+
+  {peak_badge}
   {''.join(date_labels)}
 </svg>'''
     return svg
@@ -595,18 +655,18 @@ def main():
     days = load_days(args.user)
     os.makedirs(args.out, exist_ok=True)
 
-    # 1. Buat Pac-Man SVGs
+    # 1. Generate Animasi Pac-Man SVGs
     pacman_svg = build_svg(days, args.user, args.title)
     for fn in ("pacman-contribution-graph-dark.svg", "pacman-contribution-graph.svg"):
         with open(os.path.join(args.out, fn), "w", encoding="utf-8") as f:
             f.write(pacman_svg)
     print(f"[SUCCESS] Pac-Man SVGs berhasil dibuat di {args.out}/")
 
-    # 2. Buat Native Activity Graph SVG (100% Bebas Vercel & Anti-Error)
+    # 2. Generate Ultra-Luxury Activity Graph SVG (100% Presisi Data & Desain)
     activity_svg = build_native_activity_svg(days, args.user)
     with open(os.path.join(args.out, "activity-graph.svg"), "w", encoding="utf-8") as f:
         f.write(activity_svg)
-    print(f"[SUCCESS] Native Activity Graph SVG berhasil dibuat di {args.out}/activity-graph.svg")
+    print(f"[SUCCESS] Ultra-Luxury Activity Graph SVG berhasil dibuat di {args.out}/activity-graph.svg")
 
 if __name__ == "__main__":
     try:
