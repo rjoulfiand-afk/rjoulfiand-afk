@@ -63,12 +63,12 @@
 
 <br>
 
-<!-- 👾 HIGH-VELOCITY PAC-MAN & MONSTERS CHOMPING XP -->
+<!-- 👾 PAC-MAN & MONSTERS CHOMPING XP -->
 ### 👾 PAC-MAN & MONSTERS CHOMPING XP
 *Real-time Cyberpunk Matrix Contribution Runner*
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg?v=3" alt="Pac-Man & Monsters eating contribution grid" width="100%" style="max-width: 860px;" />
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg?v=4" alt="Pac-Man & Monsters eating contribution grid" width="100%" style="max-width: 860px;" />
 </p>
 
 <br>
