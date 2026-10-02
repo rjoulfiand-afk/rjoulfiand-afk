@@ -81,9 +81,9 @@
   <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/streak-stats.svg" alt="GitHub Streak" width="94%" style="max-width: 740px;" />
 </p>
 
-<!-- BARIS 2: ACTIVITY GRAPH (LANGSUNG TEMBUS KE VERCEL RESMI DENGAN THEME PURPLE NEON) -->
+<!-- BARIS 2: ACTIVITY GRAPH (100% PERMANEN DARI REPO SENDIRI) -->
 <p align="center">
-  <img src="https://github-readme-activity-graph.vercel.app/graph?username=rjoulfiand-afk&bg_color=0D1117&color=A855F7&line=C084FC&point=F5F3FF&area=true&title_color=A855F7&text_color=9CA3AF&border_color=A855F7&radius=12&hide_border=false" alt="Activity Graph" width="94%" style="max-width: 740px;" />
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/activity-graph.svg" alt="Activity Graph" width="94%" style="max-width: 740px;" />
 </p>
 
 <!-- BARIS 3: STATS DENGAN LOGO GITHUB UNGU + TOP LANGUAGES (KEMBAR SIMETRIS SEJAJAR) -->
