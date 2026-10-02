@@ -3,21 +3,33 @@
 # ⚡ Rixsan Joulfiand
 
 <p align="center">
-  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=24&duration=2500&pause=1000&color=A855F7&center=true&vCenter=true&width=650&height=50&lines=Software+Engineer;Full-Stack+Developer;Architecting+Scalable+Solutions;Currently+Shipping+Prime+Notes" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=24&duration=2500&pause=1000&color=A855F7&center=true&vCenter=true&width=650&height=50&lines=Software+Engineer;Full-Stack+Architect;Intelligent+Systems+Builder;Shipping+Scalable+Solutions" alt="Typing SVG" />
 </p>
 
-<br>
-
-### 🏆 GITHUB ACHIEVEMENTS & TROPHIES
+<!-- 🏆 BULLETPROOF HALL OF FAME & ACHIEVEMENTS (100% RELIABLE) -->
 <p align="center">
-  <img src="https://github-profile-trophy.vercel.app/?username=rjoulfiand-afk&theme=tokyonight&row=1&column=7&margin-w=10&no-frame=true" alt="GitHub Trophies" />
+  <img src="https://img.shields.io/badge/TIER-S--RANK%20ENGINEER-A855F7?style=for-the-badge&logo=codewars&logoColor=white&labelColor=0D1117" alt="Rank S Tier" />&nbsp;
+  <img src="https://img.shields.io/badge/HALL%20OF%20FAME-FULL--STACK%20ARCHITECT-9333EA?style=for-the-badge&logo=githubactions&logoColor=white&labelColor=0D1117" alt="Full Stack Architect" />&nbsp;
+  <img src="https://img.shields.io/badge/SPECIALTY-AI%20%26%20SYSTEMS-7E22CE?style=for-the-badge&logo=openai&logoColor=white&labelColor=0D1117" alt="AI & Systems" />&nbsp;
+  <img src="https://img.shields.io/badge/COMMITS-HIGH%20VELOCITY-C084FC?style=for-the-badge&logo=git&logoColor=white&labelColor=0D1117" alt="High Velocity" />
 </p>
 
 <br>
 
+<!-- 🕹️ RETRO PAC-MAN & MONSTERS CONTRIBUTION ARENA -->
+### 🕹️ RETRO ARCADE: CONTRIBUTION RUNNER
+*Pac-Man & Ghost Monsters navigating real-time contribution matrix*
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/dist/pacman-contribution-graph.svg" alt="Pac-Man Contribution Arcade Arena" width="100%" />
+</p>
+
+<br>
+
+<!-- 🛠️ CORE TECH STACK & ARSENAL -->
 ### 🛠️ CORE TECH STACK & ARSENAL
 
-#### Languages & Core Technologies
+#### Languages, Frameworks & Databases
 <p align="center">
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg" width="48" height="48" alt="PHP" title="PHP" />&nbsp;&nbsp;&nbsp;&nbsp;
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/laravel/laravel-original.svg" width="48" height="48" alt="Laravel" title="Laravel" />&nbsp;&nbsp;&nbsp;&nbsp;
@@ -27,72 +39,57 @@
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg" width="48" height="48" alt="TypeScript" title="TypeScript" />&nbsp;&nbsp;&nbsp;&nbsp;
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg" width="48" height="48" alt="React Native" title="React Native" />&nbsp;&nbsp;&nbsp;&nbsp;
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg" width="48" height="48" alt="Python" title="Python" />&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jupyter/jupyter-original-wordmark.svg" width="48" height="48" alt="Jupyter Notebook" title="Jupyter (ipynb)" />
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jupyter/jupyter-original.svg" width="48" height="48" alt="Jupyter Notebook" title="Jupyter Notebook" />&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original.svg" width="48" height="48" alt="MySQL" title="MySQL" />&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg" width="48" height="48" alt="PostgreSQL" title="PostgreSQL" />
 </p>
 
-<br>
-
-#### Database & Development Environment
+#### Tools & Environment
 <p align="center">
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original-wordmark.svg" width="48" height="48" alt="SQL / MySQL" title="MySQL" />&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg" width="48" height="48" alt="PostgreSQL" title="PostgreSQL" />&nbsp;&nbsp;&nbsp;&nbsp;
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg" width="48" height="48" alt="Git" title="Git" />&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://cdn.simpleicons.org/github/white" width="48" height="48" alt="GitHub" title="GitHub" />&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/github/ffffff" width="48" height="48" alt="GitHub" title="GitHub" />&nbsp;&nbsp;&nbsp;&nbsp;
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg" width="48" height="48" alt="VS Code" title="VS Code" />&nbsp;&nbsp;&nbsp;&nbsp;
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg" width="48" height="48" alt="Figma" title="Figma" />
 </p>
 
-<br>
-
-#### AI Coding Assistants & Agents
+#### Artificial Intelligence Arsenal
 <p align="center">
-  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@latest/dark/openai.png" width="48" height="48" alt="ChatGPT" title="ChatGPT" />&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/gemini-color.svg" width="48" height="48" alt="Gemini" title="Google Gemini" />&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/claude-color.svg" width="48" height="48" alt="Claude" title="Claude AI" />&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/antigravity-color.svg" width="48" height="48" alt="Antigravity" title="Google Antigravity" />&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@latest/dark/githubcopilot.png" width="48" height="48" alt="GitHub Copilot" title="GitHub Copilot" />&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@latest/dark/cursor.png" width="48" height="48" alt="Cursor" title="Cursor" />&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/perplexity-color.svg" width="48" height="48" alt="Perplexity" title="Perplexity" />
+  <img src="https://cdn.simpleicons.org/openai/74AA9C" width="48" height="48" alt="ChatGPT" title="ChatGPT" />&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/googlegemini/8E75C2" width="48" height="48" alt="Gemini" title="Gemini" />&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/anthropic/D97757" width="48" height="48" alt="Claude" title="Claude" />&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/google/4285F4" width="48" height="48" alt="Antigravity" title="Antigravity" />&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/githubcopilot/ffffff" width="48" height="48" alt="GitHub Copilot" title="GitHub Copilot" />&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/cursor/ffffff" width="48" height="48" alt="Cursor" title="Cursor" />&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/perplexity/20B2AA" width="48" height="48" alt="Perplexity" title="Perplexity" />&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/ollama/ffffff" width="48" height="48" alt="Ollama" title="Ollama" />&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/huggingface/FFD21E" width="48" height="48" alt="Hugging Face" title="Hugging Face" />&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/deepseek/0066FF" width="48" height="48" alt="DeepSeek" title="DeepSeek" />&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/mistral/FA5209" width="48" height="48" alt="Mistral AI" title="Mistral AI" />&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/alibabacloud/FF6A00" width="48" height="48" alt="Qwen" title="Qwen" />&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/x/ffffff" width="48" height="48" alt="Grok" title="Grok" />&nbsp;&nbsp;&nbsp;&nbsp;
+  <img src="https://cdn.simpleicons.org/meta/0468FF" width="48" height="48" alt="Meta Llama" title="Meta Llama" />
 </p>
 
 <br>
 
-#### LLM Platforms & Open Models
-<p align="center">
-  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@latest/dark/ollama.png" width="48" height="48" alt="Ollama" title="Ollama" />&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/huggingface-color.svg" width="48" height="48" alt="Hugging Face" title="Hugging Face" />&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/deepseek-color.svg" width="48" height="48" alt="DeepSeek" title="DeepSeek" />&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/mistral-color.svg" width="48" height="48" alt="Mistral AI" title="Mistral AI" />&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/qwen-color.svg" width="48" height="48" alt="Qwen" title="Qwen" />&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@latest/dark/grok.png" width="48" height="48" alt="Grok" title="xAI Grok" />&nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/meta-color.svg" width="48" height="48" alt="Meta Llama" title="Meta Llama" />
-</p>
-
-<br>
-
-### 👾 PAC-MAN & MONSTERS CHOMPING XP
-<p align="center">
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg" alt="Pac-Man & Monsters eating contribution grid" width="850" />
-</p>
-
-<br>
-
-### 📊 DEVELOPER METRICS & ACTIVITY
-<p align="center">
-  <img src="https://github-readme-streak-stats.herokuapp.com/?user=rjoulfiand-afk&hide_border=false&border=A855F7&background=0D1117&ring=A855F7&fire=A855F7&currStreakLabel=E5E7EB&sideLabels=9CA3AF&sideNums=E5E7EB&currStreakNum=A855F7&dates=9CA3AF&stroke=A855F7&border_radius=12" alt="GitHub Streak" width="820" />
-</p>
+<!-- 📊 DEVELOPER HUD & METRICS -->
+### 📊 REAL-TIME DEVELOPER TELEMETRY
 
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=tokyonight&title_color=A855F7&text_color=E5E7EB&icon_color=C084FC&border_color=A855F7&bg_color=0D1117&hide_border=false&count_private=true&border_radius=12&cache_seconds=1800" alt="GitHub Stats" width="400" />
+  <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=radical&title_color=A855F7&text_color=94A3B8&icon_color=A855F7&bg_color=0D1117&border_color=3B0764&hide_border=false" alt="GitHub Stats" />
   &nbsp;&nbsp;
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=rjoulfiand-afk&layout=compact&theme=tokyonight&title_color=A855F7&text_color=E5E7EB&border_color=A855F7&bg_color=0D1117&hide_border=false&border_radius=12&cache_seconds=1800" alt="Top Languages" width="400" />
+  <img src="https://github-readme-streak-stats.herokuapp.com/?user=rjoulfiand-afk&theme=radical&background=0D1117&border=3B0764&stroke=A855F7&ring=A855F7&fire=A855F7&currStreakLabel=A855F7" alt="GitHub Streak Stats" />
 </p>
 
 <br>
 
-### 🚀 CURRENT DIRECTIVE
-- 🔭 **Architecting Prime Notes** — a high-performance productivity ecosystem (Laravel/Livewire & React Native/Expo).
-- 🌱 Continuously expanding my stack in system architecture, Python pipelines, and UI/UX Engineering.
-- 💬 Open to discussions about Laravel, Livewire, or open-source collaboration.
+<!-- 🌐 CONNECT & SOCIALS -->
+### 🌐 RADAR & COMMUNICATIONS
+
+<p align="center">
+  <a href="https://github.com/rjoulfiand-afk">
+    <img src="https://img.shields.io/badge/GitHub-rjoulfiand--afk-A855F7?style=for-the-badge&logo=github&logoColor=white&labelColor=0D1117" alt="GitHub" />
+  </a>
+</p>
 
 </div>
