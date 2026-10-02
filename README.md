@@ -63,9 +63,8 @@
 
 <br>
 
-<!-- 👾 PAC-MAN & MONSTERS CHOMPING XP -->
 ### 👾 PAC-MAN & MONSTERS CHOMPING XP
-*Real-time Cyberpunk Matrix Contribution Runner*
+*Cyberpunk Matrix Contribution Runner*
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg" alt="Pac-Man & Monsters eating contribution grid" width="94%" style="max-width: 740px;" />
@@ -73,20 +72,16 @@
 
 <br>
 
-<!-- 📊 DEVELOPER METRICS & ACTIVITY -->
 ### 📊 DEVELOPER METRICS & ACTIVITY
 
-<!-- TINGKAT 1: STREAK STATS (HERO NUMBERS) -->
 <p align="center">
   <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/streak-stats.svg" alt="GitHub Streak" width="94%" style="max-width: 740px;" />
 </p>
 
-<!-- TINGKAT 2: NATIVE ELEGANT ACTIVITY GRAPH (BERSIH DARI AI SLOP) -->
 <p align="center">
   <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/activity-graph.svg" alt="Activity Graph" width="94%" style="max-width: 740px;" />
 </p>
 
-<!-- TINGKAT 3: GITHUB STATS & MOST USED LANGUAGES (KEMBAR SEJAJAR) -->
 <p align="center">
   <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/github-stats.svg" alt="GitHub Stats" width="46%" style="max-width: 362px; vertical-align: top;" />
   &nbsp;&nbsp;
