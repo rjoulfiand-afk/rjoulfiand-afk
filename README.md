@@ -68,20 +68,29 @@
 *Real-time Cyberpunk Matrix Contribution Runner*
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg?v=4" alt="Pac-Man & Monsters eating contribution grid" width="100%" style="max-width: 860px;" />
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg" alt="Pac-Man & Monsters eating contribution grid" width="94%" style="max-width: 740px;" />
 </p>
 
 <br>
 
+<!-- 📊 DEVELOPER METRICS & ACTIVITY -->
 ### 📊 DEVELOPER METRICS & ACTIVITY
+
+<!-- BARIS 1: STREAK STATS (COMPACT HERO) -->
 <p align="center">
-  <img src="https://github-readme-streak-stats.herokuapp.com/?user=rjoulfiand-afk&hide_border=false&border=A855F7&background=0D1117&ring=A855F7&fire=A855F7&currStreakLabel=E5E7EB&sideLabels=9CA3AF&sideNums=E5E7EB&currStreakNum=A855F7&dates=9CA3AF&stroke=A855F7&border_radius=12" alt="GitHub Streak" width="100%" style="max-width: 820px;" />
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/streak-stats.svg" alt="GitHub Streak" width="94%" style="max-width: 740px;" />
 </p>
 
+<!-- BARIS 2: ACTIVITY GRAPH (GRAFIK GELOMBANG UNGU NEON) -->
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=tokyonight&title_color=A855F7&text_color=E5E7EB&icon_color=C084FC&border_color=A855F7&bg_color=0D1117&hide_border=false&count_private=true&border_radius=12&cache_seconds=1800" alt="GitHub Stats" width="48%" style="max-width: 400px;" />
-  &nbsp;
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=rjoulfiand-afk&layout=compact&theme=tokyonight&title_color=A855F7&text_color=E5E7EB&border_color=A855F7&bg_color=0D1117&hide_border=false&border_radius=12&cache_seconds=1800" alt="Top Languages" width="48%" style="max-width: 400px;" />
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/activity-graph.svg" alt="Activity Graph" width="94%" style="max-width: 740px;" />
+</p>
+
+<!-- BARIS 3: STATS DENGAN LOGO GITHUB UNGU + TOP LANGUAGES (KEMBAR SIMETRIS SEJAJAR) -->
+<p align="center">
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/github-stats.svg" alt="GitHub Stats" width="46%" style="max-width: 362px; vertical-align: top;" />
+  &nbsp;&nbsp;
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/top-langs.svg" alt="Top Languages" width="46%" style="max-width: 362px; vertical-align: top;" />
 </p>
 
 <br>
