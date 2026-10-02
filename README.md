@@ -10,7 +10,7 @@
 
 ### 🏆 GITHUB ACHIEVEMENTS & TROPHIES
 <p align="center">
-  <img src="https://github-profile-trophy.vercel.app/?username=rjoulfiand-afk&theme=onedark&no-frame=true&no-bg=true&margin_w=8&row=1&column=7" alt="GitHub Trophies" />
+  <img src="https://github-profile-trophy.vercel.app/?username=rjoulfiand-afk&theme=tokyonight&row=1&column=7&margin-w=10&no-frame=true" alt="GitHub Trophies" />
 </p>
 
 <br>
@@ -70,14 +70,9 @@
 
 <br>
 
-### 👾 CONTRIBUTION MATRIX (CHOMPING XP)
+### 👾 PAC-MAN & MONSTERS CHOMPING XP
 <p align="center">
-  <!-- Pac-Man + ghost asli yang bergerak, digambar dari kotak kontribusi akun rjoulfiand-afk (di-generate workflow pacman.yml) -->
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph.svg">
-    <img alt="Pac-Man eating my contribution grid" src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg" width="850">
-  </picture>
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg" alt="Pac-Man & Monsters eating contribution grid" width="850" />
 </p>
 
 <br>
@@ -88,9 +83,9 @@
 </p>
 
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=tokyonight&title_color=A855F7&text_color=9CA3AF&icon_color=C084FC&border_color=A855F7&hide_border=false&count_private=true&border_radius=12" alt="GitHub Stats" width="395" />
+  <img src="https://github-readme-stats.vercel.app/api?username=rjoulfiand-afk&show_icons=true&theme=tokyonight&title_color=A855F7&text_color=E5E7EB&icon_color=C084FC&border_color=A855F7&bg_color=0D1117&hide_border=false&count_private=true&border_radius=12&cache_seconds=1800" alt="GitHub Stats" width="400" />
   &nbsp;&nbsp;
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=rjoulfiand-afk&layout=compact&theme=tokyonight&title_color=A855F7&text_color=9CA3AF&border_color=A855F7&hide_border=false&border_radius=12" alt="Top Languages" width="395" />
+  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=rjoulfiand-afk&layout=compact&theme=tokyonight&title_color=A855F7&text_color=E5E7EB&border_color=A855F7&bg_color=0D1117&hide_border=false&border_radius=12&cache_seconds=1800" alt="Top Languages" width="400" />
 </p>
 
 <br>
