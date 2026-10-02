@@ -1,12 +1,9 @@
 name: Generate Pac-Man Contribution Graph
 
 on:
-  # jalan otomatis tiap 12 jam
   schedule:
     - cron: "0 */12 * * *"
-  # tombol "Run workflow" manual di tab Actions
   workflow_dispatch:
-  # jalan tiap ada push ke branch main
   push:
     branches:
       - main
@@ -18,15 +15,32 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      # bikin SVG animasi Pac-Man dari kotak kontribusi GitHub kamu
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 1. Bikin animasi Pac-Man & Monster dari kontribusi asli kamu
       - name: Generate Pac-Man SVGs
         uses: abozanona/pacman-contribution-graph@main
         with:
           github_user_name: ${{ github.repository_owner }}
           games: 'pacman'
 
-      # push hasilnya ke branch "output"
-      - name: Push SVGs to the output branch
+      # 2. Magic Styling: Mengubah background putih silau jadi Dark Neon Purple!
+      - name: Transform to Dark Neon Aesthetic
+        run: |
+          sed -i 's/#ffffff/#0d1117/g' dist/pacman-contribution-graph.svg
+          sed -i 's/#fff/#0d1117/g' dist/pacman-contribution-graph.svg
+          sed -i 's/#ebedf0/#161b22/g' dist/pacman-contribution-graph.svg
+          sed -i 's/#9be9a8/#3b0764/g' dist/pacman-contribution-graph.svg
+          sed -i 's/#40c463/#7e22ce/g' dist/pacman-contribution-graph.svg
+          sed -i 's/#30a14e/#a855f7/g' dist/pacman-contribution-graph.svg
+          sed -i 's/#216e39/#d8b4fe/g' dist/pacman-contribution-graph.svg
+          sed -i 's/#000000/#a855f7/g' dist/pacman-contribution-graph.svg
+          sed -i 's/black/#a855f7/g' dist/pacman-contribution-graph.svg
+          cp dist/pacman-contribution-graph.svg dist/pacman-contribution-graph-dark.svg
+
+      # 3. Push hasil gambar yang sudah estetik ke branch output
+      - name: Push SVGs to output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
           target_branch: output
