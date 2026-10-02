@@ -72,12 +72,12 @@
 
 ### 👾 CONTRIBUTION MATRIX (CHOMPING XP)
 <p align="center">
-  <!-- Animasi Monster Pacman sedang memakan titik-titik kontribusi -->
-  <img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="480" alt="Pac-Man Chomping Contribution" />
-</p>
-<p align="center">
-  <!-- Kotak-kotak kontribusi asli akun rjoulfiand-afk dengan warna ungu neon #A855F7 -->
-  <img src="https://ghchart.rshah.org/A855F7/rjoulfiand-afk" alt="Contribution Grid" width="850" />
+  <!-- Pac-Man + ghost asli yang bergerak, digambar dari kotak kontribusi akun rjoulfiand-afk (di-generate workflow pacman.yml) -->
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph.svg">
+    <img alt="Pac-Man eating my contribution grid" src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg" width="850">
+  </picture>
 </p>
 
 <br>
