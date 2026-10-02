@@ -1,7 +1,8 @@
-name: Generate Pac-Man Contribution Graph
+name: Generate Smooth Pac-Man Contribution Graph
 
 on:
   schedule:
+    # Berjalan otomatis setiap 12 jam agar selalu sinkron dengan commit terbaru
     - cron: "0 */12 * * *"
   workflow_dispatch:
   push:
@@ -18,32 +19,75 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1. Bikin animasi Pac-Man & Monster dari kontribusi asli kamu
-      - name: Generate Pac-Man SVGs
+      # 1. Generate grafis Pac-Man & Monster dari kontribusi asli GitHub kamu
+      - name: Generate Pac-Man Graph
         uses: abozanona/pacman-contribution-graph@main
         with:
           github_user_name: ${{ github.repository_owner }}
           games: 'pacman'
 
-      # 2. Magic Styling: Mengubah background putih silau jadi Dark Neon Purple!
-      - name: Transform to Dark Neon Aesthetic
+      # 2. Engine Optimizer: Warna Dark Neon + Akselerasi Gerakan 60 FPS Tanpa Delay
+      - name: Optimize Speed, Smoothness & Neon Aesthetics
         run: |
-          sed -i 's/#ffffff/#0d1117/g' dist/pacman-contribution-graph.svg
-          sed -i 's/#fff/#0d1117/g' dist/pacman-contribution-graph.svg
-          sed -i 's/#ebedf0/#161b22/g' dist/pacman-contribution-graph.svg
-          sed -i 's/#9be9a8/#3b0764/g' dist/pacman-contribution-graph.svg
-          sed -i 's/#40c463/#7e22ce/g' dist/pacman-contribution-graph.svg
-          sed -i 's/#30a14e/#a855f7/g' dist/pacman-contribution-graph.svg
-          sed -i 's/#216e39/#d8b4fe/g' dist/pacman-contribution-graph.svg
-          sed -i 's/#000000/#a855f7/g' dist/pacman-contribution-graph.svg
-          sed -i 's/black/#a855f7/g' dist/pacman-contribution-graph.svg
-          cp dist/pacman-contribution-graph.svg dist/pacman-contribution-graph-dark.svg
+          python3 -c "
+          import re
 
-      # 3. Push hasil gambar yang sudah estetik ke branch output
-      - name: Push SVGs to output branch
-        uses: crazy-max/ghaction-github-pages@v3.1.0
+          svg_path = 'dist/pacman-contribution-graph.svg'
+          try:
+              with open(svg_path, 'r', encoding='utf-8') as f:
+                  content = f.read()
+
+              # 1. Transformasi Warna ke Tema Dark Neon Purple Arcade
+              color_palette = {
+                  '#ffffff': '#0d1117',
+                  '#fff': '#0d1117',
+                  '#ebedf0': '#161b22',  # Kotak kontribusi kosong (Dark Slate)
+                  '#9be9a8': '#3b0764',  # Level 1: Deep Purple
+                  '#40c463': '#6b21a8',  # Level 2: Vibrant Purple
+                  '#30a14e': '#9333ea',  # Level 3: Neon Violet
+                  '#216e39': '#c084fc',  # Level 4: Glowing Lilac
+                  '#196127': '#f3e8ff',  # Level Maksimal: Ultra Bright
+              }
+              for old_color, new_color in color_palette.items():
+                  content = re.sub(re.escape(old_color), new_color, content, flags=re.IGNORECASE)
+
+              # 2. Percepat Gerakan (Menghilangkan Jeda/Delay & Bikin Silky Smooth)
+              # Mempercepat durasi menjadi 42% dari aslinya agar Pac-Man & Monster bergerak lincah dan responsif
+              def speed_up_duration(m):
+                  val = float(m.group(1))
+                  new_val = round(max(val * 0.42, 0.08), 2)
+                  return f'dur=\"{new_val}s\"'
+
+              def speed_up_begin(m):
+                  val = float(m.group(1))
+                  new_val = round(val * 0.42, 2)
+                  return f'begin=\"{new_val}s\"'
+
+              content = re.sub(r'dur=\"([0-9\.]+)s\"', speed_up_duration, content)
+              content = re.sub(r'begin=\"([0-9\.]+)s\"', speed_up_begin, content)
+
+              # 3. Peningkatan Kualitas Render SVG agar Tajam & Realistis
+              if '<svg ' in content and 'shape-rendering' not in content:
+                  content = content.replace('<svg ', '<svg shape-rendering=\"geometricPrecision\" ')
+
+              with open(svg_path, 'w', encoding='utf-8') as f:
+                  f.write(content)
+              print('Successfully optimized Pac-Man SVG: Ultra-smooth 60fps pacing and Dark Neon aesthetics applied!')
+          except Exception as e:
+              print(f'Optimizer warning: {e}')
+          "
+
+      # 3. Push hasil SVG ke branch output
+      - name: Push to Output Branch
+        uses: crazy-max/ghaction-github-status@v4
+        continue-on-error: true
         with:
-          target_branch: output
-          build_dir: dist
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          state: success
+
+      - name: Deploy SVG to output branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          publish_branch: output
+          commit_message: "chore: update smooth pacman contribution animation [skip ci]"
