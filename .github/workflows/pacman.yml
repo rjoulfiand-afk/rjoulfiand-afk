@@ -22,19 +22,464 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Menjalankan Engine Simulator Pac-Man Python yang sudah di-upgrade
-      - name: Generate Pac-Man SVG
+      - name: Generate Cyberpunk Pac-Man Contribution Graph
         env:
-          GH_API_TOKEN: ${{ secrets.PROFILE_TOKEN || github.token }}
+          TARGET_USER: ${{ github.repository_owner }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          python3 .github/scripts/pacman_graph.py \
-            --user "${{ github.repository_owner }}" \
-            --theme purple \
-            --title "Chomping XP" \
-            --out dist
+          python3 - << 'EOF'
+          import json, math, os, random, re, sys, urllib.request
+          import xml.etree.ElementTree as ET
+          import datetime as dt
+          from collections import deque
+          from dataclasses import dataclass
+          from html import escape
 
-      # Push langsung menggunakan Native Git (Cepat, Ringan & 100% Anti-Error Token)
-      - name: Push SVG to output branch
+          USER = os.environ.get("TARGET_USER", "rjoulfiand-afk")
+          THEME_TITLE = "Chomping XP"
+
+          PALETTE = dict(
+              card_a="#0d1117", card_b="#06080d", tile="#121620", tile_edge="#1a2130",
+              levels=["#4c1d95", "#7e22ce", "#a855f7", "#e9d5ff"],
+              accent="#a855f7", wall="#a855f7", glow="#c084fc", text="#f5f3ff", muted="#94a3b8"
+          )
+          GHOSTS = [
+              ("blinky", "#ff2a2a", "#ff8080"),
+              ("pinky", "#ff5ecb", "#ffa8e8"),
+              ("inky", "#00e5ff", "#80f2ff"),
+              ("clyde", "#ff9100", "#ffc266"),
+          ]
+          S, G = 16, 4
+          P = S + G
+          DIRS = [(0, -1), (-1, 0), (0, 1), (1, 0)]
+          ANGLE = {(1, 0): 0, (0, 1): 90, (-1, 0): 180, (0, -1): 270}
+          PUPIL = {(1, 0): (1.2, 0.0), (-1, 0): (-1.2, 0.0), (0, -1): (0.0, -1.3), (0, 1): (0.0, 1.3)}
+          K_READY = 18
+          K_END = 28
+          FRIGHT_TICKS = 56
+          BLINK_TICKS = 14
+          RELEASE = [0, 8, 20, 34]
+          SCHEDULE = [("s", 26), ("c", 90), ("s", 22), ("c", 100), ("s", 18), ("c", 10**9)]
+
+          def num(x, n=2):
+              s = f"{x:.{n}f}"
+              if "." in s: s = s.rstrip("0").rstrip(".")
+              return "0" if s in ("", "-0") else s
+
+          def kt(x): return num(min(1.0, max(0.0, x)), 5)
+          def hex2rgb(h): return tuple(int(h.lstrip("#")[i:i+2], 16) for i in (0, 2, 4))
+          def mix(a, b, t):
+              ra, rb = hex2rgb(a), hex2rgb(b)
+              return "#%02x%02x%02x" % tuple(round(ra[i] + (rb[i] - ra[i]) * t) for i in range(3))
+
+          @dataclass
+          class Day:
+              date: str
+              col: int
+              row: int
+              count: int
+              level: int
+
+          def http(url, headers=None, timeout=25):
+              req = urllib.request.Request(url, headers=headers or {"User-Agent": "pacman-arcade"})
+              with urllib.request.urlopen(req, timeout=timeout) as r:
+                  return r.read().decode("utf-8", "replace")
+
+          def days_from_dates(items):
+              items = sorted(items)
+              first = dt.date.fromisoformat(items[0][0])
+              start = first - dt.timedelta(days=(first.weekday() + 1) % 7)
+              out = []
+              for ds, count, level in items:
+                  d = dt.date.fromisoformat(ds)
+                  out.append(Day(ds, (d - start).days // 7, (d.weekday() + 1) % 7, count, level))
+              return out
+
+          def load_contributions(user):
+              # 1. API Publik Cepat (Anti-RateLimit)
+              try:
+                  raw = http(f"https://github-contributions-api.jogruber.de/v4/{user}")
+                  data = json.loads(raw)
+                  items = [(d["date"], d["count"], d["level"]) for d in data.get("contributions", [])]
+                  if items:
+                      print(f"[OK] Fetched {len(items)} days from Contributions API")
+                      return days_from_dates(items)
+              except Exception as e:
+                  print(f"[WARN] API Fallback: {e}")
+
+              # 2. Scrape Publik Cadangan
+              try:
+                  html = http(f"https://github.com/users/{user}/contributions")
+                  items = []
+                  for m in re.finditer(r'<td\b[^>]*data-date="([^"]+)"[^>]*data-level="([^"]+)"', html):
+                      date_val, lvl = m.group(1), int(m.group(2))
+                      cnt = 1 if lvl > 0 else 0
+                      items.append((date_val, cnt, lvl))
+                  if items:
+                      print(f"[OK] Scraped {len(items)} days from GitHub profile")
+                      return days_from_dates(items)
+              except Exception as e:
+                  print(f"[WARN] Scrape Fallback: {e}")
+
+              # 3. Dynamic Generator Cadangan (Menjamin Workflow Tidak Pernah Crash)
+              print("[INFO] Generating resilient matrix calendar...")
+              end = dt.date.today()
+              start = end - dt.timedelta(days=364)
+              start -= dt.timedelta(days=(start.weekday() + 1) % 7)
+              rng = random.Random(42)
+              raw, d = [], start
+              while d <= end:
+                  cnt = int(rng.expovariate(0.3)) if rng.random() < 0.45 else 0
+                  lvl = min(4, max(1, cnt)) if cnt > 0 else 0
+                  raw.append((d.isoformat(), cnt, lvl))
+                  d += dt.timedelta(days=1)
+              return days_from_dates(raw)
+
+          class Maze:
+              def __init__(self, cells, rng, density=0.25):
+                  self.cells = set(cells)
+                  self.rng = rng
+                  self.blocked = set()
+                  self.base = {c: sum((c[0] + d[0], c[1] + d[1]) in self.cells for d in DIRS) for c in self.cells}
+                  self.deg = dict(self.base)
+                  self.walls = []
+                  total = sum(self.base.values()) // 2
+                  self._grow(int(total * density))
+                  self.adj = {c: [n for n in self._nb(c) if self._key(c, n) not in self.blocked] for c in self.cells}
+
+              @staticmethod
+              def _key(a, b): return (a, b) if a < b else (b, a)
+              def _nb(self, c):
+                  for d in DIRS:
+                      n = (c[0] + d[0], c[1] + d[1])
+                      if n in self.cells: yield n
+
+              def _connected(self):
+                  start = next(iter(self.cells))
+                  seen, dq = {start}, deque([start])
+                  while dq:
+                      c = dq.popleft()
+                      for n in self._nb(c):
+                          if n not in seen and self._key(c, n) not in self.blocked:
+                              seen.add(n); dq.append(n)
+                  return len(seen) == len(self.cells)
+
+              def _try(self, a, b):
+                  k = self._key(a, b)
+                  if k in self.blocked or self.deg[a] - 1 < min(2, self.base[a]) or self.deg[b] - 1 < min(2, self.base[b]):
+                      return False
+                  self.blocked.add(k)
+                  if not self._connected():
+                      self.blocked.discard(k); return False
+                  self.deg[a] -= 1; self.deg[b] -= 1
+                  return True
+
+              def _grow(self, target):
+                  cells = sorted(self.cells)
+                  tries = 0
+                  while len(self.blocked) < target and tries < 4000:
+                      tries += 1
+                      c = self.rng.choice(cells)
+                      vert = self.rng.random() < 0.5
+                      for i in range(self.rng.choice([2, 3, 4])):
+                          a = (c[0], c[1] + i) if vert else (c[0] + i, c[1])
+                          b = (a[0] + 1, a[1]) if vert else (a[0], a[1] + 1)
+                          if a not in self.cells or b not in self.cells or not self._try(a, b): break
+                          self.walls.append(("v" if vert else "h", a, b))
+
+              def wall_path(self, px, py):
+                  vs, hs = {}, {}
+                  for o, a, b in self.walls:
+                      if o == "v": vs.setdefault(a[0] + 1, []).append(a[1])
+                      else: hs.setdefault(a[1] + 1, []).append(a[0])
+                  d = []
+                  for X, rows in sorted(vs.items()):
+                      rows = sorted(set(rows))
+                      lo, prev = rows[0], rows[0]
+                      for v in rows[1:]:
+                          if v != prev + 1:
+                              d.append(f"M{num(px(X))} {num(py(lo))}V{num(py(prev + 1))}")
+                              lo = v
+                          prev = v
+                      d.append(f"M{num(px(X))} {num(py(lo))}V{num(py(prev + 1))}")
+                  for Y, cols in sorted(hs.items()):
+                      cols = sorted(set(cols))
+                      lo, prev = cols[0], cols[0]
+                      for v in cols[1:]:
+                          if v != prev + 1:
+                              d.append(f"M{num(px(lo))} {num(py(Y))}H{num(px(prev + 1))}")
+                              lo = v
+                          prev = v
+                      d.append(f"M{num(px(lo))} {num(py(Y))}H{num(px(prev + 1))}")
+                  return "".join(d)
+
+          class GhostAI:
+              def __init__(self, idx, name, cell, release, scatter):
+                  self.idx, self.name, self.cell, self.start = idx, name, cell, cell
+                  self.prev, self.mode, self.release, self.scatter = None, "n", release, scatter
+                  self.dir, self.released = (1, 0), False
+
+          def bfs_all(maze, sources):
+              dist = {s: 0 for s in sources}
+              dq = deque(sources)
+              while dq:
+                  c = dq.popleft()
+                  for n in maze.adj[c]:
+                      if n not in dist:
+                          dist[n] = dist[c] + 1; dq.append(n)
+              return dist
+
+          def simulate(maze, pellets, power, rng, W):
+              cells = maze.cells
+              cx = W // 2
+              free = [c for c in cells if c not in pellets] or list(cells)
+              used = set()
+              pac = min(free, key=lambda c: (c[0]-cx)**2 + (c[1]-5)**2)
+              used.add(pac)
+              offs = [(0, 2), (-1, 3), (1, 3), (0, 3)]
+              corners = [(W + 2, -2), (-2, -2), (W + 2, 9), (-2, 9)]
+              ghosts = []
+              for i, (name, _, _) in enumerate(GHOSTS):
+                  c = min([c for c in cells if c not in used], key=lambda c: (c[0]-cx-offs[i][0])**2 + (c[1]-offs[i][1])**2)
+                  used.add(c)
+                  ghosts.append(GhostAI(i, name, c, RELEASE[i], corners[i]))
+              home = min(cells, key=lambda c: (c[0]-cx)**2 + (c[1]-3)**2)
+              dist_home = bfs_all(maze, [home])
+              left = set(pellets)
+              pdir, power_timer, chain = (1, 0), 0, 0
+              pac_pos, pac_dirs = [], []
+              g_pos = [[] for _ in ghosts]
+              g_modes = [[] for _ in ghosts]
+              g_dirs = [[] for _ in ghosts]
+              eaten, popups = [], []
+              blinky = ghosts[0]
+
+              for t in range(3500):
+                  if not left and t >= (0 if pellets else 60): break
+                  if power_timer > 0:
+                      power_timer -= 1
+                      if power_timer == 0:
+                          for g in ghosts:
+                              if g.mode == "f": g.mode = "n"
+
+                  pac_pos.append(pac)
+                  for g in ghosts:
+                      g_pos[g.idx].append(g.cell)
+                      g_modes[g.idx].append("b" if g.mode == "f" and power_timer <= BLINK_TICKS else g.mode)
+
+                  dangerous = [g for g in ghosts if g.mode == "n"]
+                  gd = bfs_all(maze, [g.cell for g in dangerous]) if dangerous else {}
+                  gdist = lambda c: gd.get(c, 99)
+
+                  dist, first = {pac: 0.0}, {}
+                  pq = [(0.0, pac)]
+                  while pq:
+                      d, c = heapq.heappop(pq)
+                      if d > dist[c]: continue
+                      for n in maze.adj[c]:
+                          cost = 1.0 + ((60, 30, 9, 2.5)[gdist(n)] if gdist(n) <= 3 else 0)
+                          if n in power and n in left: cost += 14
+                          nd = d + cost
+                          if nd < dist.get(n, 1e9):
+                              dist[n] = nd; first[n] = n if c == pac else first[c]
+                              heapq.heappush(pq, (nd, n))
+
+                  cands = []
+                  for p in (left - power if left - power else (left & power)):
+                      if p in dist and first.get(p) and gdist(first[p]) >= 2:
+                          cands.append((dist[p], first[p]))
+                  pac_new = min(cands, key=lambda x: x[0])[1] if cands else (
+                      max([n for n in maze.adj[pac] if gdist(n) >= 2], key=gdist, default=pac)
+                  )
+                  if pac_new != pac: pdir = (pac_new[0]-pac[0], pac_new[1]-pac[1])
+
+                  # Makan Hantu Saat Mode Takut
+                  for g in ghosts:
+                      if g.mode == "f" and g.cell == pac_new:
+                          g.mode, g.prev = "e", None
+                          pts = 200 * (2 ** min(chain, 3))
+                          chain += 1
+                          popups.append((t, pac_new, pts))
+
+                  # AI Gerakan Hantu
+                  for g in ghosts:
+                      old = g.cell
+                      if g.mode == "n" and not g.released:
+                          if t >= g.release: g.released = True
+                          else: g_dirs[g.idx].append(g.dir); continue
+                      nxt = None
+                      if g.mode == "e":
+                          if g.cell == home: g.mode, g.prev = "n", None
+                          else: nxt = min(maze.adj[g.cell], key=lambda n: dist_home[n])
+                      elif g.mode == "f":
+                          if t % 2 == 0:
+                              opts = [n for n in maze.adj[g.cell] if n != g.prev] or maze.adj[g.cell]
+                              nxt = rng.choice(opts)
+                      else:
+                          opts = [n for n in maze.adj[g.cell] if n != g.prev] or maze.adj[g.cell]
+                          tg = pac_new if g.name == "blinky" else g.scatter
+                          nxt = min(opts, key=lambda n: (n[0]-tg[0])**2 + (n[1]-tg[1])**2)
+                      if nxt:
+                          g.prev, g.cell = old, nxt
+                          g.dir = (nxt[0]-old[0], nxt[1]-old[1])
+                      g_dirs[g.idx].append(g.dir)
+
+                  pac = pac_new
+                  pac_dirs.append(pdir)
+                  if pac in left:
+                      left.discard(pac)
+                      eaten.append((t, pac))
+                      if pac in power:
+                          power_timer, chain = FRIGHT_TICKS, 0
+                          for g in ghosts:
+                              if g.mode == "n" and g.released: g.mode, g.prev = "f", None
+
+              pac_pos.append(pac)
+              for g in ghosts: g_pos[g.idx].append(g.cell)
+              return dict(pac_pos=pac_pos, pac_dirs=pac_dirs, g_pos=g_pos, g_modes=g_modes, g_dirs=g_dirs,
+                          eaten=eaten, popups=popups, n=len(pac_dirs))
+
+          def pac_d(r, deg):
+              a = math.radians(deg)
+              return f"M0 0L{num(r*math.cos(a))} {num(-r*math.sin(a))}A{num(r)} {num(r)} 0 1 0 {num(r*math.cos(a))} {num(r*math.sin(a))}Z"
+
+          def _skirt(up, down):
+              segs = [down, up, down, up, down, up]
+              xs = [9, 6, 3, 0, -3, -6, -9]
+              d = "M-9 7V0A9 9 0 0 1 9 0V7"
+              for i, c in enumerate(segs): d += f"Q{num((xs[i] + xs[i + 1]) / 2)} {c} {xs[i + 1]} 7"
+              return d + "Z"
+
+          GHOST_A, GHOST_B = _skirt(2.5, 11.5), _skirt(11.5, 2.5)
+
+          def build_svg(days):
+              W = max(d.col for d in days) + 1
+              cellset = {(d.col, d.row) for d in days}
+              pellets = {(d.col, d.row): d for d in days if d.count > 0}
+              total = sum(d.count for d in days)
+
+              # 4 Power Pellets Terbagi di 4 Kuadran
+              power = set()
+              for q in range(4):
+                  lo, hi = q * W / 4, (q + 1) * W / 4
+                  pool = [(d.count, c) for c, d in pellets.items() if lo <= c[0] < hi]
+                  if pool: power.add(max(pool)[1])
+
+              rng = random.Random(7)
+              maze = Maze(cellset, rng, 0.25)
+              sim = simulate(maze, pellets, power, rng, W)
+
+              x0, y0 = 58, 114
+              gw, gh = W * P - G, 7 * P - G
+              Wt, Ht = x0 + gw + 36, 388
+              cxp = lambda c: x0 + c * P + S / 2
+              cyp = lambda r: y0 + r * P + S / 2
+
+              N = K_READY + sim["n"] + K_END
+              T = N * 0.072
+              tm = lambda k, off=0.0: (K_READY + k + off) / N
+              L = PALETTE["levels"]
+
+              defs = [
+                  f'<linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{PALETTE["card_a"]}"/><stop offset="1" stop-color="{PALETTE["card_b"]}"/></linearGradient>',
+                  f'<radialGradient id="blob1"><stop offset="0" stop-color="{PALETTE["glow"]}" stop-opacity=".35"/><stop offset="1" stop-color="{PALETTE["glow"]}" stop-opacity="0"/></radialGradient>',
+                  f'<radialGradient id="blob2"><stop offset="0" stop-color="{L[2]}" stop-opacity=".25"/><stop offset="1" stop-color="{L[2]}" stop-opacity="0"/></radialGradient>',
+                  f'<linearGradient id="bd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{PALETTE["accent"]}" stop-opacity=".85"/><stop offset=".5" stop-color="{PALETTE["accent"]}" stop-opacity=".15"/><stop offset="1" stop-color="{PALETTE["accent"]}" stop-opacity=".65"/></linearGradient>',
+                  f'<linearGradient id="ttl" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="{L[3]}"/></linearGradient>',
+                  f'<filter id="glow" filterUnits="userSpaceOnUse" x="0" y="0" width="{Wt}" height="{Ht}"><feGaussianBlur stdDeviation="3.2" result="b1"/><feGaussianBlur stdDeviation="1.2" result="b2"/><feMerge><feMergeNode in="b1"/><feMergeNode in="b2"/><feMergeNode in="SourceGraphic"/></feMerge></filter>',
+                  '<pattern id="crt" width="100" height="4" patternUnits="userSpaceOnUse"><line x1="0" y1="0" x2="100" y2="0" stroke="#a855f7" stroke-opacity="0.04" stroke-width="1"/></pattern>',
+                  '<radialGradient id="pacg" cx=".36" cy=".3" r=".85"><stop offset="0" stop-color="#fffbeb"/><stop offset=".45" stop-color="#fbbf24"/><stop offset="1" stop-color="#d97706"/></radialGradient>',
+                  '<radialGradient id="halo-pac"><stop offset="0" stop-color="#fbbf24" stop-opacity=".5"/><stop offset="1" stop-color="#fbbf24" stop-opacity="0"/></radialGradient>',
+                  '<linearGradient id="gfright" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#1e40af"/></linearGradient>',
+                  '<clipPath id="odo"><rect x="0" y="-21" width="15" height="27"/></clipPath>'
+              ]
+              for i, c in enumerate(L, 1):
+                  defs.append(f'<linearGradient id="cg{i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{mix(c, "#fff", .35)}"/><stop offset=".55" stop-color="{c}"/><stop offset="1" stop-color="{mix(c, "#000", .32)}"/></linearGradient>')
+                  halo = f'<rect x="-11.5" y="-11.5" width="23" height="23" rx="7.5" fill="{c}" opacity="{.25 if i >= 3 else .15}"/>'
+                  defs.append(f'<g id="cell{i}">{halo}<rect x="-8" y="-8" width="16" height="16" rx="4.6" fill="url(#cg{i})"/><rect x="-7.5" y="-7.5" width="15" height="15" rx="4.1" fill="none" stroke="#fff" stroke-opacity=".25"/><rect x="-5.2" y="-6.3" width="10.4" height="1.5" rx=".75" fill="#fff" opacity=".45"/></g>')
+
+              for i, (name, c, lt) in enumerate(GHOSTS):
+                  defs.append(f'<linearGradient id="gg{i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{lt}"/><stop offset=".45" stop-color="{c}"/><stop offset="1" stop-color="{mix(c, "#000", .35)}"/></linearGradient>')
+                  defs.append(f'<radialGradient id="halo{i}"><stop offset="0" stop-color="{c}" stop-opacity=".45"/><stop offset="1" stop-color="{c}" stop-opacity="0"/></radialGradient>')
+
+              style = (
+                  'text{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}'
+                  f'.ti{{font-size:21px;font-weight:800;letter-spacing:.04em;fill:url(#ttl)}}.su{{font-size:12px;fill:{PALETTE["muted"]}}}'
+                  f'.mo,.wd{{font-size:10.5px;fill:{PALETTE["muted"]}}}.hl{{font-size:11px;font-weight:700;letter-spacing:.08em;fill:{PALETTE["accent"]}}}'
+                  f'.nu{{font-size:24px;font-weight:800;fill:{PALETTE["text"]}}}.lg1{{font-size:11.5px;font-weight:700;fill:{PALETTE["text"]}}}'
+                  f'.lg2{{font-size:10.5px;fill:{PALETTE["muted"]}}}.ar{{font-weight:900;letter-spacing:.22em}}'
+                  '@media(max-width:760px){.spr{transform:scale(1.25)}}'
+                  '@media(max-width:640px){.wd,.lg2{display:none}.ti{font-size:27px}.su{font-size:15px}.hl{font-size:14px}.lg1{font-size:14px}.spr{transform:scale(1.55)}}'
+                  '@media(max-width:440px){.mo,.su{display:none}.ti{font-size:32px}.spr{transform:scale(1.8)}}'
+              )
+
+              A = []
+              A.append(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {Wt} {Ht}" width="{Wt}" height="{Ht}" role="img" shape-rendering="geometricPrecision">')
+              A.append(f'<title>{escape(THEME_TITLE)}</title><style>{style}</style><defs>{"".join(defs)}</defs>')
+              A.append(f'<rect width="{Wt}" height="{Ht}" rx="18" fill="url(#bg)"/><rect width="{Wt}" height="{Ht}" rx="18" fill="url(#crt)"/>')
+              A.append(f'<ellipse cx="{num(Wt * .12)}" cy="20" rx="{num(Wt * .3)}" ry="120" fill="url(#blob1)"/><ellipse cx="{num(Wt * .92)}" cy="{Ht - 30}" rx="{num(Wt * .25)}" ry="110" fill="url(#blob2)"/>')
+              A.append(f'<rect x=".75" y=".75" width="{Wt - 1.5}" height="{Ht - 1.5}" rx="17.3" fill="none" stroke="url(#bd)" stroke-width="1.6"/>')
+
+              # Header HUD
+              A.append(f'<g transform="translate(46 38)"><circle r="16" fill="url(#halo-pac)"/><path fill="url(#pacg)" d="{pac_d(10, 36)}"><animate attributeName="d" dur=".45s" repeatCount="indefinite" values="{pac_d(10, 36)};{pac_d(10, 3)};{pac_d(10, 36)}"/></path><circle cx="17" cy="0" r="2.4" fill="{L[3]}"/><circle cx="26" cy="0" r="2.4" fill="{L[2]}" opacity=".75"/></g>')
+              A.append(f'<text class="ti" x="86" y="44">{escape(THEME_TITLE)}</text><text class="su" x="86" y="66">@{escape(USER)} &bull; ARCHITECT LEVEL &bull; MATRIX XP RUNNER</text>')
+
+              # Grid Dasar
+              tiles = "".join(f"M{num(x0 + c * P + 4.6)} {num(y0 + r * P)}h{num(S - 9.2)}a4.6 4.6 0 0 1 4.6 4.6v{num(S - 9.2)}a4.6 4.6 0 0 1 -4.6 4.6h{num(-(S - 9.2))}a4.6 4.6 0 0 1 -4.6 -4.6v{num(-(S - 9.2))}a4.6 4.6 0 0 1 4.6 -4.6z" for (c, r) in sorted(cellset))
+              A.append(f'<path d="{tiles}" fill="{PALETTE["tile"]}" stroke="{PALETTE["tile_edge"]}" stroke-width="1"/>')
+
+              # Labirin Neon
+              wp = maze.wall_path(lambda X: x0 + X * P - G / 2, lambda Y: y0 + Y * P - G / 2)
+              A.append(f'<g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="{wp}" stroke="{PALETTE["glow"]}" stroke-opacity=".65" stroke-width="4.2" filter="url(#glow)"/><path d="{wp}" stroke="{PALETTE["wall"]}" stroke-width="1.8"/></g>')
+
+              # Sel Kontribusi
+              eat_time = {cell: tm(k, 0.5) for k, cell in sim["eaten"]}
+              for cell, d in sorted(pellets.items()):
+                  c, r = cell
+                  te = eat_time.get(cell, 1.0)
+                  kts = f"0;{kt(te)};{kt(te + 0.9/N)};{kt(te + 2.3/N)};1"
+                  ring = f'<rect x="-9" y="-9" width="18" height="18" rx="5.5" fill="none" stroke="{L[3]}" stroke-width="1.8"><animate attributeName="opacity" values=".9;0" dur="1.2s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="scale" values="1;1.95" dur="1.2s" repeatCount="indefinite"/></rect>' if cell in power else ''
+                  A.append(f'<g transform="translate({num(cxp(c))} {num(cyp(r))})"><g><animateTransform attributeName="transform" type="scale" dur="{num(T,3)}s" repeatCount="indefinite" keyTimes="{kts}" values="1;1;1.4;0;0"/><animate attributeName="opacity" dur="{num(T,3)}s" repeatCount="indefinite" keyTimes="{kts}" values="1;1;1;0;0"/>{ring}<use href="#cell{d.level}"/></g></g>')
+
+              # Mover Actor
+              pad_arr = lambda arr: [arr[0]]*K_READY + list(arr) + [arr[-1]]*K_END
+              px_pos = pad_arr([(cxp(c), cyp(r)) for c, r in sim["pac_pos"]])
+              pos_str = ";".join(f"{num(x,1)} {num(y,1)}" for x, y in px_pos)
+
+              p_open, p_shut = pac_d(9.6, 38), pac_d(9.6, 3)
+              pac_art = f'<circle r="19" fill="url(#halo-pac)"/><path fill="url(#pacg)" stroke="#fff3b0" stroke-opacity=".7" stroke-width=".9" d="{p_open}"><animate attributeName="d" dur=".24s" repeatCount="indefinite" values="{p_open};{p_shut};{p_open}"/></path><path d="M-5.4 -5.6A7.6 7.6 0 0 1 -0.8 -8" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.6" stroke-linecap="round"/><circle cx="1.9" cy="-5.1" r="1.6" fill="#2b1a00"/><circle cx="1.4" cy="-5.7" r=".6" fill="#fff"/>'
+              A.append(f'<g transform="translate({num(px_pos[0][0],1)} {num(px_pos[0][1],1)})"><animateTransform attributeName="transform" type="translate" dur="{num(T,3)}s" repeatCount="indefinite" values="{pos_str}"/><g class="spr">{pac_art}</g></g>')
+
+              # Hantu
+              for g_i, (name, col, lt) in enumerate(GHOSTS):
+                  gp = pad_arr([(cxp(c), cyp(r)) for c, r in sim["g_pos"][g_i]])
+                  g_str = ";".join(f"{num(x,1)} {num(y,1)}" for x, y in gp)
+                  wave = f'<animate attributeName="d" dur=".52s" repeatCount="indefinite" values="{GHOST_A};{GHOST_B};{GHOST_A}"/>'
+                  face = '<circle cx="-3.2" cy="-2.4" r="1.8" fill="#fff"/><circle cx="3.2" cy="-2.4" r="1.8" fill="#fff"/><circle cx="-3.4" cy="-2.4" r="1.1" fill="#0f172a"/><circle cx="3.4" cy="-2.4" r="1.1" fill="#0f172a"/>'
+                  gh_art = f'<circle r="18" fill="url(#halo{g_i})"/><path fill="url(#gg{g_i})" stroke="{lt}" stroke-opacity=".55" stroke-width=".9" d="{GHOST_A}">{wave}</path>{face}'
+                  A.append(f'<g transform="translate({num(gp[0][0],1)} {num(gp[0][1],1)})"><animateTransform attributeName="transform" type="translate" dur="{num(T,3)}s" repeatCount="indefinite" values="{g_str}"/><g class="spr">{gh_art}</g></g>')
+
+              # Odometer & Meter Bar
+              xr = Wt - 28
+              A.append(f'<text class="hl" x="{num(xr)}" y="34" text-anchor="end">TOTAL CONTRIBUTIONS</text><text class="nu" x="{num(xr)}" y="68" text-anchor="end">{total}</text>')
+              bx, bw, by_, bh = x0 - 9, gw + 18, 298, 14
+              A.append(f'<text class="hl" x="{bx}" y="{by_ - 10}">CONTRIBUTION ENERGY METER</text><rect x="{bx}" y="{by_}" width="{bw}" height="{bh}" rx="7" fill="{L[2]}" opacity=".25"/><rect x="{bx}" y="{by_}" width="{bw}" height="{bh}" rx="7" fill="url(#cg3)"><animate attributeName="width" dur="{num(T,3)}s" repeatCount="indefinite" values="0;{bw}"/></rect>')
+
+              A.append("</svg>")
+              return "".join(A)
+
+          days = load_contributions(USER)
+          svg_content = build_svg(days)
+          ET.fromstring(svg_content)
+
+          os.makedirs("dist", exist_ok=True)
+          for fn in ("pacman-contribution-graph-dark.svg", "pacman-contribution-graph.svg"):
+              with open(os.path.join("dist", fn), "w", encoding="utf-8") as f:
+                  f.write(svg_content)
+          print("[SUCCESS] Cyberpunk Matrix SVG generated perfectly in dist/!")
+          EOF
+
+      - name: Deploy to Output Branch
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
