@@ -18,123 +18,75 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1. Generate dasar kontribusi Pac-Man
+      # 1. Generate animasi Pac-Man dari kontribusi asli kamu
       - name: Generate Pac-Man SVGs
         uses: abozanona/pacman-contribution-graph@main
         with:
           github_user_name: ${{ github.repository_owner }}
           games: 'pacman'
 
-      # 2. Cyberpunk Arcade Engine: Linear Interpolation 60 FPS + Realistis Neon Glow
-      - name: Inject Neon Glow & 60fps Smooth Motion
+      # 2. Engine Styling: Dark Neon Purple + Gerakan Cepat & Halus + Validasi XML 100% Aman
+      - name: Transform to Smooth Neon Purple Arcade
         run: |
           python3 -c "
-          import re, glob, shutil
+          import re, glob, shutil, xml.etree.ElementTree as ET
 
           svg_files = glob.glob('dist/*.svg')
           print('Processing SVGs:', svg_files)
-
-          # Definisi filter glow dan visual cyberpunk
-          neon_filters = '''
-          <defs>
-            <!-- Filter Glowing Neon untuk Tembok Labirin -->
-            <filter id=\"neon-glow\" x=\"-50%\" y=\"-50%\" width=\"200%\" height=\"200%\">
-              <feGaussianBlur stdDeviation=\"2.4\" result=\"coloredBlur\"/>
-              <feMerge>
-                <feMergeNode in=\"coloredBlur\"/>
-                <feMergeNode in=\"coloredBlur\"/>
-                <feMergeNode in=\"SourceGraphic\"/>
-              </feMerge>
-            </filter>
-            <!-- Aura Cahaya untuk Pacman & Monster -->
-            <filter id=\"hero-aura\" x=\"-50%\" y=\"-50%\" width=\"200%\" height=\"200%\">
-              <feGaussianBlur stdDeviation=\"3.2\" result=\"blur\"/>
-              <feMerge>
-                <feMergeNode in=\"blur\"/>
-                <feMergeNode in=\"SourceGraphic\"/>
-              </feMerge>
-            </filter>
-          </defs>
-          '''
 
           for file_path in svg_files:
               with open(file_path, 'r', encoding='utf-8') as f:
                   content = f.read()
 
-              # A. Suntikkan Defs Filter Glow jika belum ada
-              if 'id=\"neon-glow\"' not in content:
-                  content = re.sub(r'(<svg[^>]*>)', r'\1' + neon_filters, content, count=1)
+              # A. Ubah Warna Background & Labirin (Persis Screenshot yang Kamu Suka)
+              color_map = [
+                  (r'#ffffff|#fff', '#0d1117'),         # Background Gelap
+                  (r'#ebedf0', '#161b22'),               # Kotak Kosong
+                  (r'#000000|\bblack\b', '#a855f7'),     # Garis Labirin Ungu Neon
+                  (r'#9be9a8|#0e4429', '#3b0764'),       # Kontribusi Level 1
+                  (r'#40c463|#006d32', '#7e22ce'),       # Kontribusi Level 2
+                  (r'#30a14e|#26a641', '#a855f7'),       # Kontribusi Level 3
+                  (r'#216e39|#39d353', '#d8b4fe'),       # Kontribusi Level 4
+                  (r'#196127', '#f3e8ff'),               # Supernova High
+              ]
+              for pattern, repl in color_map:
+                  content = re.sub(pattern, repl, content, flags=re.IGNORECASE)
 
-              # B. Ubah Mode Animasi Menjadi Linear (Hilangkan Stutter / Gerakan Patah-Patah)
+              # B. Ubah Mode Animasi Menjadi Linear (Menghilangkan Stutter / Nyandet)
               content = content.replace('calcMode=\"discrete\"', 'calcMode=\"linear\"')
-              content = re.sub(r'<animate(?![^>]*calcMode)', '<animate calcMode=\"linear\"', content)
-              content = re.sub(r'<animateTransform(?![^>]*calcMode)', '<animateTransform calcMode=\"linear\"', content)
-              content = re.sub(r'<animateMotion(?![^>]*calcMode)', '<animateMotion calcMode=\"linear\"', content)
 
-              # C. Akselerasi Gerakan Tanpa Merusak Ritme Mulut Pac-Man
+              # C. Percepat Gerakan (2.5x Lebih Cepat & Gesit, Menghilangkan Jeda/Delay)
               def scale_dur(m):
                   val = float(m.group(1))
-                  if val >= 1.0:
-                      # Pergerakan langkah: percepat 2.6x lipat agar gesit dan mulus
-                      new_val = round(max(val * 0.38, 1.0), 2)
-                  else:
-                      # Gerakan animasi buka-tutup mulut: kunci pada ritme natural
-                      new_val = round(max(val, 0.18), 2)
+                  new_val = round(max(val * 0.4, 0.08), 2)
                   return f'dur=\"{new_val}s\"'
 
               def scale_begin(m):
                   val = float(m.group(1))
-                  return f'begin=\"{round(val * 0.38, 2)}s\"'
+                  new_val = round(val * 0.4, 2)
+                  return f'begin=\"{new_val}s\"'
 
               content = re.sub(r'dur=\"([0-9\.]+)s\"', scale_dur, content)
               content = re.sub(r'begin=\"([0-9\.]+)s\"', scale_begin, content)
 
-              # D. Ubah Warna Background & Matrix Kosong
-              content = re.sub(r'#ffffff|#fff', '#0d1117', content, flags=re.IGNORECASE)
-              content = re.sub(r'#ebedf0', '#161b22', content, flags=re.IGNORECASE)
-
-              # E. Beri Efek Neon Bercahaya pada Tembok Labirin (#a855f7 + glow)
-              content = re.sub(
-                  r'stroke=\"(?:#000000|black|#a855f7)\"',
-                  'stroke=\"#a855f7\" filter=\"url(#neon-glow)\" stroke-linecap=\"round\" stroke-linejoin=\"round\"',
-                  content,
-                  flags=re.IGNORECASE
-              )
-
-              # F. Transformasi Semua Variasi Hijau ke Gradasi Ungu Neon Futuristik
-              purple_tiers = [
-                  (r'#9be9a8|#0e4429', '#3b0764'),  # Tier 1 (Dark Purple)
-                  (r'#40c463|#006d32', '#6b21a8'),  # Tier 2 (Electric Purple)
-                  (r'#30a14e|#26a641', '#a855f7'),  # Tier 3 (Neon Purple)
-                  (r'#216e39|#39d353', '#d8b4fe'),  # Tier 4 (Glow Lilac)
-                  (r'#196127|#2ea44f|#238636', '#f3e8ff'), # High-tier Supernova
-              ]
-              for pattern, hex_col in purple_tiers:
-                  content = re.sub(pattern, hex_col, content, flags=re.IGNORECASE)
-
-              # G. Ubah Kotak Kontribusi Jadi Rounded Modern Tiles
-              def rounded_rects(m):
-                  tag = m.group(0)
-                  if 'rx=' not in tag and 'width=' in tag and 'height=' in tag:
-                      tag = tag.rstrip('/>') + ' rx=\"2.5\" ry=\"2.5\" />'
-                  return tag
-
-              content = re.sub(r'<rect\b[^>]*\/?>', rounded_rects, content)
-
-              # H. Peningkatan Ketajaman Resolusi SVG
-              if '<svg ' in content and 'shape-rendering' not in content:
-                  content = content.replace('<svg ', '<svg shape-rendering=\"geometricPrecision\" ')
+              # D. Validasi Struktur XML (Memastikan File Tidak Pernah Rusak / Corrupt)
+              try:
+                  ET.fromstring(content)
+                  print(f'XML Validation SUCCESS: {file_path} is 100% valid!')
+              except Exception as err:
+                  print(f'FATAL: XML is malformed in {file_path}: {err}')
+                  raise err
 
               with open(file_path, 'w', encoding='utf-8') as f:
                   f.write(content)
-              print(f'Successfully rendered Cyberpunk 60fps SVG: {file_path}')
 
-          # Pastikan file sinkron sempurna
+          # Sinkronkan ke pacman-contribution-graph-dark.svg
           if 'dist/pacman-contribution-graph.svg' in svg_files:
               shutil.copy('dist/pacman-contribution-graph.svg', 'dist/pacman-contribution-graph-dark.svg')
+          print('All SVGs processed, validated, and ready!')
           "
 
-      # 3. Deploy file SVG baru ke branch output
+      # 3. Deploy file SVG yang valid ke branch output
       - name: Push SVGs to output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
