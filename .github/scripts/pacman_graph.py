@@ -1,13 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Pac-Man Cyberpunk Matrix Arcade Generator
-Features:
-- Guaranteed Zero-Collision Ghost AI (Safety Perimeter >= 2 tiles)
-- Complete Pellets Eating Tour (Pac-Man eats 100% of contribution boxes)
-- Segmented Mini-Bar Energy Harvester (Fills up box-by-box, reaches 100% on last box)
-- Perfect Infinite Looping (Re-fills automatically)
-- Balanced Arcade Speed (0.22s/step)
+Pac-Man Cyberpunk Matrix Arcade & Native Activity Graph Generator
+100% Self-Hosted & Zero External Dependency
 """
 import argparse
 import datetime as dt
@@ -42,9 +37,7 @@ GHOSTS = [
 S, G = 16, 4
 P = S + G
 DIRS = [(0, -1), (-1, 0), (0, 1), (1, 0)]
-ANGLE = {(1, 0): 0, (0, 1): 90, (-1, 0): 180, (0, -1): 270}
 RELEASE = [0, 6, 14, 24]
-
 K_READY = 16
 K_END = 26
 
@@ -107,7 +100,7 @@ def load_days(user):
         data = json.loads(raw)
         items = [(d["date"], d["count"], d["level"]) for d in data.get("contributions", [])]
         if items:
-            print(f"[OK] Berhasil membaca {len(items)} hari kontribusi asli dari API.")
+            print(f"[OK] Membaca {len(items)} hari kontribusi asli dari API.")
             return days_from_dates(items)
     except Exception as e:
         print(f"[WARN] API: {e}")
@@ -126,6 +119,131 @@ def load_days(user):
     print("[INFO] Fallback to active matrix calendar.")
     return demo_days(42)
 
+# ==================== 1. GENERATOR ACTIVITY GRAPH ASLI (NATIVE) ====================
+def build_native_activity_svg(days, user):
+    """
+    Menghasilkan SVG Activity Graph persis seperti contoh Mayur Pagote
+    100% mandiri, anti-error, dan tema Neon Purple
+    """
+    total = sum(d.count for d in days)
+    W, H = 840, 260
+    L = PALETTES["purple"]["levels"]
+    cur_year = dt.date.today().year
+
+    # Kelompokkan kontribusi per minggu (52 minggu)
+    weeks = {}
+    for d in days:
+        weeks.setdefault(d.col, []).append(d.count)
+    
+    sorted_cols = sorted(weeks.keys())
+    week_totals = [sum(weeks[c]) for c in sorted_cols]
+    if not week_totals: week_totals = [0] * 52
+    
+    max_c = max(max(week_totals), 1)
+    # Titik koordinat grafik gelombang
+    x_start, x_end = 320, 770
+    y_top, y_bottom = 65, 205
+    step_x = (x_end - x_start) / max(1, len(week_totals) - 1)
+    
+    pts = []
+    for i, cnt in enumerate(week_totals):
+        px = x_start + i * step_x
+        py = y_bottom - (cnt / max_c) * (y_bottom - y_top)
+        pts.append((px, py))
+    
+    # Smooth Catmull-Rom to Cubic Bezier curve
+    d_segs = [f"M {num(pts[0][0])} {num(pts[0][1])}"]
+    for i in range(len(pts) - 1):
+        p0 = pts[i - 1] if i > 0 else pts[i]
+        p1 = pts[i]
+        p2 = pts[i + 1]
+        p3 = pts[i + 2] if i + 2 < len(pts) else p2
+        cp1x = p1[0] + (p2[0] - p0[0]) / 6.0
+        cp1y = p1[1] + (p2[1] - p0[1]) / 6.0
+        cp2x = p2[0] - (p3[0] - p1[0]) / 6.0
+        cp2y = p2[1] - (p3[1] - p1[1]) / 6.0
+        d_segs.append(f"C {num(cp1x)} {num(cp1y)}, {num(cp2x)} {num(cp2y)}, {num(p2[0])} {num(p2[1])}")
+    
+    line_path = " ".join(d_segs)
+    area_path = f"{line_path} L {num(pts[-1][0])} {y_bottom} L {num(pts[0][0])} {y_bottom} Z"
+
+    # Tanggal X-Axis (per 8 minggu)
+    date_labels = []
+    months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    for i in range(0, len(pts), 8):
+        px = pts[i][0]
+        # estimasi tanggal mundur
+        m_idx = (dt.date.today().month - 1 - (12 - int(i / 52 * 12))) % 12
+        date_labels.append(f'<text x="{num(px)}" y="{y_bottom + 20}" font-size="10.5" fill="#94a3b8" text-anchor="middle">{months[m_idx]}</text>')
+
+    # Sumbu Y-Axis Grid
+    grid_lines = []
+    y_ticks = [0, int(max_c * 0.33), int(max_c * 0.66), max_c]
+    for tick in y_ticks:
+        y_pos = y_bottom - (tick / max_c) * (y_bottom - y_top)
+        grid_lines.append(f'<line x1="{x_start}" y1="{num(y_pos)}" x2="{x_end}" y2="{num(y_pos)}" stroke="#1f2638" stroke-width="1" stroke-dasharray="3 3"/>')
+        grid_lines.append(f'<text x="{x_end + 12}" y="{num(y_pos + 4)}" font-size="10" fill="#94a3b8">{tick}</text>')
+
+    svg = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img">
+  <defs>
+    <linearGradient id="bg_act" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#080b10"/>
+    </linearGradient>
+    <linearGradient id="wave_fill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="{L[2]}" stop-opacity="0.65"/>
+      <stop offset="70%" stop-color="{L[1]}" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="{L[0]}" stop-opacity="0.0"/>
+    </linearGradient>
+    <filter id="glow_line">
+      <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <style>
+    text {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; }}
+    .ttl {{ font-size: 20px; font-weight: 800; fill: #ff2e63; }}
+    .stt {{ font-size: 13.5px; fill: #e5e7eb; }}
+    .sub {{ font-size: 11.5px; fill: #94a3b8; }}
+  </style>
+
+  <!-- Background Card -->
+  <rect width="{W}" height="{H}" rx="14" fill="url(#bg_act)" stroke="#a855f7" stroke-width="1.2"/>
+
+  <!-- Left Info Column -->
+  <text class="ttl" x="34" y="52">{escape(user)}</text>
+  
+  <!-- Icon: GitHub Contributions -->
+  <g transform="translate(34, 86)">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="#a855f7"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+    <text class="stt" x="28" y="14"><tspan font-weight="700" fill="#a855f7">{total}</tspan> Contributions in {cur_year}</text>
+  </g>
+
+  <!-- Icon: Public Repos -->
+  <g transform="translate(34, 128)">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="#a855f7"><path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 2v14h16V5H4zm3 3h10v2H7V8zm0 4h10v2H7v-2z"/></svg>
+    <text class="stt" x="28" y="14"><tspan font-weight="700" fill="#a855f7">Active</tspan> Public Architecture</text>
+  </g>
+
+  <!-- Icon: Lifetime Contributor -->
+  <g transform="translate(34, 170)">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="#a855f7"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm1 14.5h-2v-2h2v2zm0-4h-2V7h2v5.5z"/></svg>
+    <text class="stt" x="28" y="14">Continuous Shipping</text>
+  </g>
+
+  <!-- Right Chart Area -->
+  <text class="sub" x="{x_end}" y="42" text-anchor="end">contributions in the last year</text>
+  {''.join(grid_lines)}
+  <path d="{area_path}" fill="url(#wave_fill)"/>
+  <path d="{line_path}" fill="none" stroke="{L[2]}" stroke-width="3" filter="url(#glow_line)"/>
+  {''.join(date_labels)}
+</svg>'''
+    return svg
+
+# ==================== 2. GENERATOR PAC-MAN ARCADE ====================
 class Maze:
     def __init__(self, cells, rng, density=0.20):
         self.cells = set(cells)
@@ -206,7 +324,7 @@ class Maze:
 
 class GhostAI:
     def __init__(self, idx, name, cell, release):
-        self.idx, self.name, self.cell, self.start = idx, name, cell, cell
+        self.idx, self.name, self.cell = idx, name, cell
         self.prev = None
         self.release = release
 
@@ -217,8 +335,7 @@ def bfs_all(maze, sources):
         c = dq.popleft()
         for n in maze.adj[c]:
             if n not in dist:
-                dist[n] = dist[c] + 1
-                dq.append(n)
+                dist[n] = dist[c] + 1; dq.append(n)
     return dist
 
 def bfs_path(maze, start, goal):
@@ -230,8 +347,7 @@ def bfs_path(maze, start, goal):
         if c == goal: break
         for n in maze.adj[c]:
             if n not in parent:
-                parent[n] = c
-                dq.append(n)
+                parent[n] = c; dq.append(n)
     if goal not in parent: return []
     path, cur = [], goal
     while cur != start:
@@ -244,11 +360,8 @@ def simulate(maze, pellets, rng, W):
     cells = maze.cells
     cx = W // 2
     free = [c for c in cells if c not in pellets] or list(cells)
-    used = set()
     pac_start = min(free, key=lambda c: (c[0]-cx)**2 + (c[1]-5)**2)
-    used.add(pac_start)
 
-    # 1. RUTE PAC-MAN MENYANTAP 100% SEMUA KOTAK KONTRIBUSI
     left = set(pellets)
     pac_path = [pac_start]
     eaten = []
@@ -256,7 +369,6 @@ def simulate(maze, pellets, rng, W):
 
     while left:
         dist = bfs_all(maze, [cur_p])
-        # Pilih kotak kontribusi terdekat yang belum dimakan
         target = min(left, key=lambda p: dist.get(p, 9999))
         step_nodes = bfs_path(maze, cur_p, target)
         for node in step_nodes:
@@ -267,8 +379,6 @@ def simulate(maze, pellets, rng, W):
                 eaten.append((len(pac_path) - 1, cur_p, pellets[cur_p].level))
 
     total_steps = len(pac_path)
-
-    # 2. SPAWN 4 HANTU DI TITIK-TITIK STRATEGIS
     ghost_starts = [
         min(cells, key=lambda c: (c[0]-cx)**2 + (c[1]-1)**2),
         min(cells, key=lambda c: (c[0]-cx-5)**2 + (c[1]-2)**2),
@@ -276,8 +386,6 @@ def simulate(maze, pellets, rng, W):
         min(cells, key=lambda c: (c[0]-cx)**2 + (c[1]-4)**2),
     ]
     ghosts = [GhostAI(i, GHOSTS[i][0], ghost_starts[i], RELEASE[i]) for i in range(4)]
-
-    # 3. PERGERAKAN HANTU (DENGAN SAFETY PERIMETER AGAR TIDAK PERNAH MENGENAI PAC-MAN)
     g_pos = [[] for _ in ghosts]
 
     for t in range(total_steps):
@@ -286,42 +394,27 @@ def simulate(maze, pellets, rng, W):
 
         for g in ghosts:
             g_pos[g.idx].append(g.cell)
-
-            if t < g.release:
-                continue
+            if t < g.release: continue
 
             all_opts = maze.adj[g.cell]
             opts_no_prev = [n for n in all_opts if n != g.prev] or all_opts
+            safe_opts = [n for n in opts_no_prev if n != p_next and n != p_now and (abs(n[0]-p_next[0]) + abs(n[1]-p_next[1]) >= 2)]
+            if not safe_opts: safe_opts = [n for n in opts_no_prev if n != p_next and n != p_now]
+            if not safe_opts: safe_opts = [n for n in all_opts if n != p_next and n != p_now]
+            if not safe_opts: safe_opts = [g.cell]
 
-            # FILTER KEAMANAN: Jarak ke Pac-Man harus >= 2 kotak (Anti Tabrakan)
-            safe_opts = [
-                n for n in opts_no_prev
-                if n != p_next and n != p_now and (abs(n[0]-p_next[0]) + abs(n[1]-p_next[1]) >= 2)
-            ]
-            if not safe_opts:
-                safe_opts = [n for n in opts_no_prev if n != p_next and n != p_now]
-            if not safe_opts:
-                safe_opts = [n for n in all_opts if n != p_next and n != p_now]
-            if not safe_opts:
-                safe_opts = [g.cell]
-
-            # Kepribadian Navigasi AI Hantu
             if g.name == "blinky":
-                # Blinky: Membayangi Pac-Man dari jarak aman
                 dist_p = bfs_all(maze, [p_now])
                 nxt = min(safe_opts, key=lambda n: (dist_p.get(n, 999), rng.random()))
             elif g.name == "pinky":
-                # Pinky: Berpatroli di lorong atas
                 tg = (p_now[0], 0)
                 dist_tg = bfs_all(maze, [tg if tg in cells else min(cells, key=lambda c: (c[0]-tg[0])**2 + c[1]**2)])
                 nxt = min(safe_opts, key=lambda n: (dist_tg.get(n, 999), rng.random()))
             elif g.name == "inky":
-                # Inky: Berpatroli di lorong bawah
                 tg = (p_now[0], 6)
                 dist_tg = bfs_all(maze, [tg if tg in cells else min(cells, key=lambda c: (c[0]-tg[0])**2 + (c[1]-6)**2)])
                 nxt = min(safe_opts, key=lambda n: (dist_tg.get(n, 999), rng.random()))
             else:
-                # Clyde: Roaming acak menjelajahi labirin
                 nxt = rng.choice(safe_opts)
 
             g.prev = g.cell
@@ -360,7 +453,6 @@ def build_svg(days, user, title):
     cyp = lambda r: y0 + r * P + S / 2
 
     N = K_READY + sim["n"] + K_END
-    # KECEPATAN ARCADE IDEAL & STABIL: 0.22 DETIK PER LANGKAH
     T = N * 0.22
     tm = lambda k, off=0.0: (K_READY + k + off) / N
     L = PALETTES["purple"]["levels"]
@@ -415,7 +507,7 @@ def build_svg(days, user, title):
     wp = maze.wall_path(lambda X: x0 + X * P - G / 2, lambda Y: y0 + Y * P - G / 2)
     A.append(f'<g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="{wp}" stroke="{PALETTES["purple"]["glow"]}" stroke-opacity=".65" stroke-width="4.2" filter="url(#glow)"/><path d="{wp}" stroke="{PALETTES["purple"]["wall"]}" stroke-width="1.8"/></g>')
 
-    # Sel Kontribusi di Labirin: Dimakan lalu otomatis terisi kembali saat putaran baru
+    # Sel Kontribusi
     eat_time = {cell: tm(t_eat, 0.5) for t_eat, cell, _ in sim["eaten"]}
     for cell, d in sorted(pellets.items()):
         c, r = cell
@@ -428,8 +520,7 @@ def build_svg(days, user, title):
             scale_anim = f'<animateTransform attributeName="transform" type="scale" dur="{num(T,3)}s" repeatCount="indefinite" keyTimes="{kts}" values="1;1;1.35;0;0"/>'
             opacity_anim = f'<animate attributeName="opacity" dur="{num(T,3)}s" repeatCount="indefinite" keyTimes="{kts}" values="1;1;1;0;0"/>'
         else:
-            scale_anim = ''
-            opacity_anim = ''
+            scale_anim, opacity_anim = '', ''
 
         A.append(f'<g transform="translate({num(cxp(c))} {num(cyp(r))})"><g>{scale_anim}{opacity_anim}<use href="#cell{d.level}"/></g></g>')
 
@@ -442,7 +533,7 @@ def build_svg(days, user, title):
     pac_art = f'<circle r="19" fill="url(#halo-pac)"/><path fill="url(#pacg)" stroke="#fff3b0" stroke-opacity=".7" stroke-width=".9" d="{p_open}"><animate attributeName="d" dur=".32s" repeatCount="indefinite" values="{p_open};{p_shut};{p_open}"/></path><path d="M-5.4 -5.6A7.6 7.6 0 0 1 -0.8 -8" fill="none" stroke="#fff" stroke-opacity=".75" stroke-width="1.6" stroke-linecap="round"/><circle cx="1.9" cy="-5.1" r="1.6" fill="#2b1a00"/><circle cx="1.4" cy="-5.7" r=".6" fill="#fff"/>'
     A.append(f'<g transform="translate({num(px_pos[0][0],1)} {num(px_pos[0][1],1)})"><animateTransform attributeName="transform" type="translate" dur="{num(T,3)}s" repeatCount="indefinite" values="{pos_str}"/><g class="spr">{pac_art}</g></g>')
 
-    # Pergerakan 4 Hantu (Berkeliaran Bebas & Aman)
+    # Pergerakan 4 Hantu
     for g_i, (name, col, lt) in enumerate(GHOSTS):
         gp = pad_arr([(cxp(c), cyp(r)) for c, r in sim["g_pos"][g_i]])
         g_str = ";".join(f"{num(x,1)} {num(y,1)}" for x, y in gp)
@@ -451,15 +542,12 @@ def build_svg(days, user, title):
         gh_art = f'<circle r="18" fill="url(#halo{g_i})"/><path fill="url(#gg{g_i})" stroke="{lt}" stroke-opacity=".55" stroke-width=".9" d="{GHOST_A}">{wave}</path>{face}'
         A.append(f'<g transform="translate({num(gp[0][0],1)} {num(gp[0][1],1)})"><animateTransform attributeName="transform" type="translate" dur="{num(T,3)}s" repeatCount="indefinite" values="{g_str}"/><g class="spr">{gh_art}</g></g>')
 
-    # Counter Total
     xr = Wt - 28
     A.append(f'<text class="hl" x="{num(xr)}" y="34" text-anchor="end">TOTAL CONTRIBUTIONS</text><text class="nu" x="{num(xr)}" y="68" text-anchor="end">{total}</text>')
 
-    # PROGRESS BAR: SEGMEN MINI-BAR (KOTAK KECIL-KECIL MENYALA SATU PER SATU)
+    # Progress Bar Mini-Bar
     bx, bw, by_, bh = x0 - 9, gw + 18, 304, 15
     A.append(f'<text class="hl" x="{bx}" y="{by_ - 11}">CONTRIBUTION ENERGY METER (REAL-TIME HARVESTER)</text>')
-
-    # Legend Warna di Kanan
     A.append(f'<g transform="translate({bx + bw - 190} {by_ - 20})">'
              f'<rect x="0" y="0" width="9" height="9" rx="2" fill="{L[0]}"/>'
              f'<rect x="14" y="0" width="9" height="9" rx="2" fill="{L[1]}"/>'
@@ -467,36 +555,28 @@ def build_svg(days, user, title):
              f'<rect x="42" y="0" width="9" height="9" rx="2" fill="{L[3]}"/>'
              f'<text class="lg2" x="58" y="8">XP TIERS</text></g>')
 
-    # Wadah Rel Bar Luar
     A.append(f'<rect x="{bx}" y="{by_}" width="{bw}" height="{bh}" rx="7.5" fill="#0c1017" stroke="#1f283d" stroke-width="1.2"/>')
 
     if total_pellets > 0:
         seg_w = bw / total_pellets
-        sw = max(2.0, seg_w - 1.2)  # Lebar tiap kotak mini-bar
-
-        # A. Gambar Garis Slot Kotak-Kotak Mini Kosong Terlebih Dahulu
+        sw = max(2.0, seg_w - 1.2)
         for i in range(total_pellets):
             sx = bx + i * seg_w
             A.append(f'<rect x="{num(sx,2)}" y="{by_ + 2}" width="{num(sw,2)}" height="{bh - 4}" rx="2" fill="#131824" stroke="#1d2436" stroke-width="0.6"/>')
 
-        # B. Nyalakan Kotak Mini Tersebut SATU PER SATU Saat Pac-Man Memakannya!
         for k, (t_eat, cell, lvl) in enumerate(sim["eaten"]):
             sx = bx + k * seg_w
             col = L[min(3, max(0, lvl - 1))]
-
             te = tm(t_eat, 0.5)
             t0 = max(0.001, min(0.994, te))
             t1 = min(0.998, t0 + 0.003)
-
             anim = f'<animate attributeName="opacity" dur="{num(T,3)}s" repeatCount="indefinite" keyTimes="0;{kt(t0)};{kt(t1)};1" values="0;0;1;1"/>'
             A.append(f'<rect x="{num(sx,2)}" y="{by_ + 2}" width="{num(sw,2)}" height="{bh - 4}" rx="2" fill="{col}" opacity="0">{anim}</rect>')
 
-        # C. Orb Kuning Penunjuk Energi Berjalan Mengikuti Pertambahan Kotak Mini
         head_pos = [bx] * K_READY
         cur_e = 0
         for step in range(sim["n"]):
-            while cur_e < total_pellets and sim["eaten"][cur_e][0] <= step:
-                cur_e += 1
+            while cur_e < total_pellets and sim["eaten"][cur_e][0] <= step: cur_e += 1
             head_pos.append(bx + (cur_e / total_pellets) * bw)
         head_pos += [bx + bw] * K_END
         head_str = ";".join(f"{num(x, 1)} {num(by_ + bh/2, 1)}" for x in head_pos)
@@ -513,19 +593,20 @@ def main():
     args = ap.parse_args()
 
     days = load_days(args.user)
-    svg_content = build_svg(days, args.user, args.title)
-
-    try:
-        ET.fromstring(svg_content)
-        print("[OK] Validasi XML sukses.")
-    except Exception as e:
-        print(f"[WARN XML (Abaikan)]: {e}")
-
     os.makedirs(args.out, exist_ok=True)
+
+    # 1. Buat Pac-Man SVGs
+    pacman_svg = build_svg(days, args.user, args.title)
     for fn in ("pacman-contribution-graph-dark.svg", "pacman-contribution-graph.svg"):
         with open(os.path.join(args.out, fn), "w", encoding="utf-8") as f:
-            f.write(svg_content)
-    print(f"[SUCCESS] SVG berhasil dibuat di {args.out}/")
+            f.write(pacman_svg)
+    print(f"[SUCCESS] Pac-Man SVGs berhasil dibuat di {args.out}/")
+
+    # 2. Buat Native Activity Graph SVG (100% Bebas Vercel & Anti-Error)
+    activity_svg = build_native_activity_svg(days, args.user)
+    with open(os.path.join(args.out, "activity-graph.svg"), "w", encoding="utf-8") as f:
+        f.write(activity_svg)
+    print(f"[SUCCESS] Native Activity Graph SVG berhasil dibuat di {args.out}/activity-graph.svg")
 
 if __name__ == "__main__":
     try:
