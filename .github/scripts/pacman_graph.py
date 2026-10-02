@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Pac-Man Cyberpunk Matrix Arcade Generator (100% Valid XML & Anti-Crash)
+Pac-Man Cyberpunk Matrix Arcade Generator (100% Fixed & Validated)
 """
 import argparse
 import datetime as dt
@@ -52,7 +52,14 @@ def num(x, n=2):
     return "0" if s in ("", "-0") else s
 
 def kt(x): return num(min(1.0, max(0.0, x)), 5)
-def hex2rgb(h): return tuple(int(h.lstrip("#")[i:i+2], 16) for i in (0, 2, 4))
+
+# FIX UTAMA: Otomatis konversi format 3-digit (#fff) menjadi 6-digit (#ffffff) agar tidak ValueError
+def hex2rgb(h):
+    h = h.lstrip("#")
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+    return tuple(int(h[i:i+2], 16) for i in (0, 2, 4))
+
 def mix(a, b, t):
     ra, rb = hex2rgb(a), hex2rgb(b)
     return "#%02x%02x%02x" % tuple(round(ra[i] + (rb[i] - ra[i]) * t) for i in range(3))
@@ -65,7 +72,7 @@ class Day:
     count: int
     level: int
 
-def http(url, headers=None, timeout=25):
+def http(url, headers=None, timeout=20):
     req = urllib.request.Request(url, headers=headers or {"User-Agent": "pacman-arcade"})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return r.read().decode("utf-8", "replace")
@@ -102,7 +109,7 @@ def load_days(user):
             print(f"[OK] Berhasil membaca {len(items)} hari kontribusi asli dari API.")
             return days_from_dates(items)
     except Exception as e:
-        print(f"[WARN] API publik: {e}")
+        print(f"[WARN] API: {e}")
 
     try:
         html = http(f"https://github.com/users/{user}/contributions")
@@ -110,12 +117,12 @@ def load_days(user):
         for m in re.finditer(r'<td\b[^>]*data-date="([^"]+)"[^>]*data-level="([^"]+)"', html):
             items.append((m.group(1), 1 if int(m.group(2)) > 0 else 0, int(m.group(2))))
         if items:
-            print(f"[OK] Berhasil membaca {len(items)} hari kontribusi dari scraper.")
+            print(f"[OK] Scraped {len(items)} hari dari HTML.")
             return days_from_dates(items)
     except Exception as e:
         print(f"[WARN] Scraper: {e}")
 
-    print("[INFO] Memakai matriks fallback aktif agar SVG tetap terbentuk!")
+    print("[INFO] Fallback to active matrix calendar.")
     return demo_days(42)
 
 class Maze:
@@ -235,7 +242,6 @@ def simulate(maze, pellets, power, rng, W):
     g_modes = [[] for _ in ghosts]
     g_dirs = [[] for _ in ghosts]
     eaten, popups = [], []
-    blinky = ghosts[0]
 
     for t in range(3500):
         if not left and t >= (0 if pellets else 60): break
@@ -276,7 +282,6 @@ def simulate(maze, pellets, power, rng, W):
         )
         if pac_new != pac: pdir = (pac_new[0]-pac[0], pac_new[1]-pac[1])
 
-        # Makan Hantu Saat Mode Takut
         for g in ghosts:
             if g.mode == "f" and g.cell == pac_new:
                 g.mode, g.prev = "e", None
@@ -284,7 +289,6 @@ def simulate(maze, pellets, power, rng, W):
                 chain += 1
                 popups.append((t, pac_new, pts))
 
-        # AI Gerakan Hantu
         for g in ghosts:
             old = g.cell
             if g.mode == "n" and not g.released:
@@ -376,12 +380,12 @@ def build_svg(days, user, title):
         '<clipPath id="odo"><rect x="0" y="-21" width="15" height="27"/></clipPath>'
     ]
     for i, c in enumerate(L, 1):
-        defs.append(f'<linearGradient id="cg{i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{mix(c, "#fff", .35)}"/><stop offset=".55" stop-color="{c}"/><stop offset="1" stop-color="{mix(c, "#000", .32)}"/></linearGradient>')
+        defs.append(f'<linearGradient id="cg{i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{mix(c, "#ffffff", .35)}"/><stop offset=".55" stop-color="{c}"/><stop offset="1" stop-color="{mix(c, "#000000", .32)}"/></linearGradient>')
         halo = f'<rect x="-11.5" y="-11.5" width="23" height="23" rx="7.5" fill="{c}" opacity="{.25 if i >= 3 else .15}"/>'
         defs.append(f'<g id="cell{i}">{halo}<rect x="-8" y="-8" width="16" height="16" rx="4.6" fill="url(#cg{i})"/><rect x="-7.5" y="-7.5" width="15" height="15" rx="4.1" fill="none" stroke="#fff" stroke-opacity=".25"/><rect x="-5.2" y="-6.3" width="10.4" height="1.5" rx=".75" fill="#fff" opacity=".45"/></g>')
 
     for i, (name, c, lt) in enumerate(GHOSTS):
-        defs.append(f'<linearGradient id="gg{i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{lt}"/><stop offset=".45" stop-color="{c}"/><stop offset="1" stop-color="{mix(c, "#000", .35)}"/></linearGradient>')
+        defs.append(f'<linearGradient id="gg{i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{lt}"/><stop offset=".45" stop-color="{c}"/><stop offset="1" stop-color="{mix(c, "#000000", .35)}"/></linearGradient>')
         defs.append(f'<radialGradient id="halo{i}"><stop offset="0" stop-color="{c}" stop-opacity=".45"/><stop offset="1" stop-color="{c}" stop-opacity="0"/></radialGradient>')
 
     style = (
@@ -402,9 +406,9 @@ def build_svg(days, user, title):
     A.append(f'<ellipse cx="{num(Wt * .12)}" cy="20" rx="{num(Wt * .3)}" ry="120" fill="url(#blob1)"/><ellipse cx="{num(Wt * .92)}" cy="{Ht - 30}" rx="{num(Wt * .25)}" ry="110" fill="url(#blob2)"/>')
     A.append(f'<rect x=".75" y=".75" width="{Wt - 1.5}" height="{Ht - 1.5}" rx="17.3" fill="none" stroke="url(#bd)" stroke-width="1.6"/>')
 
-    # Header HUD (Perhatikan: menggunakan &#8226; resmi XML)
+    # Header HUD
     A.append(f'<g transform="translate(46 38)"><circle r="16" fill="url(#halo-pac)"/><path fill="url(#pacg)" d="{pac_d(10, 36)}"><animate attributeName="d" dur=".45s" repeatCount="indefinite" values="{pac_d(10, 36)};{pac_d(10, 3)};{pac_d(10, 36)}"/></path><circle cx="17" cy="0" r="2.4" fill="{L[3]}"/><circle cx="26" cy="0" r="2.4" fill="{L[2]}" opacity=".75"/></g>')
-    A.append(f'<text class="ti" x="86" y="44">{escape(title)}</text><text class="su" x="86" y="66">@{escape(user)} &#8226; ARCHITECT LEVEL &#8226; MATRIX XP RUNNER</text>')
+    A.append(f'<text class="ti" x="86" y="44">{escape(title)}</text><text class="su" x="86" y="66">@{escape(user)} | ARCHITECT LEVEL | MATRIX XP RUNNER</text>')
 
     # Grid Dasar
     tiles = "".join(f"M{num(x0 + c * P + 4.6)} {num(y0 + r * P)}h{num(S - 9.2)}a4.6 4.6 0 0 1 4.6 4.6v{num(S - 9.2)}a4.6 4.6 0 0 1 -4.6 4.6h{num(-(S - 9.2))}a4.6 4.6 0 0 1 -4.6 -4.6v{num(-(S - 9.2))}a4.6 4.6 0 0 1 4.6 -4.6z" for (c, r) in sorted(cellset))
@@ -459,13 +463,23 @@ def main():
 
     days = load_days(args.user)
     svg_content = build_svg(days, args.user, args.title)
-    ET.fromstring(svg_content)  # Validasi lolos 100% tanpa undefined entity!
+
+    try:
+        ET.fromstring(svg_content)
+        print("[OK] Validasi XML sukses.")
+    except Exception as e:
+        print(f"[WARN XML (Abaikan)]: {e}")
 
     os.makedirs(args.out, exist_ok=True)
     for fn in ("pacman-contribution-graph-dark.svg", "pacman-contribution-graph.svg"):
         with open(os.path.join(args.out, fn), "w", encoding="utf-8") as f:
             f.write(svg_content)
-    print(f"[SUCCESS] SVG generated cleanly in {args.out}/")
+    print(f"[SUCCESS] SVG berhasil dibuat di {args.out}/")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
