@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Pac-Man Cyberpunk Matrix Arcade Generator (Anti-Crash Version)
+Pac-Man Cyberpunk Matrix Arcade Generator (100% Valid XML & Anti-Crash)
 """
 import argparse
 import datetime as dt
@@ -94,7 +94,6 @@ def demo_days(seed=42):
     return days_from_dates(raw)
 
 def load_days(user):
-    # 1. Coba ambil dari Contributions API publik (Akurat & Tanpa Kebutuhan Token)
     try:
         raw = http(f"https://github-contributions-api.jogruber.de/v4/{user}")
         data = json.loads(raw)
@@ -105,7 +104,6 @@ def load_days(user):
     except Exception as e:
         print(f"[WARN] API publik: {e}")
 
-    # 2. Coba Scrape Profil
     try:
         html = http(f"https://github.com/users/{user}/contributions")
         items = []
@@ -117,8 +115,7 @@ def load_days(user):
     except Exception as e:
         print(f"[WARN] Scraper: {e}")
 
-    # 3. Fallback Anti-Gagal (Menjamin Action TIDAK AKAN PERNAH Error Exit Code 1)
-    print("[INFO] Memakai matriks fallback aktif agar SVG tetap terbentuk sempurna!")
+    print("[INFO] Memakai matriks fallback aktif agar SVG tetap terbentuk!")
     return demo_days(42)
 
 class Maze:
@@ -405,9 +402,9 @@ def build_svg(days, user, title):
     A.append(f'<ellipse cx="{num(Wt * .12)}" cy="20" rx="{num(Wt * .3)}" ry="120" fill="url(#blob1)"/><ellipse cx="{num(Wt * .92)}" cy="{Ht - 30}" rx="{num(Wt * .25)}" ry="110" fill="url(#blob2)"/>')
     A.append(f'<rect x=".75" y=".75" width="{Wt - 1.5}" height="{Ht - 1.5}" rx="17.3" fill="none" stroke="url(#bd)" stroke-width="1.6"/>')
 
-    # Header HUD
+    # Header HUD (Perhatikan: menggunakan &#8226; resmi XML)
     A.append(f'<g transform="translate(46 38)"><circle r="16" fill="url(#halo-pac)"/><path fill="url(#pacg)" d="{pac_d(10, 36)}"><animate attributeName="d" dur=".45s" repeatCount="indefinite" values="{pac_d(10, 36)};{pac_d(10, 3)};{pac_d(10, 36)}"/></path><circle cx="17" cy="0" r="2.4" fill="{L[3]}"/><circle cx="26" cy="0" r="2.4" fill="{L[2]}" opacity=".75"/></g>')
-    A.append(f'<text class="ti" x="86" y="44">{escape(title)}</text><text class="su" x="86" y="66">@{escape(user)} &bull; ARCHITECT LEVEL &bull; MATRIX XP RUNNER</text>')
+    A.append(f'<text class="ti" x="86" y="44">{escape(title)}</text><text class="su" x="86" y="66">@{escape(user)} &#8226; ARCHITECT LEVEL &#8226; MATRIX XP RUNNER</text>')
 
     # Grid Dasar
     tiles = "".join(f"M{num(x0 + c * P + 4.6)} {num(y0 + r * P)}h{num(S - 9.2)}a4.6 4.6 0 0 1 4.6 4.6v{num(S - 9.2)}a4.6 4.6 0 0 1 -4.6 4.6h{num(-(S - 9.2))}a4.6 4.6 0 0 1 -4.6 -4.6v{num(-(S - 9.2))}a4.6 4.6 0 0 1 4.6 -4.6z" for (c, r) in sorted(cellset))
@@ -462,13 +459,13 @@ def main():
 
     days = load_days(args.user)
     svg_content = build_svg(days, args.user, args.title)
-    ET.fromstring(svg_content)
+    ET.fromstring(svg_content)  # Validasi lolos 100% tanpa undefined entity!
 
     os.makedirs(args.out, exist_ok=True)
     for fn in ("pacman-contribution-graph-dark.svg", "pacman-contribution-graph.svg"):
         with open(os.path.join(args.out, fn), "w", encoding="utf-8") as f:
             f.write(svg_content)
-    print(f"[SUCCESS] SVG generated in {args.out}/")
+    print(f"[SUCCESS] SVG generated cleanly in {args.out}/")
 
 if __name__ == "__main__":
     main()
