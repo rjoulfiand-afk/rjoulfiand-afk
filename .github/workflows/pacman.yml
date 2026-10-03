@@ -22,7 +22,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1. Generate Pac-Man, Commando Sniper & Native Elegant Activity Graph
+      # 1. Generate Pac-Man & Native Activity Graph
       - name: Generate Arcade & Activity SVGs
         run: |
           python3 .github/scripts/pacman_graph.py \
