@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Pac-Man Cyberpunk Matrix Arcade & Elegant Real-Time Activity Graph Generator
-Clean, Authentic Developer Credentials, Zero AI Slop
+Pac-Man Cyberpunk Arcade + Built-in 8-Bit Tactical Commando Contribution Striker
+Clean, Authentic Developer Credentials, Zero External Dependencies, Zero AI Slop
 """
 import argparse
 import datetime as dt
@@ -118,22 +118,285 @@ def load_days(user):
     print("[INFO] Fallback to active matrix calendar.")
     return demo_days(42)
 
+# ==================== BUILT-IN 16-BIT RETRO SOLDIER SPRITE ====================
+def render_builtin_soldier_vector():
+    """
+    Menggambar Prajurit Pixel Art 16-Bit yang presisi meniru karakter lo:
+    - Helm Camo Doreng dengan bercak specular dapple
+    - Rambut auburn / brown di bawah helm
+    - Wajah ekspresif chibi dengan mata tajam
+    - Seragam camo militer lengkap dengan patch insignia
+    - Sarung tangan kulit cokelat & tactical assault rifle hitam
+    - Sepatu boots tempur berbayang
+    """
+    return '''
+    <!-- Soldier Pixel Shadow -->
+    <ellipse cx="0" cy="1" rx="14" ry="4" fill="#000000" opacity="0.5"/>
+
+    <!-- Combat Boots -->
+    <rect x="-8" y="-7" width="6" height="7" rx="1.5" fill="#38211b"/>
+    <rect x="2" y="-7" width="6" height="7" rx="1.5" fill="#38211b"/>
+    <rect x="-8" y="-2" width="7" height="2" fill="#1f120e"/>
+    <rect x="2" y="-2" width="7" height="2" fill="#1f120e"/>
+
+    <!-- Camo Trousers -->
+    <rect x="-9" y="-19" width="7" height="13" rx="2" fill="#4d5a3c"/>
+    <rect x="2" y="-19" width="7" height="13" rx="2" fill="#4d5a3c"/>
+    <rect x="-7" y="-15" width="3" height="4" fill="#37412b"/>
+    <rect x="4" y="-13" width="3" height="3" fill="#667750"/>
+    <rect x="-2" y="-18" width="4" height="4" fill="#323c27"/>
+
+    <!-- Camo Military Jacket & Torso -->
+    <rect x="-12" y="-35" width="24" height="17" rx="3.5" fill="#4d5a3c"/>
+    <!-- Camo Patches on Torso -->
+    <rect x="-10" y="-32" width="5" height="4" fill="#37412b"/>
+    <rect x="4" y="-33" width="6" height="5" fill="#667750"/>
+    <rect x="-3" y="-27" width="6" height="6" fill="#323c27"/>
+    <rect x="5" y="-25" width="4" height="5" fill="#37412b"/>
+    <!-- Red & White Insignia Badge on Chest -->
+    <rect x="3" y="-31" width="4" height="2" fill="#dc2626"/>
+    <rect x="3" y="-29" width="4" height="1.5" fill="#ffffff"/>
+
+    <!-- Brown Leather Gloves -->
+    <rect x="-11" y="-26" width="5" height="5" rx="1" fill="#6c3b2b"/>
+    <rect x="6" y="-24" width="5" height="5" rx="1" fill="#6c3b2b"/>
+
+    <!-- Tactical Assault Rifle (Held Diagonally with Barrel Facing Upwards) -->
+    <g transform="rotate(-35 -2 -28)">
+      <!-- Gun Body & Stock -->
+      <rect x="-14" y="-30" width="26" height="4" rx="1" fill="#1f2937"/>
+      <rect x="-8" y="-26" width="4" height="5" fill="#111827"/>
+      <rect x="4" y="-26" width="3" height="6" fill="#374151"/>
+      <!-- Barrel & Muzzle -->
+      <rect x="12" y="-31" width="8" height="2.5" fill="#111827"/>
+      <rect x="20" y="-32" width="2" height="4.5" fill="#4b5563"/>
+    </g>
+
+    <!-- Hair (Auburn Tufts peeking under helmet) -->
+    <rect x="-11" y="-45" width="4" height="8" rx="1.5" fill="#78350f"/>
+    <rect x="7" y="-45" width="4" height="8" rx="1.5" fill="#78350f"/>
+    <rect x="-12" y="-41" width="3" height="4" fill="#58250a"/>
+    <rect x="9" y="-41" width="3" height="4" fill="#58250a"/>
+
+    <!-- Chibi Face & Complexion -->
+    <rect x="-8" y="-45" width="16" height="11" rx="2" fill="#fed7aa"/>
+    <!-- Cheeks (Blush) -->
+    <rect x="-8" y="-39" width="3" height="2.5" fill="#fca5a5" opacity="0.6"/>
+    <rect x="5" y="-39" width="3" height="2.5" fill="#fca5a5" opacity="0.6"/>
+    <!-- Eyes -->
+    <rect x="-5" y="-42" width="3.5" height="3.5" rx="0.5" fill="#0f172a"/>
+    <rect x="2" y="-42" width="3.5" height="3.5" rx="0.5" fill="#0f172a"/>
+    <rect x="-4" y="-43" width="1.5" height="1.5" fill="#ffffff"/>
+    <rect x="3" y="-43" width="1.5" height="1.5" fill="#ffffff"/>
+    <!-- Confident Smile -->
+    <rect x="-2" y="-36" width="4" height="1.5" rx="0.5" fill="#b45309"/>
+
+    <!-- Camo Military Helmet -->
+    <rect x="-13" y="-55" width="26" height="14" rx="6" fill="#4d5a3c"/>
+    <rect x="-14" y="-46" width="28" height="3.5" rx="1.5" fill="#37412b"/>
+    <!-- Helmet Camo Patches & Specks -->
+    <rect x="-8" y="-53" width="6" height="5" rx="1" fill="#323c27"/>
+    <rect x="2" y="-54" width="7" height="6" rx="1" fill="#667750"/>
+    <rect x="-11" y="-49" width="4" height="3" fill="#667750"/>
+    <rect x="6" y="-49" width="5" height="3" fill="#323c27"/>
+    <!-- Specular Light Dapples on Helmet -->
+    <circle cx="-2" cy="-53" r="1.2" fill="#d9f99d"/>
+    <circle cx="1" cy="-51" r="1" fill="#ffffff" opacity="0.8"/>
+    <circle cx="5" cy="-52" r="1" fill="#d9f99d"/>
+    '''
+
+# ==================== 8-BIT CYBER COMMANDO STRIKER SVG ====================
+def build_soldier_shooter_svg(days, user):
+    """
+    Menghasilkan SVG Animasi Tentara Taktis Built-in:
+    - Prajurit Pixel Berpatroli di Gantry Rail Bawah
+    - Menembakkan Laser Vertikal ke Kotak Kontribusi Riil Lo
+    - Kotak Bereaksi dengan Hit Flash, Muzzle Flash & XP Sparks
+    """
+    W = max(d.col for d in days) + 1
+    cellset = {(d.col, d.row) for d in days}
+    active_days = [d for d in days if d.count > 0]
+    total_commits = sum(d.count for d in days)
+
+    x0, y0 = 58, 96
+    gw = W * P - G
+    Wt, Ht = x0 + gw + 36, 360
+    cxp = lambda c: x0 + c * P + S / 2
+    cyp = lambda r: y0 + r * P + S / 2
+
+    # Ambil 12 target aktif terbaru dari riwayat kontribusi lo
+    targets = sorted(active_days, key=lambda d: d.date)[-12:] if len(active_days) >= 12 else active_days
+    if not targets:
+        targets = [Day("2026-10-01", 45, 3, 5, 3)]
+
+    shots_count = len(targets)
+    step_sec = 1.35
+    T = shots_count * step_sec
+
+    rail_y = y0 + 7 * P + 24
+    soldier_xs = [cxp(t.col) for t in targets]
+    L = PALETTES["purple"]["levels"]
+
+    svg_parts = []
+    svg_parts.append(f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {Wt} {Ht}" width="{Wt}" height="{Ht}" role="img" shape-rendering="geometricPrecision">
+  <defs>
+    <linearGradient id="c_bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#06080d"/>
+    </linearGradient>
+    <linearGradient id="c_bd" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.85"/>
+      <stop offset="50%" stop-color="#38bdf8" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#a855f7" stop-opacity="0.85"/>
+    </linearGradient>
+    <filter id="laser_glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <style>
+    text {{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }}
+    .st_title {{ font-size: 19px; font-weight: 800; letter-spacing: 0.04em; fill: #ffffff; }}
+    .st_sub {{ font-size: 11.5px; font-weight: 600; fill: #94a3b8; }}
+    .st_badge {{ font-size: 11px; font-weight: 800; letter-spacing: 0.1em; fill: #a855f7; }}
+    .st_val {{ font-size: 22px; font-weight: 800; fill: #ffffff; }}
+  </style>
+
+  <!-- Card Body & Border -->
+  <rect width="{Wt}" height="{Ht}" rx="18" fill="url(#c_bg)"/>
+  <rect x="1" y="1" width="{Wt - 2}" height="{Ht - 2}" rx="17" fill="none" stroke="url(#c_bd)" stroke-width="1.6"/>
+
+  <!-- Header HUD -->
+  <g transform="translate(36, 32)">
+    <rect x="0" y="0" width="28" height="28" rx="6" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.2"/>
+    <text x="14" y="19" font-size="14" text-anchor="middle">🪖</text>
+    <text class="st_title" x="38" y="15">TACTICAL COMMANDO : RECON &amp; TARGETING</text>
+    <text class="st_sub" x="38" y="32">@{escape(user)} | REAL-TIME CONTRIBUTION STRIKER</text>
+  </g>
+
+  <!-- Right Total Targeted -->
+  <text class="st_badge" x="{Wt - 36}" y="42" text-anchor="end">TOTAL TARGETS</text>
+  <text class="st_val" x="{Wt - 36}" y="68" text-anchor="end">{total_commits}</text>
+
+  <!-- Grid Dasar Kontribusi -->
+''')
+
+    # Render Kotak Grid Dasar
+    tiles = []
+    for c, r in sorted(cellset):
+        tx = x0 + c * P
+        ty = y0 + r * P
+        tiles.append(f'<rect x="{num(tx)}" y="{num(ty)}" width="{S}" height="{S}" rx="3.5" fill="{PALETTES["purple"]["tile"]}" stroke="{PALETTES["purple"]["tile_edge"]}" stroke-width="0.8"/>')
+    svg_parts.append("  " + "".join(tiles) + "\n")
+
+    # Render Kotak Kontribusi Aktif & Hit Animation
+    target_cells = {(t.col, t.row): i for i, t in enumerate(targets)}
+    for d in active_days:
+        cx, cy = cxp(d.col), cyp(d.row)
+        lvl_color = L[min(3, max(0, d.level - 1))]
+        
+        t_idx = target_cells.get((d.col, d.row), None)
+        if t_idx is not None:
+            hit_t = (t_idx * step_sec + 0.6) / T
+            k0 = max(0.001, hit_t - 0.01)
+            k1 = hit_t
+            k2 = min(0.999, hit_t + 0.06)
+            kts = f"0;{kt(k0)};{kt(k1)};{kt(k2)};1"
+            
+            anim = f'''
+    <g transform="translate({num(cx)} {num(cy)})">
+      <rect x="-8" y="-8" width="16" height="16" rx="3.5" fill="{lvl_color}">
+        <animate attributeName="fill" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts}" values="{lvl_color};{lvl_color};#ffffff;{lvl_color};{lvl_color}"/>
+      </rect>
+      <!-- Spark Ring -->
+      <circle r="12" fill="none" stroke="#38bdf8" stroke-width="2" opacity="0">
+        <animate attributeName="r" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts}" values="2;2;18;20;2"/>
+        <animate attributeName="opacity" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts}" values="0;0;0.9;0;0"/>
+      </circle>
+      <!-- Floating XP Text -->
+      <text x="0" y="-12" font-size="9" font-weight="900" fill="#38bdf8" text-anchor="middle" opacity="0">
+        +{d.count} XP
+        <animate attributeName="opacity" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts}" values="0;0;1;0;0"/>
+        <animate attributeName="y" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts}" values="-8;-8;-16;-20;-8"/>
+      </text>
+    </g>'''
+            svg_parts.append(anim)
+        else:
+            svg_parts.append(f'    <rect x="{num(cx - 8)}" y="{num(cy - 8)}" width="16" height="16" rx="3.5" fill="{lvl_color}"/>')
+
+    # Tactical Gantry Rail di bawah grid
+    svg_parts.append(f'''
+  <!-- Tactical Rail Platform -->
+  <line x1="{x0 - 8}" y1="{rail_y}" x2="{x0 + gw + 8}" y2="{rail_y}" stroke="#1f2638" stroke-width="3"/>
+  <line x1="{x0 - 8}" y1="{rail_y}" x2="{x0 + gw + 8}" y2="{rail_y}" stroke="#a855f7" stroke-width="1" stroke-dasharray="6 4" opacity="0.6"/>
+''')
+
+    # Hitung Jalur Pergerakan Prajurit
+    pos_frames = []
+    key_times = []
+    for i, sx in enumerate(soldier_xs):
+        t_start = (i * step_sec) / T
+        t_fire = (i * step_sec + 0.5) / T
+        t_end = ((i + 1) * step_sec - 0.1) / T
+        key_times.extend([t_start, t_fire, t_end])
+        pos_frames.extend([f"{num(sx)} {rail_y}", f"{num(sx)} {rail_y}", f"{num(sx)} {rail_y}"])
+
+    key_times_str = ";".join(kt(t) for t in [0.0] + key_times[1:-1] + [1.0])
+    pos_str = ";".join(pos_frames)
+
+    # Laser Projectiles
+    for i, target in enumerate(targets):
+        sx = cxp(target.col)
+        ty = cyp(target.row)
+        t_shoot = (i * step_sec + 0.45) / T
+        t_hit = (i * step_sec + 0.60) / T
+        t_fade = (i * step_sec + 0.70) / T
+        kts_laser = f"0;{kt(t_shoot)};{kt(t_hit)};{kt(t_fade)};1"
+
+        svg_parts.append(f'''
+  <!-- Laser Bolt Targetting Column {target.col} -->
+  <line x1="{num(sx + 5)}" y1="{rail_y - 30}" x2="{num(sx)}" y2="{num(ty)}" stroke="#38bdf8" stroke-width="3" filter="url(#laser_glow)" opacity="0">
+    <animate attributeName="opacity" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_laser}" values="0;1;0.8;0;0"/>
+    <animate attributeName="y2" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_laser}" values="{rail_y - 30};{num(ty)};{num(ty)};{rail_y - 30};{rail_y - 30}"/>
+  </line>''')
+
+    # Prajurit Pixel Art (Built-in Vector)
+    soldier_body = render_builtin_soldier_vector()
+
+    svg_parts.append(f'''
+  <!-- Prajurit Cyber Commando (Built-in Pixel Art) -->
+  <g transform="translate({num(soldier_xs[0])} {rail_y})">
+    <animateTransform attributeName="transform" type="translate" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{key_times_str}" values="{pos_str}"/>
+    
+    <!-- Soldier Body & Recoil Kickback -->
+    <g>
+      <animateTransform attributeName="transform" type="translate" dur="{num(step_sec,2)}s" repeatCount="indefinite" keyTimes="0;0.35;0.45;0.65;1" values="0 0; 0 0; 0 2; 0 -1; 0 0"/>
+      {soldier_body}
+      
+      <!-- Gun Muzzle Flash Spark -->
+      <circle cx="6" cy="-34" r="5" fill="#38bdf8" filter="url(#laser_glow)" opacity="0">
+        <animate attributeName="opacity" dur="{num(step_sec,2)}s" repeatCount="indefinite" keyTimes="0;0.35;0.42;0.55;1" values="0;0;1;0;0"/>
+        <animate attributeName="r" dur="{num(step_sec,2)}s" repeatCount="indefinite" keyTimes="0;0.35;0.42;0.55;1" values="1;2;8;1;1"/>
+      </circle>
+    </g>
+  </g>
+''')
+
+    svg_parts.append("</svg>")
+    return "".join(svg_parts)
+
 # ==================== ELEGANT NATIVE ACTIVITY GRAPH (NO AI SLOP) ====================
 def build_native_activity_svg(days, user):
-    """
-    Menghasilkan SVG Activity Graph Murni & Elegan:
-    - Zero AI Slop (No Supernova, No Live Matrix, No Peak 59 XP)
-    - Data Real-time 52 Minggu Akurat (Sesuai 292 Kontribusi GitHub)
-    - Silk-Smooth Wave & Clean Minimalist Typography
-    """
     day_map = {d.date: d.count for d in days}
     today = dt.date.today()
     start_date = today - dt.timedelta(days=363)
     
-    # Hitung total kontribusi 365 hari terakhir
     total_year = sum(day_map.get((start_date + dt.timedelta(days=i)).isoformat(), 0) for i in range(364))
 
-    # Kelompokkan 52 minggu kalender presisi
     week_totals = []
     week_start_dates = []
     for w in range(52):
@@ -144,20 +407,17 @@ def build_native_activity_svg(days, user):
 
     max_c = max(max(week_totals), 1)
 
-    # Dimensi Kanvas
     W, H = 840, 250
     x_start, x_end = 320, 780
     y_top, y_bottom = 54, 196
     step_x = (x_end - x_start) / 51.0
 
-    # Titik Koordinat Kurva (Zero-Clamped)
     pts = []
     for i, cnt in enumerate(week_totals):
         px = x_start + i * step_x
         py = y_bottom - (cnt / max_c) * (y_bottom - y_top)
         pts.append((px, py))
 
-    # Catmull-Rom Spline Halus (Tanpa Menembus ke Bawah Nol)
     d_segs = [f"M {num(pts[0][0])} {num(pts[0][1])}"]
     for i in range(len(pts) - 1):
         p0 = pts[i - 1] if i > 0 else pts[i]
@@ -177,7 +437,6 @@ def build_native_activity_svg(days, user):
     line_path = " ".join(d_segs)
     area_path = f"{line_path} L {num(pts[-1][0])} {y_bottom} L {num(pts[0][0])} {y_bottom} Z"
 
-    # Label Bulan Sumbu X (Tepat di Posisi Pergantian Bulan Asli)
     month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     date_labels = []
     prev_month = -1
@@ -186,7 +445,6 @@ def build_native_activity_svg(days, user):
             date_labels.append(f'<text x="{num(pts[i][0])}" y="{y_bottom + 18}" font-size="10.5" font-weight="600" fill="#94a3b8" text-anchor="middle">{month_names[d_obj.month - 1]}</text>')
             prev_month = d_obj.month
 
-    # Grid Halus Sumbu Y
     grid_lines = []
     for frac in (0.33, 0.66, 1.0):
         y_pos = y_bottom - frac * (y_bottom - y_top)
@@ -263,7 +521,7 @@ def build_native_activity_svg(days, user):
   <text x="{x_end}" y="38" font-size="11" font-weight="700" letter-spacing="0.06em" fill="#a855f7" text-anchor="end">CONTRIBUTIONS IN THE LAST YEAR</text>
   {''.join(grid_lines)}
 
-  <!-- Smooth Aurora Area & Pure Laser Line (No Gimmick Badges) -->
+  <!-- Smooth Aurora Area & Pure Laser Line -->
   <path d="{area_path}" fill="url(#wave_aurora)"/>
   <path d="{line_path}" fill="none" stroke="#a855f7" stroke-width="4.8" opacity="0.4" filter="url(#laser_glow)"/>
   <path d="{line_path}" fill="none" stroke="#f3e8ff" stroke-width="2.4"/>
@@ -631,7 +889,13 @@ def main():
             f.write(pacman_svg)
     print(f"[SUCCESS] Pac-Man SVGs berhasil dibuat di {args.out}/")
 
-    # 2. Generate Clean, Elegant Activity Graph (No AI Slop)
+    # 2. Generate 8-Bit Cyber Commando Striker SVG (Native Built-in Pixel Art)
+    soldier_svg = build_soldier_shooter_svg(days, args.user)
+    with open(os.path.join(args.out, "soldier-contribution-graph-dark.svg"), "w", encoding="utf-8") as f:
+        f.write(soldier_svg)
+    print(f"[SUCCESS] Tactical Commando Striker SVG dibuat di {args.out}/soldier-contribution-graph-dark.svg")
+
+    # 3. Generate Clean, Elegant Activity Graph (No AI Slop)
     activity_svg = build_native_activity_svg(days, args.user)
     with open(os.path.join(args.out, "activity-graph.svg"), "w", encoding="utf-8") as f:
         f.write(activity_svg)
