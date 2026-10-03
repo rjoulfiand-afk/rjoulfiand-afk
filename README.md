@@ -70,8 +70,6 @@
   <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg" alt="Pac-Man & Monsters eating contribution grid" width="94%" style="max-width: 740px;" />
 </p>
 
-
-
 <br>
 
 ### 📊 DEVELOPER METRICS & ACTIVITY
