@@ -72,6 +72,15 @@
 
 <br>
 
+### 🪖 8-BIT CYBER COMMANDO: TARGET RECON
+*Tactical Contribution Striker — Real-Time Commit Sniping*
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/soldier-contribution-graph-dark.svg" alt="Tactical Commando Shooting GitHub Contributions" width="94%" style="max-width: 740px;" />
+</p>
+
+<br>
+
 ### 📊 DEVELOPER METRICS & ACTIVITY
 
 <p align="center">
