@@ -121,19 +121,17 @@ def load_days(user):
 # ==================== ELEGANT NATIVE ACTIVITY GRAPH (NO AI SLOP) ====================
 def build_native_activity_svg(days, user):
     """
-    Menghasilkan SVG Activity Graph Murni & Elegan:
-    - Zero AI Slop (No Supernova, No Live Matrix, No Peak 59 XP)
-    - Data Real-time 52 Minggu Akurat (Sesuai 292 Kontribusi GitHub)
+    Menghasilkan SVG Activity Graph Murni & Elegan Sesuai Foto Kedua:
+    - Kredensial Asli Rixsan Joulfiand (@rjoulfiand-afk)
+    - Data Real-time 52 Minggu Akurat
     - Silk-Smooth Wave & Clean Minimalist Typography
     """
     day_map = {d.date: d.count for d in days}
     today = dt.date.today()
     start_date = today - dt.timedelta(days=363)
     
-    # Hitung total kontribusi 365 hari terakhir
     total_year = sum(day_map.get((start_date + dt.timedelta(days=i)).isoformat(), 0) for i in range(364))
 
-    # Kelompokkan 52 minggu kalender presisi
     week_totals = []
     week_start_dates = []
     for w in range(52):
@@ -144,20 +142,17 @@ def build_native_activity_svg(days, user):
 
     max_c = max(max(week_totals), 1)
 
-    # Dimensi Kanvas
     W, H = 840, 250
     x_start, x_end = 320, 780
     y_top, y_bottom = 54, 196
     step_x = (x_end - x_start) / 51.0
 
-    # Titik Koordinat Kurva (Zero-Clamped)
     pts = []
     for i, cnt in enumerate(week_totals):
         px = x_start + i * step_x
         py = y_bottom - (cnt / max_c) * (y_bottom - y_top)
         pts.append((px, py))
 
-    # Catmull-Rom Spline Halus (Tanpa Menembus ke Bawah Nol)
     d_segs = [f"M {num(pts[0][0])} {num(pts[0][1])}"]
     for i in range(len(pts) - 1):
         p0 = pts[i - 1] if i > 0 else pts[i]
@@ -177,7 +172,6 @@ def build_native_activity_svg(days, user):
     line_path = " ".join(d_segs)
     area_path = f"{line_path} L {num(pts[-1][0])} {y_bottom} L {num(pts[0][0])} {y_bottom} Z"
 
-    # Label Bulan Sumbu X (Tepat di Posisi Pergantian Bulan Asli)
     month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     date_labels = []
     prev_month = -1
@@ -186,7 +180,6 @@ def build_native_activity_svg(days, user):
             date_labels.append(f'<text x="{num(pts[i][0])}" y="{y_bottom + 18}" font-size="10.5" font-weight="600" fill="#94a3b8" text-anchor="middle">{month_names[d_obj.month - 1]}</text>')
             prev_month = d_obj.month
 
-    # Grid Halus Sumbu Y
     grid_lines = []
     for frac in (0.33, 0.66, 1.0):
         y_pos = y_bottom - frac * (y_bottom - y_top)
@@ -227,7 +220,6 @@ def build_native_activity_svg(days, user):
     .st_sub {{ font-size: 11px; fill: #94a3b8; }}
   </style>
 
-  <!-- Card Body & Border -->
   <rect width="{W}" height="{H}" rx="14" fill="url(#card_bg)"/>
   <rect width="{W}" height="{H}" rx="14" fill="none" stroke="url(#border_line)" stroke-width="1.4"/>
 
@@ -235,7 +227,6 @@ def build_native_activity_svg(days, user):
   <text class="hd_name" x="34" y="44">Rixsan Joulfiand</text>
   <text class="hd_user" x="34" y="62">@{escape(user)}</text>
 
-  <!-- Credential 1: Total Contributions -->
   <g transform="translate(34, 94)">
     <circle cx="10" cy="10" r="10" fill="#7e22ce" opacity="0.3"/>
     <svg x="2" y="2" width="16" height="16" viewBox="0 0 24 24" fill="#c084fc"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z"/></svg>
@@ -243,7 +234,6 @@ def build_native_activity_svg(days, user):
     <text class="st_sub" x="30" y="28">in the last year</text>
   </g>
 
-  <!-- Credential 2: Architecture & Repositories -->
   <g transform="translate(34, 144)">
     <circle cx="10" cy="10" r="10" fill="#7e22ce" opacity="0.3"/>
     <svg x="2" y="2" width="16" height="16" viewBox="0 0 24 24" fill="#c084fc"><path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 2v14h16V5H4zm3 3h10v2H7V8zm0 4h10v2H7v-2z"/></svg>
@@ -251,7 +241,6 @@ def build_native_activity_svg(days, user):
     <text class="st_sub" x="30" y="28">Full-Stack Ecosystems</text>
   </g>
 
-  <!-- Credential 3: Engineering Consistency -->
   <g transform="translate(34, 194)">
     <circle cx="10" cy="10" r="10" fill="#7e22ce" opacity="0.3"/>
     <svg x="2" y="2" width="16" height="16" viewBox="0 0 24 24" fill="#c084fc"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm1 14.5h-2v-2h2v2zm0-4h-2V7h2v5.5z"/></svg>
@@ -263,7 +252,6 @@ def build_native_activity_svg(days, user):
   <text x="{x_end}" y="38" font-size="11" font-weight="700" letter-spacing="0.06em" fill="#a855f7" text-anchor="end">CONTRIBUTIONS IN THE LAST YEAR</text>
   {''.join(grid_lines)}
 
-  <!-- Smooth Aurora Area & Pure Laser Line (No Gimmick Badges) -->
   <path d="{area_path}" fill="url(#wave_aurora)"/>
   <path d="{line_path}" fill="none" stroke="#a855f7" stroke-width="4.8" opacity="0.4" filter="url(#laser_glow)"/>
   <path d="{line_path}" fill="none" stroke="#f3e8ff" stroke-width="2.4"/>
@@ -615,11 +603,13 @@ def build_svg(days, user, title):
     return "".join(A)
 
 def main():
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(description="Pac-Man Arcade & Authentic Activity Graph")
     ap.add_argument("--user", default="rjoulfiand-afk")
     ap.add_argument("--title", default="Chomping XP")
     ap.add_argument("--out", default="dist")
-    args = ap.parse_args()
+    
+    # parse_known_args mengabaikan argumen ekstra tanpa error
+    args, _ = ap.parse_known_args()
 
     days = load_days(args.user)
     os.makedirs(args.out, exist_ok=True)
@@ -631,11 +621,11 @@ def main():
             f.write(pacman_svg)
     print(f"[SUCCESS] Pac-Man SVGs berhasil dibuat di {args.out}/")
 
-    # 2. Generate Clean, Elegant Activity Graph (No AI Slop)
+    # 2. Generate Clean, Elegant Activity Graph Sesuai Foto Kedua
     activity_svg = build_native_activity_svg(days, args.user)
     with open(os.path.join(args.out, "activity-graph.svg"), "w", encoding="utf-8") as f:
         f.write(activity_svg)
-    print(f"[SUCCESS] Elegant Activity Graph SVG dibuat di {args.out}/activity-graph.svg")
+    print(f"[SUCCESS] Authentic Activity Graph SVG dibuat di {args.out}/activity-graph.svg")
 
 if __name__ == "__main__":
     try:
