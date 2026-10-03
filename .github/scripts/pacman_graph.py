@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Pac-Man Cyberpunk Arcade + 8-Bit Tactical Commando (Arcade Stage & Juicy Physics)
+Pac-Man Cyberpunk Arcade + 8-Bit Tactical Commando (Precision 1-to-1 Destruction & Smooth Walk)
 Authentic Developer Metrics, Zero AI Slop, 100% Native Vector Animation
 """
 import argparse
@@ -122,7 +122,7 @@ def load_days(user):
 def render_arcade_commando_sprite():
     return '''
     <!-- Drop Shadow Ground -->
-    <ellipse cx="0" cy="2" rx="15" ry="4.5" fill="#000000" opacity="0.65"/>
+    <ellipse cx="0" cy="2" rx="15" ry="4.5" fill="#000000" opacity="0.6"/>
 
     <!-- Combat Boots -->
     <rect x="-9" y="-8" width="7" height="8" rx="2" fill="#38211b"/>
@@ -152,8 +152,8 @@ def render_arcade_commando_sprite():
     <rect x="-12" y="-29" width="5.5" height="5.5" rx="1.5" fill="#713f2f"/>
     <rect x="7" y="-27" width="5.5" height="5.5" rx="1.5" fill="#713f2f"/>
 
-    <!-- Assault Rifle Upright (Aiming Upwards toward the grid) -->
-    <g transform="rotate(-60 2 -32)">
+    <!-- Assault Rifle Upright (Aiming Upwards) -->
+    <g transform="rotate(-68 2 -32)">
       <!-- Gun Body -->
       <rect x="-16" y="-33" width="30" height="5" rx="1.5" fill="#1f2937"/>
       <rect x="-10" y="-28" width="4.5" height="6" rx="1" fill="#111827"/>
@@ -163,7 +163,7 @@ def render_arcade_commando_sprite():
       <rect x="26" y="-35.5" width="3" height="6" rx="1" fill="#4b5563"/>
     </g>
 
-    <!-- Hair (Auburn Tufts peeking out) -->
+    <!-- Hair (Auburn Tufts) -->
     <rect x="-12" y="-50" width="4.5" height="9" rx="2" fill="#78350f"/>
     <rect x="7.5" y="-50" width="4.5" height="9" rx="2" fill="#78350f"/>
     <rect x="-13" y="-45" width="3" height="5" fill="#58250a"/>
@@ -196,34 +196,52 @@ def render_arcade_commando_sprite():
     <circle cx="6" cy="-58" r="1.3" fill="#d9f99d"/>
     '''
 
-# ==================== 8-BIT CYBER COMMANDO STRIKER (ARCADE STAGE) ====================
+# ==================== 8-BIT CYBER COMMANDO STRIKER (PRECISION 1-TO-1 DESTRUCTION) ====================
 def build_soldier_shooter_svg(days, user):
     W = max(d.col for d in days) + 1
     cellset = {(d.col, d.row) for d in days}
     active_days = [d for d in days if d.count > 0]
     total_commits = sum(d.count for d in days)
 
-    x0, y0 = 58, 92
+    x0, y0 = 58, 102
     gw = W * P - G
-    Wt, Ht = x0 + gw + 36, 420
+    Wt, Ht = x0 + gw + 36, 430
     cxp = lambda c: x0 + c * P + S / 2
     cyp = lambda r: y0 + r * P + S / 2
 
+    # Ambil 6 target aktif unik yang tersebar luas dari awal, tengah, hingga akhir tahun
     sorted_active = sorted(active_days, key=lambda d: d.col)
-    if len(sorted_active) >= 10:
-        step_idx = len(sorted_active) // 10
-        targets = [sorted_active[i * step_idx] for i in range(9)] + [sorted_active[-1]]
+    if len(sorted_active) >= 6:
+        raw_targets = [
+            sorted_active[0],
+            sorted_active[len(sorted_active) // 5],
+            sorted_active[(len(sorted_active) * 2) // 5],
+            sorted_active[(len(sorted_active) * 3) // 5],
+            sorted_active[(len(sorted_active) * 4) // 5],
+            sorted_active[-1]
+        ]
     else:
-        targets = sorted_active if sorted_active else [Day("2026-10-01", 45, 3, 5, 3)]
+        raw_targets = sorted_active if sorted_active else [Day("2026-10-01", 45, 3, 5, 3)]
+
+    # Pastikan setiap target punya kolom berbeda agar perjalanan tentara jauh dan jelas
+    seen = set()
+    targets = []
+    for t in raw_targets:
+        if t.col not in seen:
+            seen.add(t.col)
+            targets.append(t)
+    targets = targets if targets else raw_targets
 
     shots_count = len(targets)
-    step_sec = 1.45
+    # 2.1 detik per target: 0.85s jalan mulus, 0.45s bidik/tembak, 0.25s peluru terbang & hancur, 0.55s jeda
+    step_sec = 2.1
     shooting_duration = shots_count * step_sec
-    victory_sec = 3.2
+    victory_sec = 3.6
     T = shooting_duration + victory_sec
 
-    rail_y = y0 + 7 * P + 86
-    soldier_xs = [cxp(t.col) for t in targets]
+    # Runway tentara dibuat lapang di bawah grid
+    rail_y = y0 + 7 * P + 96
+    mid_col_x = cxp(W // 2)
 
     L = PALETTES["purple"]["levels"]
 
@@ -237,56 +255,64 @@ def build_soldier_shooter_svg(days, user):
     svg_parts.append(f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {Wt} {Ht}" width="{Wt}" height="{Ht}" role="img" shape-rendering="geometricPrecision">
   <defs>
     <linearGradient id="arc_bg" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0%" stop-color="#0c0e17"/>
-      <stop offset="100%" stop-color="#05070b"/>
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#06080d"/>
     </linearGradient>
+    <radialGradient id="amb_glow1" cx="20%" cy="20%" r="50%">
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="amb_glow2" cx="80%" cy="80%" r="50%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0"/>
+    </radialGradient>
     <linearGradient id="arc_bd" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.9"/>
-      <stop offset="50%" stop-color="#38bdf8" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#ec4899" stop-opacity="0.8"/>
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.85"/>
+      <stop offset="50%" stop-color="#38bdf8" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="#a855f7" stop-opacity="0.85"/>
     </linearGradient>
-    <linearGradient id="metal_runway" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="runway_gantry" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#1e293b"/>
-      <stop offset="50%" stop-color="#0f172a"/>
+      <stop offset="60%" stop-color="#0f172a"/>
       <stop offset="100%" stop-color="#020617"/>
     </linearGradient>
     <filter id="bullet_glow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="3.0" result="b1"/>
+      <feGaussianBlur stdDeviation="2.5" result="b1"/>
       <feMerge>
         <feMergeNode in="b1"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
-    <filter id="bubble_shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.5"/>
+    <filter id="bubble_shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#000000" flood-opacity="0.6"/>
     </filter>
     {''.join(cell_defs)}
   </defs>
 
   <style>
     text {{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }}
-    .stage_tag {{ font-size: 11px; font-weight: 900; letter-spacing: 0.14em; fill: #38bdf8; }}
-    .stage_title {{ font-size: 20px; font-weight: 800; letter-spacing: 0.04em; fill: #ffffff; }}
-    .hud_lbl {{ font-size: 10px; font-weight: 800; letter-spacing: 0.1em; fill: #94a3b8; }}
-    .hud_num {{ font-size: 20px; font-weight: 900; fill: #facc15; }}
+    .hd_tag {{ font-size: 11px; font-weight: 800; letter-spacing: 0.12em; fill: #a855f7; }}
+    .hd_title {{ font-size: 19px; font-weight: 800; letter-spacing: 0.04em; fill: #ffffff; }}
+    .badge_txt {{ font-size: 11.5px; font-weight: 700; fill: #e2e8f0; }}
   </style>
 
-  <!-- Arcade Stage Cabinet Body -->
+  <!-- Ambient Stage Body & Soft Neon Blobs -->
   <rect width="{Wt}" height="{Ht}" rx="18" fill="url(#arc_bg)"/>
-  <rect x="1" y="1" width="{Wt - 2}" height="{Ht - 2}" rx="17" fill="none" stroke="url(#arc_bd)" stroke-width="1.8"/>
+  <rect width="{Wt}" height="{Ht}" rx="18" fill="url(#amb_glow1)"/>
+  <rect width="{Wt}" height="{Ht}" rx="18" fill="url(#amb_glow2)"/>
+  <rect x="1" y="1" width="{Wt - 2}" height="{Ht - 2}" rx="17" fill="none" stroke="url(#arc_bd)" stroke-width="1.6"/>
 
-  <!-- Top Arcade Marquee HUD -->
-  <g transform="translate(38, 30)">
-    <text class="stage_tag" x="0" y="12">▶ STAGE 01 : RECON DEPLOYMENT</text>
-    <text class="stage_title" x="0" y="34">TACTICAL COMMIT STRIKER</text>
+  <!-- Sleek Top Header HUD (Zero Gimmick Coins) -->
+  <g transform="translate(38, 34)">
+    <text class="hd_tag" x="0" y="12">▶ TACTICAL RECON UNIT</text>
+    <text class="hd_title" x="0" y="34">8-BIT CYBER COMMANDO : COMMIT STRIKER</text>
   </g>
 
-  <!-- Right HUD Scores -->
-  <g transform="translate({Wt - 240}, 30)">
-    <text class="hud_lbl" x="0" y="12">AMMO</text>
-    <text class="hud_num" x="0" y="34">999<tspan font-size="12" fill="#a855f7">/INF</tspan></text>
-    <text class="hud_lbl" x="110" y="12">COMMITS</text>
-    <text class="hud_num" x="110" y="34">{total_commits}</text>
+  <!-- Right Clean Authentic Badge -->
+  <g transform="translate({Wt - 230}, 36)">
+    <rect x="0" y="0" width="192" height="34" rx="8" fill="#131722" stroke="#2a334d" stroke-width="1.2"/>
+    <circle cx="16" cy="17" r="4.5" fill="#22c55e"/>
+    <text class="badge_txt" x="28" y="21"><tspan font-weight="800" fill="#a855f7">{total_commits}</tspan> Commits Verified</text>
   </g>
 
   <!-- Grid Dasar (Empty Tiles) -->
@@ -299,129 +325,175 @@ def build_soldier_shooter_svg(days, user):
         tiles.append(f'<rect x="{num(tx)}" y="{num(ty)}" width="{S}" height="{S}" rx="4.6" fill="{PALETTES["purple"]["tile"]}" stroke="{PALETTES["purple"]["tile_edge"]}" stroke-width="0.8"/>')
     svg_parts.append("  " + "".join(tiles) + "\n")
 
+    # Render Kotak Kontribusi & 1-TO-1 DESTRUCTION SHATTER PHYSICS
     target_cells = {(t.col, t.row): i for i, t in enumerate(targets)}
     for d in active_days:
         cx, cy = cxp(d.col), cyp(d.row)
+        lvl_color = L[min(3, max(0, d.level - 1))]
         
         t_idx = target_cells.get((d.col, d.row), None)
         if t_idx is not None:
-            hit_t = (t_idx * step_sec + 0.52) / T
-            k0 = max(0.001, hit_t - 0.015)
-            k1 = hit_t
-            k2 = min(0.999, hit_t + 0.025)
-            k3 = min(0.999, hit_t + 0.05)
-            kts = f"0;{kt(k0)};{kt(k1)};{kt(k2)};{kt(k3)};1"
+            # Waktu persis saat peluru tiba dan menghancurkan kotak ini
+            t_hit = (t_idx * step_sec + 1.35) / T
+            k0 = max(0.001, t_hit - 0.015)
+            k1 = t_hit
+            k2 = min(0.999, t_hit + 0.018)
+            k3 = min(0.999, t_hit + 0.065)
+            k_end_shatter = (shooting_duration + 0.2) / T
+
+            kts_box = f"0;{kt(k0)};{kt(k1)};{kt(k2)};{kt(k_end_shatter)};1"
+            kts_shard = f"0;{kt(k0)};{kt(k1)};{kt(k3)};{kt(k_end_shatter)};1"
             
+            # KOTAK HANCUR LEBUR SAAT DITEMBAK: Normal -> Kena Hit -> Pecah -> Lenyap Total
             anim = f'''
     <g transform="translate({num(cx)} {num(cy)})">
+      <!-- Kotak Induk: Flash Putih Lalu Lenyap (Hancur) -->
       <g>
-        <animateTransform attributeName="transform" type="scale" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts}" values="1 1; 1 1; 1.45 1.45; 0.88 0.88; 1 1"/>
+        <animateTransform attributeName="transform" type="scale" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_box}" values="1 1; 1 1; 1.45 1.45; 0 0; 0 0; 1 1"/>
+        <animate attributeName="opacity" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_box}" values="1; 1; 1; 0; 0; 1"/>
         <use href="#scell{d.level}"/>
       </g>
-      <!-- Hit Burst Sparks -->
-      <circle r="0" fill="none" stroke="#fde047" stroke-width="2.5" opacity="0">
-        <animate attributeName="r" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts}" values="0;0;19;22;0"/>
-        <animate attributeName="opacity" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts}" values="0;0;1;0;0"/>
-      </circle>
-      <!-- Floating XP Badge -->
-      <text x="0" y="-12" font-size="10" font-weight="900" fill="#38bdf8" text-anchor="middle" opacity="0">
+      
+      <!-- 4 Puing Pecahan yang Terlempar ke 4 Arah Diagonal -->
+      <g opacity="0">
+        <animate attributeName="opacity" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_shard}" values="0; 0; 1; 0; 0; 0"/>
+        <!-- Puing 1 (Kiri Atas) -->
+        <rect x="-3" y="-3" width="5" height="5" rx="1.5" fill="{lvl_color}">
+          <animateTransform attributeName="transform" type="translate" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_shard}" values="0 0; 0 0; -15 -15; -22 -22; 0 0; 0 0"/>
+        </rect>
+        <!-- Puing 2 (Kanan Atas) -->
+        <rect x="0" y="-3" width="5" height="5" rx="1.5" fill="{lvl_color}">
+          <animateTransform attributeName="transform" type="translate" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_shard}" values="0 0; 0 0; 15 -15; 22 -22; 0 0; 0 0"/>
+        </rect>
+        <!-- Puing 3 (Kiri Bawah) -->
+        <rect x="-3" y="0" width="5" height="5" rx="1.5" fill="{lvl_color}">
+          <animateTransform attributeName="transform" type="translate" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_shard}" values="0 0; 0 0; -15 15; -22 22; 0 0; 0 0"/>
+        </rect>
+        <!-- Puing 4 (Kanan Bawah) -->
+        <rect x="0" y="0" width="5" height="5" rx="1.5" fill="{lvl_color}">
+          <animateTransform attributeName="transform" type="translate" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_shard}" values="0 0; 0 0; 15 15; 22 22; 0 0; 0 0"/>
+        </rect>
+      </g>
+
+      <!-- Floating XP Combat Text -->
+      <text x="0" y="-14" font-size="10.5" font-weight="900" fill="#38bdf8" text-anchor="middle" opacity="0">
         +{d.count} XP
-        <animate attributeName="opacity" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts}" values="0;0;1;0;0"/>
-        <animate attributeName="y" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts}" values="-6;-6;-18;-22;-6"/>
+        <animate attributeName="opacity" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_shard}" values="0; 0; 1; 0; 0; 0"/>
+        <animate attributeName="y" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_shard}" values="-6; -6; -20; -24; -6; -6"/>
       </text>
     </g>'''
             svg_parts.append(anim)
         else:
             svg_parts.append(f'    <g transform="translate({num(cx)} {num(cy)})"><use href="#scell{d.level}"/></g>')
 
+    # Ground Runway Platform
     platform_top = rail_y - 6
     svg_parts.append(f'''
   <!-- Tactical Ground Runway Platform -->
-  <rect x="{x0 - 14}" y="{platform_top}" width="{gw + 28}" height="28" rx="6" fill="url(#metal_runway)" stroke="#334155" stroke-width="1.5"/>
-  <line x1="{x0 - 10}" y1="{platform_top + 2}" x2="{x0 + gw + 10}" y2="{platform_top + 2}" stroke="#38bdf8" stroke-width="1.2" stroke-dasharray="12 8" opacity="0.7"/>
-  <!-- Chevron Runway Lights -->
-  <path d="M{x0 + 10} {platform_top + 14} l8 0 M{x0 + 80} {platform_top + 14} l8 0 M{x0 + 160} {platform_top + 14} l8 0 M{x0 + gw - 80} {platform_top + 14} l8 0 M{x0 + gw - 20} {platform_top + 14} l8 0" stroke="#a855f7" stroke-width="2" stroke-linecap="round"/>
+  <rect x="{x0 - 14}" y="{platform_top}" width="{gw + 28}" height="32" rx="6" fill="url(#runway_gantry)" stroke="#334155" stroke-width="1.5"/>
+  <line x1="{x0 - 10}" y1="{platform_top + 2}" x2="{x0 + gw + 10}" y2="{platform_top + 2}" stroke="#a855f7" stroke-width="1.4" stroke-dasharray="14 8" opacity="0.8"/>
+  <!-- Glowing Marker Lights -->
+  <circle cx="{x0 + 10}" cy="{platform_top + 16}" r="3" fill="#38bdf8"/>
+  <circle cx="{x0 + gw // 3}" cy="{platform_top + 16}" r="3" fill="#a855f7"/>
+  <circle cx="{x0 + 2 * (gw // 3)}" cy="{platform_top + 16}" r="3" fill="#a855f7"/>
+  <circle cx="{x0 + gw - 10}" cy="{platform_top + 16}" r="3" fill="#38bdf8"/>
 ''')
 
+    # RUTE JALAN TENTARA YANG BENAR-BENAR MULUS (0.85s Jalan Santai, Gak Ada Loncat/Teleport)
     pos_frames = []
     key_times = []
-    for i, sx in enumerate(soldier_xs):
-        t_arrive = (i * step_sec) / T
-        t_shoot = (i * step_sec + 0.40) / T
-        t_move = ((i + 1) * step_sec - 0.12) / T
-        key_times.extend([t_arrive, t_shoot, t_move])
-        pos_frames.extend([f"{num(sx)} {rail_y}", f"{num(sx)} {rail_y}", f"{num(sx)} {rail_y}"])
+    soldier_xs = [cxp(t.col) for t in targets]
 
-    t_victory_start = shooting_duration / T
-    key_times.extend([t_victory_start, 1.0])
-    last_x = soldier_xs[-1]
-    pos_frames.extend([f"{num(last_x)} {rail_y}", f"{num(last_x)} {rail_y}"])
+    # Titik awal
+    cur_x = soldier_xs[0]
+    for i, target_x in enumerate(soldier_xs):
+        t_step_start = (i * step_sec) / T
+        # Durasi jalan 0.85 detik yang mulus menuju target_x
+        t_walk_done = (i * step_sec + 0.85) / T
+        # Berhenti, bidik & tembak (0.85s -> 1.70s)
+        t_fire_done = (i * step_sec + 1.70) / T
+
+        key_times.extend([t_step_start, t_walk_done, t_fire_done])
+        # Bergerak dari cur_x ke target_x secara mulus
+        pos_frames.extend([f"{num(cur_x)} {rail_y}", f"{num(target_x)} {rail_y}", f"{num(target_x)} {rail_y}"])
+        cur_x = target_x
+
+    # Selesai menembak: Berjalan mulus ke tengah panggung untuk Selebrasi
+    t_victory_walk = (shooting_duration + 0.9) / T
+    key_times.extend([t_victory_walk, 1.0])
+    pos_frames.extend([f"{num(mid_col_x)} {rail_y}", f"{num(mid_col_x)} {rail_y}"])
 
     key_times_str = ";".join(kt(t) for t in [0.0] + key_times[1:-1] + [1.0])
     pos_str = ";".join(pos_frames)
 
+    # 1 PELURU EMAS KELUAR DARI SENAPAN MENUJU 1 KOTAK (KOORDINAT MUTLAK BEBAS SALAH)
     for i, target in enumerate(targets):
         sx = cxp(target.col)
         ty = cyp(target.row)
-        t_fire = (i * step_sec + 0.38) / T
-        t_impact = (i * step_sec + 0.52) / T
-        t_end = (i * step_sec + 0.55) / T
+        t_fire = (i * step_sec + 1.10) / T
+        t_impact = (i * step_sec + 1.35) / T
+        t_end = (i * step_sec + 1.40) / T
         kts_bullet = f"0;{kt(t_fire)};{kt(t_impact)};{kt(t_end)};1"
 
+        # Titik moncong senapan saat tentara berada di sx
+        muzzle_x = sx + 8
+        muzzle_y = rail_y - 38
+
         svg_parts.append(f'''
-  <!-- Flying Gold Bullet #{i+1} -->
+  <!-- 1 Peluru Emas Khusus untuk Kotak Kolom {target.col} -->
   <g opacity="0">
-    <animate attributeName="opacity" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_bullet}" values="0;1;1;0;0"/>
-    <g transform="translate({num(sx + 10)} {rail_y - 36})">
-      <animateTransform attributeName="transform" type="translate" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_bullet}" values="{num(sx + 10)} {rail_y - 36}; {num(sx + 10)} {rail_y - 36}; {num(sx)} {num(ty)}; {num(sx)} {num(ty)}; {num(sx + 10)} {rail_y - 36}"/>
-      <!-- Golden Bullet Projectile + Trail Flame -->
+    <animate attributeName="opacity" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_bullet}" values="0; 1; 1; 0; 0"/>
+    <g>
+      <animateTransform attributeName="transform" type="translate" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_bullet}" values="{num(muzzle_x)} {num(muzzle_y)}; {num(muzzle_x)} {num(muzzle_y)}; {num(sx)} {num(ty)}; {num(sx)} {num(ty)}; {num(muzzle_x)} {num(muzzle_y)}"/>
+      <!-- Proyektil Kapsul Emas + Lidah Api -->
       <ellipse cx="0" cy="0" rx="3" ry="6.5" fill="#fde047" filter="url(#bullet_glow)"/>
-      <path d="M-2.5 3 L2.5 3 L0 10 Z" fill="#ea580c"/>
+      <path d="M-2.5 3.5 L2.5 3.5 L0 10.5 Z" fill="#ea580c"/>
     </g>
   </g>
 
-  <!-- Ejected Brass Casing Flying Left -->
+  <!-- 1 Selongsong Kuningan Terlontar ke Kiri -->
   <g opacity="0">
-    <animate attributeName="opacity" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_bullet}" values="0;1;0;0;0"/>
-    <g transform="translate({num(sx - 4)} {rail_y - 32})">
+    <animate attributeName="opacity" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_bullet}" values="0; 1; 0; 0; 0"/>
+    <g transform="translate({num(sx - 5)} {num(rail_y - 32)})">
       <animateTransform attributeName="transform" type="translate" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_bullet}" values="0 0; -14 12; -22 26; 0 0; 0 0"/>
-      <rect x="-1.5" y="-3" width="3" height="5" rx="1" fill="#eab308" transform="rotate(35)"/>
+      <rect x="-1.5" y="-3" width="3" height="5.5" rx="1" fill="#eab308" transform="rotate(35)"/>
     </g>
   </g>''')
 
     commando_art = render_arcade_commando_sprite()
 
-    t_bubble_in = (shooting_duration + 0.2) / T
+    # White Comic Speech Bubble di Akhir: MENGAMBANG PAS DI ATAS HELM (y = -98)
+    t_bubble_in = (shooting_duration + 0.95) / T
     t_bubble_out = 0.985
-    kts_bubble = f"0;{kt(t_bubble_in)};{kt(t_bubble_in + 0.03)};{kt(t_bubble_out)};1"
+    kts_bubble = f"0;{kt(t_bubble_in)};{kt(t_bubble_in + 0.025)};{kt(t_bubble_out)};1"
 
     bubble_svg = f'''
-    <!-- White Comic Speech Bubble -->
-    <g transform="translate(18 -76)" opacity="0">
-      <animate attributeName="opacity" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_bubble}" values="0;0;1;1;0"/>
-      <animateTransform attributeName="transform" type="scale" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_bubble}" values="0.4;0.4;1;1;0.4"/>
+    <!-- White Comic Speech Bubble Mengambang Presisi di Atas Helm -->
+    <g transform="translate(0 -98)" opacity="0">
+      <animate attributeName="opacity" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_bubble}" values="0; 0; 1; 1; 0"/>
+      <animateTransform attributeName="transform" type="scale" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{kts_bubble}" values="0.3; 0.3; 1; 1; 0.3"/>
       
-      <!-- Speech Bubble Cloud with pointer triangle -->
-      <path d="M -75 -24 H 75 A 10 10 0 0 1 85 -14 V 12 A 10 10 0 0 1 75 22 H 4 L -6 32 L -4 22 H -75 A 10 10 0 0 1 -85 12 V -14 A 10 10 0 0 1 -75 -24 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" filter="url(#bubble_shadow)"/>
-      <text x="0" y="-3" font-size="11" font-weight="900" fill="#0f172a" text-anchor="middle">Yeayy, all cleared!</text>
-      <text x="0" y="13" font-size="9.5" font-weight="800" fill="#7c3aed" text-anchor="middle">MISSION COMPLETE 🎉</text>
+      <!-- Balon Obrolan Putih Komik dengan Ekor ke Bawah -->
+      <path d="M -80 -24 H 80 A 10 10 0 0 1 90 -14 V 12 A 10 10 0 0 1 80 22 H 6 L 0 32 L -6 22 H -80 A 10 10 0 0 1 -90 12 V -14 A 10 10 0 0 1 -80 -24 Z" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" filter="url(#bubble_shadow)"/>
+      <text x="0" y="-3" font-size="11.5" font-weight="900" fill="#0f172a" text-anchor="middle">Yeayy, all cleared!</text>
+      <text x="0" y="13" font-size="10" font-weight="800" fill="#7c3aed" text-anchor="middle">MISSION COMPLETE 🎉</text>
     </g>
     '''
 
     svg_parts.append(f'''
-  <!-- Prajurit Cyber Commando dengan Animasi Recoil & Patroli -->
+  <!-- Prajurit Cyber Commando dengan Animasi Melangkah Mulus -->
   <g transform="translate({num(soldier_xs[0])} {rail_y})">
     <animateTransform attributeName="transform" type="translate" dur="{num(T,2)}s" repeatCount="indefinite" keyTimes="{key_times_str}" values="{pos_str}"/>
     
-    <!-- Recoil Hentakan Senjata -->
+    <!-- Animasi Marching Bobbing Kaki Saat Melangkah -->
     <g>
-      <animateTransform attributeName="transform" type="translate" dur="{num(step_sec,2)}s" repeatCount="indefinite" keyTimes="0;0.25;0.38;0.50;1" values="0 0; 0 -1; 0 3; 0 -1; 0 0"/>
+      <animateTransform attributeName="transform" type="translate" dur="0.32s" repeatCount="indefinite" values="0 0; 0 -3; 0 0; 0 -2; 0 0"/>
       {commando_art}
       
       <!-- Muzzle Flash Api Tembakan -->
-      <g transform="translate(14 -42)" opacity="0">
-        <animate attributeName="opacity" dur="{num(step_sec,2)}s" repeatCount="indefinite" keyTimes="0;0.34;0.42;0.52;1" values="0;0;1;0;0"/>
-        <circle r="7" fill="#fde047" filter="url(#bullet_glow)"/>
+      <g transform="translate(13 -42)" opacity="0">
+        <animate attributeName="opacity" dur="{num(step_sec,2)}s" repeatCount="indefinite" keyTimes="0;0.50;0.55;0.62;1" values="0; 0; 1; 0; 0"/>
+        <circle r="7.5" fill="#fde047" filter="url(#bullet_glow)"/>
         <circle r="3.5" fill="#ffffff"/>
       </g>
 
@@ -933,7 +1005,7 @@ def main():
             f.write(pacman_svg)
     print(f"[SUCCESS] Pac-Man SVGs berhasil dibuat di {args.out}/")
 
-    # 2. Generate 8-Bit Cyber Commando Striker SVG (Arcade Stage & Juicy Physics)
+    # 2. Generate 8-Bit Cyber Commando Striker SVG (Precision 1-to-1 Destruction)
     soldier_svg = build_soldier_shooter_svg(days, args.user)
     with open(os.path.join(args.out, "soldier-contribution-graph-dark.svg"), "w", encoding="utf-8") as f:
         f.write(soldier_svg)
