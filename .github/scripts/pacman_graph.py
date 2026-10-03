@@ -198,14 +198,6 @@ def render_arcade_commando_sprite():
 
 # ==================== 8-BIT CYBER COMMANDO STRIKER (ARCADE STAGE) ====================
 def build_soldier_shooter_svg(days, user):
-    """
-    Menghasilkan SVG Animasi Tentara Taktis Tingkat Arcade:
-    - Kotak 3D Glossy Kenyal (Sama persis dengan Pac-Man)
-    - Jarak Runway Lapang (110px+ vertical clearance)
-    - Tentara Menjelajah Penuh dari Ujung Kiri ke Kanan
-    - Proyektil Peluru Emas Terbang Asli + Selongsong Kuningan
-    - Bubble Chat Putih Komik di Akhir: "Yeayy, all cleared! Mission complete!"
-    """
     W = max(d.col for d in days) + 1
     cellset = {(d.col, d.row) for d in days}
     active_days = [d for d in days if d.count > 0]
@@ -213,12 +205,10 @@ def build_soldier_shooter_svg(days, user):
 
     x0, y0 = 58, 92
     gw = W * P - G
-    # Luaskan tinggi canvas agar ada space lari & tembak yang lega
     Wt, Ht = x0 + gw + 36, 420
     cxp = lambda c: x0 + c * P + S / 2
     cyp = lambda r: y0 + r * P + S / 2
 
-    # Pilih 10 target yang tersebar luas dari awal tahun, tengah, hingga minggu terbaru
     sorted_active = sorted(active_days, key=lambda d: d.col)
     if len(sorted_active) >= 10:
         step_idx = len(sorted_active) // 10
@@ -229,16 +219,14 @@ def build_soldier_shooter_svg(days, user):
     shots_count = len(targets)
     step_sec = 1.45
     shooting_duration = shots_count * step_sec
-    victory_sec = 3.2  # Durasi selebrasi speech bubble di akhir
+    victory_sec = 3.2
     T = shooting_duration + victory_sec
 
-    # Runway tentara dibuat jauh ke bawah (gap lapang 114px)
     rail_y = y0 + 7 * P + 86
     soldier_xs = [cxp(t.col) for t in targets]
 
     L = PALETTES["purple"]["levels"]
 
-    # Defs gradien kenyal 3D persis seperti Pac-Man
     cell_defs = []
     for i, c in enumerate(L, 1):
         cell_defs.append(f'<linearGradient id="scg{i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{mix(c, "#ffffff", .35)}"/><stop offset=".55" stop-color="{c}"/><stop offset="1" stop-color="{mix(c, "#000000", .32)}"/></linearGradient>')
@@ -304,7 +292,6 @@ def build_soldier_shooter_svg(days, user):
   <!-- Grid Dasar (Empty Tiles) -->
 ''')
 
-    # Render Kotak Dasar Empty
     tiles = []
     for c, r in sorted(cellset):
         tx = x0 + c * P
@@ -312,14 +299,12 @@ def build_soldier_shooter_svg(days, user):
         tiles.append(f'<rect x="{num(tx)}" y="{num(ty)}" width="{S}" height="{S}" rx="4.6" fill="{PALETTES["purple"]["tile"]}" stroke="{PALETTES["purple"]["tile_edge"]}" stroke-width="0.8"/>')
     svg_parts.append("  " + "".join(tiles) + "\n")
 
-    # Render Kotak Kontribusi 3D Kenyal
     target_cells = {(t.col, t.row): i for i, t in enumerate(targets)}
     for d in active_days:
         cx, cy = cxp(d.col), cyp(d.row)
         
         t_idx = target_cells.get((d.col, d.row), None)
         if t_idx is not None:
-            # Waktu peluru sampai di kotak target
             hit_t = (t_idx * step_sec + 0.52) / T
             k0 = max(0.001, hit_t - 0.015)
             k1 = hit_t
@@ -327,7 +312,6 @@ def build_soldier_shooter_svg(days, user):
             k3 = min(0.999, hit_t + 0.05)
             kts = f"0;{kt(k0)};{kt(k1)};{kt(k2)};{kt(k3)};1"
             
-            # Efek bouncy kenyal (squash & stretch)
             anim = f'''
     <g transform="translate({num(cx)} {num(cy)})">
       <g>
@@ -350,7 +334,6 @@ def build_soldier_shooter_svg(days, user):
         else:
             svg_parts.append(f'    <g transform="translate({num(cx)} {num(cy)})"><use href="#scell{d.level}"/></g>')
 
-    # Ground Runway Platform
     platform_top = rail_y - 6
     svg_parts.append(f'''
   <!-- Tactical Ground Runway Platform -->
@@ -360,7 +343,6 @@ def build_soldier_shooter_svg(days, user):
   <path d="M{x0 + 10} {platform_top + 14} l8 0 M{x0 + 80} {platform_top + 14} l8 0 M{x0 + 160} {platform_top + 14} l8 0 M{x0 + gw - 80} {platform_top + 14} l8 0 M{x0 + gw - 20} {platform_top + 14} l8 0" stroke="#a855f7" stroke-width="2" stroke-linecap="round"/>
 ''')
 
-    # Posisi & Pergerakan Patroli Tentara
     pos_frames = []
     key_times = []
     for i, sx in enumerate(soldier_xs):
@@ -370,7 +352,6 @@ def build_soldier_shooter_svg(days, user):
         key_times.extend([t_arrive, t_shoot, t_move])
         pos_frames.extend([f"{num(sx)} {rail_y}", f"{num(sx)} {rail_y}", f"{num(sx)} {rail_y}"])
 
-    # Fase Selebrasi di akhir
     t_victory_start = shooting_duration / T
     key_times.extend([t_victory_start, 1.0])
     last_x = soldier_xs[-1]
@@ -379,7 +360,6 @@ def build_soldier_shooter_svg(days, user):
     key_times_str = ";".join(kt(t) for t in [0.0] + key_times[1:-1] + [1.0])
     pos_str = ";".join(pos_frames)
 
-    # Animasi Peluru Emas Terbang & Lontaran Selongsong Kuningan
     for i, target in enumerate(targets):
         sx = cxp(target.col)
         ty = cyp(target.row)
@@ -409,10 +389,8 @@ def build_soldier_shooter_svg(days, user):
     </g>
   </g>''')
 
-    # Prajurit Sprite
     commando_art = render_arcade_commando_sprite()
 
-    # White Comic Speech Bubble di Akhir: "Yeayy, all cleared! Mission complete!"
     t_bubble_in = (shooting_duration + 0.2) / T
     t_bubble_out = 0.985
     kts_bubble = f"0;{kt(t_bubble_in)};{kt(t_bubble_in + 0.03)};{kt(t_bubble_out)};1"
@@ -702,7 +680,7 @@ def bfs_path(maze, start, goal):
             if n not in parent:
                 parent[n] = c; dq.append(n)
     if goal not in parent: return []
-    path, cur = compiler = goal
+    path, cur = [], goal
     while cur != start:
         path.append(cur)
         cur = parent[cur]
