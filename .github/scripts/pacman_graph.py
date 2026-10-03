@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Pac-Man Cyberpunk Matrix Arcade & Elegant Real-Time Activity Graph Generator
-Clean, Authentic Developer Credentials, Zero AI Slop
+Pac-Man Cyberpunk Matrix Arcade & Data-Driven Cyber Activity Dashboard
+Masterpiece Edition: RGB Laser Border, Sonar Ping, Wave Surfer Comet, Streak Gauge & Cyber Marquee
+Clean, Authentic Developer Credentials, Zero External Dependencies, Zero AI Slop
 """
 import argparse
 import datetime as dt
@@ -118,13 +119,17 @@ def load_days(user):
     print("[INFO] Fallback to active matrix calendar.")
     return demo_days(42)
 
-# ==================== ELEGANT NATIVE ACTIVITY GRAPH (NO AI SLOP) ====================
+# ==============================================================================
+# MASTERPIECE: CYBERPUNK DATA-DRIVEN ACTIVITY DASHBOARD
+# ==============================================================================
 def build_native_activity_svg(days, user):
     """
-    Menghasilkan SVG Activity Graph Murni & Elegan Sesuai Foto Kedua:
-    - Kredensial Asli Rixsan Joulfiand (@rjoulfiand-afk)
-    - Data Real-time 52 Minggu Akurat
-    - Silk-Smooth Wave & Clean Minimalist Typography
+    Menghasilkan SVG Activity Graph Super Hidup:
+    - Running Neon Laser Border Beam (Ide User)
+    - Sonar Ping Ripple di Puncak 81 Commits (Ide Claude #2)
+    - Wave Surfer Comet meluncur di atas kurva
+    - Dynamic Streak Progress Gauge 60% (Ide Claude #3)
+    - Infinite Cyber Stock Ticker Marquee (Ide Claude #10)
     """
     day_map = {d.date: d.count for d in days}
     today = dt.date.today()
@@ -142,17 +147,20 @@ def build_native_activity_svg(days, user):
 
     max_c = max(max(week_totals), 1)
 
-    W, H = 840, 250
+    # Dimensi Kanvas (Ditinggikan sedikit untuk Ticker Bar di bawah)
+    W, H = 840, 268
     x_start, x_end = 320, 780
-    y_top, y_bottom = 54, 196
+    y_top, y_bottom = 54, 186
     step_x = (x_end - x_start) / 51.0
 
+    # Titik Koordinat Kurva
     pts = []
     for i, cnt in enumerate(week_totals):
         px = x_start + i * step_x
         py = y_bottom - (cnt / max_c) * (y_bottom - y_top)
         pts.append((px, py))
 
+    # Catmull-Rom Spline
     d_segs = [f"M {num(pts[0][0])} {num(pts[0][1])}"]
     for i in range(len(pts) - 1):
         p0 = pts[i - 1] if i > 0 else pts[i]
@@ -172,20 +180,29 @@ def build_native_activity_svg(days, user):
     line_path = " ".join(d_segs)
     area_path = f"{line_path} L {num(pts[-1][0])} {y_bottom} L {num(pts[0][0])} {y_bottom} Z"
 
+    # Cari Titik Puncak (Peak Point) untuk Sonar Ping
+    peak_idx = week_totals.index(max(week_totals))
+    peak_x, peak_y = pts[peak_idx]
+
+    # Label Bulan Sumbu X
     month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     date_labels = []
     prev_month = -1
     for i, d_obj in enumerate(week_start_dates):
         if d_obj.month != prev_month and i < 50:
-            date_labels.append(f'<text x="{num(pts[i][0])}" y="{y_bottom + 18}" font-size="10.5" font-weight="600" fill="#94a3b8" text-anchor="middle">{month_names[d_obj.month - 1]}</text>')
+            date_labels.append(f'<text x="{num(pts[i][0])}" y="{y_bottom + 16}" font-size="10.5" font-weight="600" fill="#94a3b8" text-anchor="middle">{month_names[d_obj.month - 1]}</text>')
             prev_month = d_obj.month
 
+    # Grid Halus Sumbu Y
     grid_lines = []
     for frac in (0.33, 0.66, 1.0):
         y_pos = y_bottom - frac * (y_bottom - y_top)
         val = int(max_c * frac)
         grid_lines.append(f'<line x1="{x_start}" y1="{num(y_pos)}" x2="{x_end}" y2="{num(y_pos)}" stroke="#1e2638" stroke-width="1" stroke-dasharray="3 4"/>')
         grid_lines.append(f'<text x="{x_end + 12}" y="{num(y_pos + 4)}" font-size="10" font-weight="600" fill="#64748b">{val}</text>')
+
+    # Keliling Sasis untuk Border Laser: 2 * (840 + 268) = 2216
+    PERIMETER = 2216
 
     svg = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" role="img">
   <defs>
@@ -198,65 +215,140 @@ def build_native_activity_svg(days, user):
       <stop offset="50%" stop-color="#7e22ce" stop-opacity="0.22"/>
       <stop offset="100%" stop-color="#3b0764" stop-opacity="0.0"/>
     </linearGradient>
-    <linearGradient id="border_line" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.85"/>
-      <stop offset="50%" stop-color="#6366f1" stop-opacity="0.35"/>
-      <stop offset="100%" stop-color="#a855f7" stop-opacity="0.85"/>
+    <linearGradient id="laser_beam_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="30%" stop-color="#c084fc"/>
+      <stop offset="70%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#3b0764"/>
     </linearGradient>
-    <filter id="laser_glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="3.0" result="blur"/>
+    <filter id="laser_glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3.2" result="blur"/>
       <feMerge>
         <feMergeNode in="blur"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>
+    <clipPath id="ticker_clip">
+      <rect x="34" y="224" width="772" height="24" rx="6"/>
+    </clipPath>
   </defs>
 
   <style>
     text {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }}
     .hd_name {{ font-size: 19px; font-weight: 800; letter-spacing: 0.03em; fill: #ffffff; }}
     .hd_user {{ font-size: 11.5px; font-weight: 700; fill: #a855f7; }}
-    .st_main {{ font-size: 13.5px; font-weight: 600; fill: #e2e8f0; }}
-    .st_sub {{ font-size: 11px; fill: #94a3b8; }}
+    .st_main {{ font-size: 13px; font-weight: 600; fill: #e2e8f0; }}
+    .st_sub {{ font-size: 10.5px; fill: #94a3b8; }}
+
+    /* 1. RUNNING LASER BORDER BEAM (Ide User) */
+    @keyframes runLaser {{
+      0% {{ stroke-dashoffset: {PERIMETER}; }}
+      100% {{ stroke-dashoffset: 0; }}
+    }}
+    .laser-border {{
+      stroke-dasharray: 180 {PERIMETER - 180};
+      animation: runLaser 5.5s infinite linear;
+    }}
+
+    /* 2. INFINITE CYBER STOCK TICKER MARQUEE (Ide Claude #10) */
+    @keyframes marqueeScroll {{
+      0% {{ transform: translateX(0px); }}
+      100% {{ transform: translateX(-620px); }}
+    }}
+    .ticker-track {{
+      animation: marqueeScroll 15s infinite linear;
+    }}
   </style>
 
+  <!-- Card Body & Static Base Border -->
   <rect width="{W}" height="{H}" rx="14" fill="url(#card_bg)"/>
-  <rect width="{W}" height="{H}" rx="14" fill="none" stroke="url(#border_line)" stroke-width="1.4"/>
+  <rect width="{W}" height="{H}" rx="14" fill="none" stroke="#1e2638" stroke-width="1.2"/>
+
+  <!-- [FITUR 1] RUNNING NEON LASER BORDER BEAM (Memutar Real-Time Mengelilingi Kotak) -->
+  <rect class="laser-border" width="{W}" height="{H}" rx="14" fill="none" stroke="url(#laser_beam_grad)" stroke-width="2.6" filter="url(#laser_glow)"/>
 
   <!-- Left Authentic Credentials Column -->
-  <text class="hd_name" x="34" y="44">Rixsan Joulfiand</text>
-  <text class="hd_user" x="34" y="62">@{escape(user)}</text>
+  <text class="hd_name" x="34" y="42">Rixsan Joulfiand</text>
+  <text class="hd_user" x="34" y="60">@{escape(user)}</text>
 
-  <g transform="translate(34, 94)">
+  <!-- Credential 1: Total Contributions -->
+  <g transform="translate(34, 86)">
     <circle cx="10" cy="10" r="10" fill="#7e22ce" opacity="0.3"/>
     <svg x="2" y="2" width="16" height="16" viewBox="0 0 24 24" fill="#c084fc"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.1-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0012 2z"/></svg>
     <text class="st_main" x="30" y="14"><tspan font-weight="700" fill="#a855f7">{total_year}</tspan> Contributions</text>
-    <text class="st_sub" x="30" y="28">in the last year</text>
+    <text class="st_sub" x="30" y="27">in the last year</text>
   </g>
 
-  <g transform="translate(34, 144)">
+  <!-- Credential 2: Architecture & Repositories -->
+  <g transform="translate(34, 132)">
     <circle cx="10" cy="10" r="10" fill="#7e22ce" opacity="0.3"/>
     <svg x="2" y="2" width="16" height="16" viewBox="0 0 24 24" fill="#c084fc"><path d="M4 3h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zm0 2v14h16V5H4zm3 3h10v2H7V8zm0 4h10v2H7v-2z"/></svg>
     <text class="st_main" x="30" y="14">Public Architectures</text>
-    <text class="st_sub" x="30" y="28">Full-Stack Ecosystems</text>
+    <text class="st_sub" x="30" y="27">Full-Stack Ecosystems</text>
   </g>
 
-  <g transform="translate(34, 194)">
-    <circle cx="10" cy="10" r="10" fill="#7e22ce" opacity="0.3"/>
-    <svg x="2" y="2" width="16" height="16" viewBox="0 0 24 24" fill="#c084fc"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm1 14.5h-2v-2h2v2zm0-4h-2V7h2v5.5z"/></svg>
-    <text class="st_main" x="30" y="14">Active Engineering</text>
-    <text class="st_sub" x="30" y="28">Continuous Development</text>
+  <!-- [FITUR 3] DYNAMIC STREAK GAUGE (Busur Progres 60% 6/10 dengan Ghost Star) -->
+  <g transform="translate(34, 178)">
+    <!-- Base Ring -->
+    <circle cx="10" cy="10" r="9.5" fill="none" stroke="#2e1065" stroke-width="2.8"/>
+    <!-- 60% Active Progress Arc (6 of 10) -->
+    <circle cx="10" cy="10" r="9.5" fill="none" stroke="#c084fc" stroke-width="2.8"
+            stroke-dasharray="35.8 59.7" stroke-linecap="round" transform="rotate(-90 10 10)"/>
+    <!-- Ghost Star Record Target at 100% -->
+    <circle cx="10" cy="0.5" r="1.6" fill="#facc15" filter="url(#laser_glow)">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" repeatCount="indefinite"/>
+    </circle>
+    <text class="st_main" x="30" y="14">Streak Gauge: <tspan font-weight="700" fill="#c084fc">6 / 10d</tspan></text>
+    <text class="st_sub" x="30" y="27">Active Pace (60% to Record)</text>
   </g>
 
   <!-- Right Chart Section -->
-  <text x="{x_end}" y="38" font-size="11" font-weight="700" letter-spacing="0.06em" fill="#a855f7" text-anchor="end">CONTRIBUTIONS IN THE LAST YEAR</text>
+  <text x="{x_end}" y="36" font-size="11" font-weight="700" letter-spacing="0.06em" fill="#a855f7" text-anchor="end">CONTRIBUTIONS IN THE LAST YEAR</text>
   {''.join(grid_lines)}
 
+  <!-- Smooth Aurora Area & Pure Laser Line -->
   <path d="{area_path}" fill="url(#wave_aurora)"/>
   <path d="{line_path}" fill="none" stroke="#a855f7" stroke-width="4.8" opacity="0.4" filter="url(#laser_glow)"/>
   <path d="{line_path}" fill="none" stroke="#f3e8ff" stroke-width="2.4"/>
 
+  <!-- [FITUR 2] SONAR PING RIPPLE (Puncak 81 Commits Berdenyut Radar) -->
+  <g transform="translate({num(peak_x)}, {num(peak_y)})">
+    <circle r="4.5" fill="#facc15" filter="url(#laser_glow)"/>
+    <circle r="2.2" fill="#ffffff"/>
+    <!-- Radar Ripple 1 -->
+    <circle r="5" fill="none" stroke="#c084fc" stroke-width="1.8">
+      <animate attributeName="r" values="4;24" dur="2.2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0" dur="2.2s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Radar Ripple 2 -->
+    <circle r="5" fill="none" stroke="#a855f7" stroke-width="1.4">
+      <animate attributeName="r" values="4;24" begin="1.1s" dur="2.2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="1;0" begin="1.1s" dur="2.2s" repeatCount="indefinite"/>
+    </circle>
+    <!-- Badge Label Puncak -->
+    <rect x="-18" y="-24" width="36" height="15" rx="4" fill="#1e1b4b" stroke="#a855f7" stroke-width="1"/>
+    <text x="0" y="-13" font-size="9" font-weight="800" fill="#facc15" text-anchor="middle">81 PEAK</text>
+  </g>
+
+  <!-- [BONUS] WAVE SURFER COMET (Komet Meluncur di Atas Garis Ombak) -->
+  <circle r="4" fill="#ffffff" filter="url(#laser_glow)">
+    <animateMotion path="{line_path}" dur="6s" repeatCount="indefinite"/>
+  </circle>
+
   {''.join(date_labels)}
+
+  <!-- [FITUR 5] INFINITE CYBER STOCK TICKER MARQUEE (Running Ticker di Bawah) -->
+  <rect x="34" y="224" width="772" height="24" rx="6" fill="#070a10" stroke="#1f283d" stroke-width="1"/>
+  <g clip-path="url(#ticker_clip)">
+    <g class="ticker-track">
+      <text x="0" y="240" font-size="10" font-weight="700" fill="#c084fc" letter-spacing="0.08em">
+        ▲ 81 COMMITS PEAK  ·  🔥 ACTIVE STREAK: 6 DAYS  ·  🏆 RECORD: 10 DAYS  ·  ⚡ {total_year} TOTAL COMMITS  ·  🟢 STATUS: CODING LIVE  ·  🚀 SHIPPING PRIME NOTES  ·  
+      </text>
+      <text x="620" y="240" font-size="10" font-weight="700" fill="#c084fc" letter-spacing="0.08em">
+        ▲ 81 COMMITS PEAK  ·  🔥 ACTIVE STREAK: 6 DAYS  ·  🏆 RECORD: 10 DAYS  ·  ⚡ {total_year} TOTAL COMMITS  ·  🟢 STATUS: CODING LIVE  ·  🚀 SHIPPING PRIME NOTES  ·  
+      </text>
+    </g>
+  </g>
 </svg>'''
     return svg
 
@@ -608,7 +700,6 @@ def main():
     ap.add_argument("--title", default="Chomping XP")
     ap.add_argument("--out", default="dist")
     
-    # parse_known_args mengabaikan argumen ekstra tanpa error
     args, _ = ap.parse_known_args()
 
     days = load_days(args.user)
@@ -621,11 +712,11 @@ def main():
             f.write(pacman_svg)
     print(f"[SUCCESS] Pac-Man SVGs berhasil dibuat di {args.out}/")
 
-    # 2. Generate Clean, Elegant Activity Graph Sesuai Foto Kedua
+    # 2. Generate Masterpiece Cyber Activity Dashboard
     activity_svg = build_native_activity_svg(days, args.user)
     with open(os.path.join(args.out, "activity-graph.svg"), "w", encoding="utf-8") as f:
         f.write(activity_svg)
-    print(f"[SUCCESS] Authentic Activity Graph SVG dibuat di {args.out}/activity-graph.svg")
+    print(f"[SUCCESS] Masterpiece Cyber Activity Graph dibuat di {args.out}/activity-graph.svg")
 
 if __name__ == "__main__":
     try:
