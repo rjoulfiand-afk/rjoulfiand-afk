@@ -76,7 +76,7 @@
 *Tactical Contribution Striker — Real-Time Commit Sniping*
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/soldier-contribution-graph-dark.svg" alt="Tactical Commando Shooting GitHub Contributions" width="94%" style="max-width: 740px;" />
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/soldier-contribution-graph-dark.svg?v=2" alt="Tactical Commando Shooting GitHub Contributions" width="94%" style="max-width: 740px;" />
 </p>
 
 <br>
