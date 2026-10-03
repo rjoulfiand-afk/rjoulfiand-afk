@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Pac-Man Cyberpunk Matrix + 8-Bit Cyber Tank & BBTAN Reclining Commando Striker
-Pure Native SVG Vector Physics - Zero External Dependencies
+Pac-Man Cyberpunk Matrix Arcade & Elegant Real-Time Activity Graph Generator
+Clean, Authentic Developer Credentials, Zero External Dependencies, Zero AI Slop
 """
 import argparse
 import datetime as dt
+from collections import deque
 import json
 import math
 import os
@@ -17,20 +18,26 @@ import urllib.request
 PALETTES = {
     "purple": dict(
         card_a="#0d1117", card_b="#06080d", tile="#131722", tile_edge="#1f2638",
-        levels=["#3b0764", "#6b21a8", "#9333ea", "#c084fc"],
-        accent="#a855f7", glow="#c084fc", text="#f5f3ff", muted="#94a3b8"
+        levels=["#4c1d95", "#7e22ce", "#a855f7", "#e9d5ff"],
+        accent="#a855f7", wall="#a855f7", glow="#c084fc", text="#f5f3ff", muted="#94a3b8"
     )
 }
 
+GHOSTS = [
+    ("blinky", "#ff2a2a", "#ff8080"),
+    ("pinky", "#ff5ecb", "#ffa8e8"),
+    ("inky", "#00e5ff", "#80f2ff"),
+    ("clyde", "#ff9100", "#ffc266"),
+]
+
 S, G = 15, 4
 P = S + G
+DIRS = [(0, -1), (-1, 0), (0, 1), (1, 0)]
 
 def num(x, n=2):
     s = f"{x:.{n}f}"
     if "." in s: s = s.rstrip("0").rstrip(".")
     return "0" if s in ("", "-0") else s
-
-def kt(x): return num(min(1.0, max(0.0, x)), 5)
 
 # ==============================================================================
 # DATA FETCHER (GRAPHQL + PUBLIC SCRAPING FALLBACK)
@@ -107,8 +114,9 @@ def fetch_contributions(username, token=None):
             if cur: weeks.append(cur)
             return {"total": total, "weeks": weeks}
     except Exception as e:
-        sys.stderr.write(f"Scraper warning: {e}. Using deterministic fallback.\n")
+        sys.stderr.write(f"Scraper warning: {e}. Using deterministic seed.\n")
 
+    # Fallback deterministic
     random.seed(42)
     weeks = []
     base = dt.date.today() - dt.timedelta(days=364)
@@ -123,426 +131,20 @@ def fetch_contributions(username, token=None):
     return {"total": 1342, "weeks": weeks}
 
 # ==============================================================================
-# CYBER TANK & BBTAN MULTI-BALL RICOCHET COMMANDO GENERATOR
-# ==============================================================================
-def build_soldier_shooter_svg(data, palette):
-    pal = PALETTES.get(palette, PALETTES["purple"])
-    raw_weeks = data["weeks"][-36:] if len(data["weeks"]) >= 36 else data["weeks"]
-    total_commits = data.get("total", 1342)
-
-    gw = len(raw_weeks)
-    width = 920
-    height = 430
-    grid_ox = 75
-    grid_oy = 70
-    RUNWAY_Y = 340
-
-    TANK_X = 540
-    TANK_Y = RUNWAY_Y
-    CHAIR_X = 260
-    CHAIR_Y = RUNWAY_Y
-
-    T_TOTAL = 18.0
-
-    all_targets = []
-    for c, col in enumerate(raw_weeks):
-        for r, day in enumerate(col):
-            lvl = day.get("level", 0)
-            if lvl > 0:
-                tx = grid_ox + c * P + S // 2
-                ty = grid_oy + r * P + S // 2
-                all_targets.append({"c": c, "r": r, "lvl": lvl, "x": tx, "y": ty})
-
-    if len(all_targets) < 20:
-        for extra_c in range(2, gw - 2, 2):
-            for extra_r in [1, 3, 5]:
-                tx = grid_ox + extra_c * P + S // 2
-                ty = grid_oy + extra_r * P + S // 2
-                all_targets.append({"c": extra_c, "r": extra_r, "lvl": 2, "x": tx, "y": ty})
-
-    all_targets.sort(key=lambda t: (t["c"], t["r"]))
-    max_targets = min(28, len(all_targets))
-    step = len(all_targets) / max_targets
-    targets = [all_targets[int(i * step)] for i in range(max_targets)]
-    N_TARGETS = len(targets)
-
-    css = [
-        f".card-bg {{ fill: {pal['card_a']}; }}",
-        f".glow-border {{ stroke: {pal['accent']}; stroke-width: 1.5; fill: none; }}",
-        f".text-head {{ fill: {pal['text']}; font-family: 'Courier New', monospace; font-weight: bold; font-size: 14px; letter-spacing: 2px; }}",
-        f".text-stat {{ fill: {pal['glow']}; font-family: 'Courier New', monospace; font-size: 12px; }}",
-        f".runway {{ stroke: {pal['tile_edge']}; stroke-dasharray: 4 6; stroke-width: 2; }}",
-        f".runway-glow {{ stroke: {pal['accent']}; stroke-width: 1; opacity: 0.3; }}",
-    ]
-
-    soldier_kf = f"""
-    @keyframes commandoStory {{
-      0% {{ transform: translate({CHAIR_X}px, {RUNWAY_Y}px); }}
-      8.33% {{ transform: translate({TANK_X - 45}px, {RUNWAY_Y}px); }}
-      15.55% {{ transform: translate({TANK_X - 45}px, {RUNWAY_Y}px); }}
-      28.88% {{ transform: translate({CHAIR_X}px, {RUNWAY_Y}px); }}
-      78.88% {{ transform: translate({CHAIR_X}px, {RUNWAY_Y}px); }}
-      81.0% {{ transform: translate({CHAIR_X + 20}px, {RUNWAY_Y}px); }}
-      97.2% {{ transform: translate({CHAIR_X + 20}px, {RUNWAY_Y}px); }}
-      100% {{ transform: translate({CHAIR_X}px, {RUNWAY_Y}px); }}
-    }}
-    .soldier-actor {{
-      animation: commandoStory {T_TOTAL}s infinite ease-in-out;
-    }}
-    """
-    css.append(soldier_kf)
-
-    css.append(f"""
-    @keyframes showWalkCarry {{
-      0%, 28.5% {{ opacity: 1; }}
-      28.6%, 100% {{ opacity: 0; }}
-    }}
-    .state-walk {{ animation: showWalkCarry {T_TOTAL}s infinite; }}
-
-    @keyframes showRecline {{
-      0%, 28.5% {{ opacity: 0; }}
-      28.6%, 78.8% {{ opacity: 1; }}
-      78.9%, 100% {{ opacity: 0; }}
-    }}
-    .state-recline {{ animation: showRecline {T_TOTAL}s infinite; }}
-
-    @keyframes showVictoryJump {{
-      0%, 78.8% {{ opacity: 0; }}
-      78.9%, 98.0% {{ opacity: 1; }}
-      98.1%, 100% {{ opacity: 0; }}
-    }}
-    @keyframes happyBouncing {{
-      0%, 100% {{ transform: translateY(0px); }}
-      50% {{ transform: translateY(-16px); }}
-    }}
-    .state-jump {{
-      animation: showVictoryJump {T_TOTAL}s infinite;
-    }}
-    .jumping-figure {{
-      animation: happyBouncing 0.4s infinite ease-in-out;
-    }}
-    """)
-
-    css.append(f"""
-    @keyframes tankRecoil {{
-      0%, 14.0% {{ transform: translate(0px, 0px); }}
-      14.7% {{ transform: translate(-6px, 1px); }}
-      16.5% {{ transform: translate(0px, 0px); }}
-      100% {{ transform: translate(0px, 0px); }}
-    }}
-    .tank-barrel {{ animation: tankRecoil {T_TOTAL}s infinite ease-out; }}
-
-    @keyframes muzzleFlash {{
-      0%, 14.2% {{ opacity: 0; transform: scale(0.1); }}
-      14.6% {{ opacity: 1; transform: scale(1.6); }}
-      15.5%, 100% {{ opacity: 0; transform: scale(0.2); }}
-    }}
-    .muzzle-blast {{
-      animation: muzzleFlash {T_TOTAL}s infinite ease-out;
-      transform-origin: {TANK_X + 22}px {TANK_Y - 38}px;
-    }}
-    """)
-
-    css.append(f"""
-    @keyframes heliFlight {{
-      0%, 16.0% {{ transform: translate(-100px, 160px); opacity: 0; }}
-      18.0% {{ opacity: 1; }}
-      30.0%, 33.0% {{ transform: translate({CHAIR_X}px, 255px); opacity: 1; }}
-      42.0% {{ transform: translate({width + 100}px, 180px); opacity: 1; }}
-      42.1%, 100% {{ opacity: 0; }}
-    }}
-    .heli-unit {{ animation: heliFlight {T_TOTAL}s infinite ease-in-out; }}
-
-    @keyframes rotorFast {{
-      0% {{ transform: scaleX(1); }}
-      50% {{ transform: scaleX(0.05); }}
-      100% {{ transform: scaleX(1); }}
-    }}
-    .heli-rotor {{ animation: rotorFast 0.08s infinite linear; transform-origin: center; }}
-
-    @keyframes chairDrop {{
-      0%, 30.0% {{ opacity: 0; transform: translateY(-40px); }}
-      33.0%, 97.0% {{ opacity: 1; transform: translateY(0px); }}
-      100% {{ opacity: 0; }}
-    }}
-    .chair-placed {{ animation: chairDrop {T_TOTAL}s infinite ease-out; }}
-    """)
-
-    bullet_elements = []
-    shatter_elements = []
-
-    N_BALLS = 8
-    ball_start_times = [2.7, 3.8, 4.8, 5.8, 6.7, 7.6, 8.5, 9.4]
-    ball_colors = ["#facc15", "#38bdf8", "#ec4899", "#a855f7", "#4ade80", "#f97316", "#e879f9", "#ffffff"]
-
-    target_hit_schedule = {}
-    for i, tgt in enumerate(targets):
-        b_idx = i % N_BALLS
-        hit_time = ball_start_times[b_idx] + (i // N_BALLS) * 1.35 + 0.35
-        target_hit_schedule[(tgt["c"], tgt["r"])] = (i, hit_time, tgt)
-
-    MUZZLE_X = TANK_X + 22
-    MUZZLE_Y = TANK_Y - 38
-
-    for b in range(N_BALLS):
-        b_name = f"bbtan_ball_{b}"
-        t_birth = ball_start_times[b]
-        t_end = 14.2
-
-        assigned_targets = [tgt for (k, (idx, htime, tgt)) in target_hit_schedule.items() if idx % N_BALLS == b]
-        pts = [(MUZZLE_X if b == 0 else targets[b-1]["x"], MUZZLE_Y if b == 0 else targets[b-1]["y"])]
-        for at in assigned_targets:
-            pts.append((at["x"], at["y"]))
-            wall_x = random.choice([grid_ox + 10, grid_ox + gw * P - 10])
-            wall_y = random.choice([grid_oy + 5, grid_oy + 7 * P - 5])
-            pts.append((wall_x, wall_y))
-
-        bk = [f"@keyframes {b_name} {{"]
-        bk.append(f"  0%, {kt((t_birth - 0.05) / T_TOTAL * 100)}% {{ opacity: 0; transform: translate({pts[0][0]}px, {pts[0][1]}px); }}")
-        bk.append(f"  {kt(t_birth / T_TOTAL * 100)}% {{ opacity: 1; transform: translate({pts[0][0]}px, {pts[0][1]}px); }}")
-
-        dur = t_end - t_birth
-        for step_i, (px, py) in enumerate(pts[1:]):
-            cur_t = t_birth + ((step_i + 1) / len(pts[1:])) * dur
-            bk.append(f"  {kt(cur_t / T_TOTAL * 100)}% {{ opacity: 1; transform: translate({px}px, {py}px); }}")
-
-        bk.append(f"  {kt(t_end / T_TOTAL * 100)}%, 100% {{ opacity: 0; transform: translate({pts[-1][0]}px, {pts[-1][1]}px); }}")
-        bk.append("}")
-        css.append("\n".join(bk))
-
-        b_color = ball_colors[b]
-        bullet_elements.append(
-            f'<g style="animation: {b_name} {T_TOTAL}s infinite linear;">'
-            f'  <circle cx="0" cy="0" r="4.5" fill="{b_color}" filter="url(#glow)"/>'
-            f'  <circle cx="0" cy="0" r="2" fill="#ffffff"/>'
-            f'</g>'
-        )
-
-    for (c, r), (idx, th, tgt) in target_hit_schedule.items():
-        bx, by = tgt["x"], tgt["y"]
-        box_kf = f"shatter_box_{idx}"
-        sbk = [f"@keyframes {box_kf} {{"]
-        sbk.append(f"  0%, {kt((th - 0.02) / T_TOTAL * 100)}% {{ transform: scale(1); opacity: 1; }}")
-        sbk.append(f"  {kt(th / T_TOTAL * 100)}% {{ transform: scale(1.4); opacity: 1; }}")
-        sbk.append(f"  {kt((th + 0.05) / T_TOTAL * 100)}%, {kt(17.5 / T_TOTAL * 100)}% {{ transform: scale(0); opacity: 0; }}")
-        sbk.append(f"  100% {{ transform: scale(1); opacity: 1; }}")
-        sbk.append("}")
-        css.append("\n".join(sbk))
-
-        shards_kf = f"shards_burst_{idx}"
-        shk = [f"@keyframes {shards_kf} {{"]
-        shk.append(f"  0%, {kt((th - 0.01) / T_TOTAL * 100)}% {{ opacity: 0; transform: scale(0); }}")
-        shk.append(f"  {kt(th / T_TOTAL * 100)}% {{ opacity: 1; transform: scale(1); }}")
-        shk.append(f"  {kt((th + 0.3) / T_TOTAL * 100)}% {{ opacity: 0.9; transform: scale(1.6); }}")
-        shk.append(f"  {kt((th + 0.5) / T_TOTAL * 100)}%, 100% {{ opacity: 0; transform: scale(2.0); }}")
-        shk.append("}")
-        css.append("\n".join(shk))
-
-        sh_color = pal["levels"][tgt["lvl"] - 1]
-        shatter_elements.append(
-            f'<g style="animation: {shards_kf} {T_TOTAL}s infinite ease-out; transform-origin: {bx}px {by}px;">'
-            f'  <rect x="{bx - 7}" y="{by - 7}" width="4" height="4" rx="1" fill="{sh_color}"/>'
-            f'  <rect x="{bx + 4}" y="{by - 7}" width="4" height="4" rx="1" fill="#facc15"/>'
-            f'  <rect x="{bx - 7}" y="{by + 4}" width="4" height="4" rx="1" fill="{pal["glow"]}"/>'
-            f'  <rect x="{bx + 4}" y="{by + 4}" width="4" height="4" rx="1" fill="{sh_color}"/>'
-            f'</g>'
-        )
-
-    grid_rects = []
-    for c, col in enumerate(raw_weeks):
-        for r, day in enumerate(col):
-            x = grid_ox + c * P
-            y = grid_oy + r * P
-            lvl = day.get("level", 0)
-
-            grid_rects.append(f'<rect x="{x}" y="{y}" width="{S}" height="{S}" rx="3" fill="{pal["tile"]}" stroke="{pal["tile_edge"]}" stroke-width="1"/>')
-
-            if (c, r) in target_hit_schedule:
-                idx, th, tgt = target_hit_schedule[(c, r)]
-                color = pal["levels"][lvl - 1]
-                grid_rects.append(
-                    f'<g style="animation: shatter_box_{idx} {T_TOTAL}s infinite; transform-origin: {x + S//2}px {y + S//2}px;">'
-                    f'  <rect x="{x}" y="{y}" width="{S}" height="{S}" rx="3" fill="{color}" stroke="{pal["accent"]}" stroke-width="0.8"/>'
-                    f'</g>'
-                )
-            elif lvl > 0:
-                color = pal["levels"][lvl - 1]
-                grid_rects.append(f'<rect x="{x}" y="{y}" width="{S}" height="{S}" rx="3" fill="{color}" stroke="{pal["accent"]}" stroke-width="0.8"/>')
-
-    tank_svg = f"""
-    <g transform="translate({TANK_X}, {TANK_Y})">
-      <ellipse cx="0" cy="5" rx="38" ry="7" fill="#000000" opacity="0.5"/>
-      <rect x="-34" y="-8" width="68" height="14" rx="7" fill="#111827" stroke="#374151" stroke-width="1.5"/>
-      <circle cx="-24" cy="-1" r="4" fill="#4b5563"/>
-      <circle cx="-12" cy="-1" r="4" fill="#4b5563"/>
-      <circle cx="0" cy="-1" r="4" fill="#4b5563"/>
-      <circle cx="12" cy="-1" r="4" fill="#4b5563"/>
-      <circle cx="24" cy="-1" r="4" fill="#4b5563"/>
-      <polygon points="-30,-8 30,-8 24,-20 -24,-20" fill="#312e81" stroke="#4f46e5" stroke-width="1"/>
-      <rect x="-18" y="-16" width="36" height="3" rx="1.5" fill="#00e5ff" filter="url(#glow)"/>
-      <g class="tank-barrel">
-        <rect x="-14" y="-28" width="28" height="10" rx="4" fill="#1e1b4b" stroke="#6366f1" stroke-width="1"/>
-        <g transform="rotate(-38, 0, -23)">
-          <rect x="6" y="-26" width="36" height="6" rx="2" fill="#0f172a" stroke="#38bdf8" stroke-width="1"/>
-          <rect x="38" y="-28" width="6" height="10" rx="1.5" fill="#facc15" filter="url(#glow)"/>
-        </g>
-      </g>
-      <rect x="-18" y="-25" width="8" height="4" rx="1" fill="#4338ca"/>
-      <g class="muzzle-blast" transform="translate(22, -38)">
-        <polygon points="0,-14 4,-4 14,0 4,4 0,14 -4,4 -14,0 -4,-4" fill="#facc15" filter="url(#glow)"/>
-        <circle cx="0" cy="0" r="5" fill="#ffffff"/>
-      </g>
-    </g>
-    """
-
-    heli_svg = """
-    <g class="heli-unit">
-      <line x1="-30" y1="-28" x2="30" y2="-28" stroke="#38bdf8" stroke-width="3" class="heli-rotor" filter="url(#glow)"/>
-      <rect x="-2" y="-28" width="4" height="6" fill="#1e293b"/>
-      <ellipse cx="0" cy="-14" rx="20" ry="11" fill="#1e1b4b" stroke="#a855f7" stroke-width="1.5"/>
-      <path d="M 6 -20 Q 18 -14 14 -8 L 4 -8 Z" fill="#00e5ff" filter="url(#glow)"/>
-      <line x1="-20" y1="-14" x2="-38" y2="-17" stroke="#312e81" stroke-width="3"/>
-      <rect x="-41" y="-22" width="3" height="10" rx="1" fill="#38bdf8" class="heli-rotor"/>
-      <line x1="0" y1="-3" x2="0" y2="40" stroke="#facc15" stroke-width="1.5" stroke-dasharray="2 2"/>
-    </g>
-    """
-
-    chair_svg = f"""
-    <g transform="translate({CHAIR_X}, {CHAIR_Y})" class="chair-placed">
-      <ellipse cx="6" cy="4" rx="22" ry="5" fill="#000000" opacity="0.4"/>
-      <line x1="-16" y1="2" x2="22" y2="2" stroke="#64748b" stroke-width="2.5"/>
-      <line x1="-16" y1="2" x2="-4" y2="-22" stroke="#cbd5e1" stroke-width="3"/>
-      <line x1="-4" y1="-22" x2="24" y2="-12" stroke="#cbd5e1" stroke-width="3"/>
-      <line x1="-12" y1="2" x2="6" y2="-18" stroke="#64748b" stroke-width="2"/>
-      <line x1="-3" y1="-22" x2="23" y2="-12" stroke="#c084fc" stroke-width="4" stroke-linecap="round" filter="url(#glow)"/>
-      <line x1="-3" y1="-22" x2="23" y2="-12" stroke="#a855f7" stroke-width="2" stroke-linecap="round"/>
-      <circle cx="-1" cy="-21" r="3.5" fill="#facc15"/>
-    </g>
-    """
-
-    soldier_walk_svg = """
-    <g class="state-walk">
-      <ellipse cx="0" cy="3" rx="10" ry="3.5" fill="#000000" opacity="0.4"/>
-      <rect x="-6" y="-6" width="5" height="7" rx="1" fill="#1e1b4b"/>
-      <rect x="2" y="-6" width="5" height="7" rx="1" fill="#1e1b4b"/>
-      <rect x="-6" y="-20" width="13" height="15" rx="2.5" fill="#312e81"/>
-      <rect x="-3" y="-18" width="8" height="11" rx="1" fill="#4f46e5"/>
-      <rect x="-5" y="-32" width="12" height="11" rx="3" fill="#1e1b4b"/>
-      <rect x="0" y="-29" width="8" height="4" rx="1.5" fill="#00e5ff" filter="url(#glow)"/>
-      <g transform="translate(6, -18) rotate(-20)">
-        <polygon points="0,-4 14,-2 14,4 0,2" fill="#facc15" filter="url(#glow)"/>
-        <rect x="0" y="-3" width="12" height="6" rx="2" fill="#eab308"/>
-        <circle cx="12" cy="0" r="2.5" fill="#ffffff"/>
-      </g>
-    </g>
-    """
-
-    soldier_recline_svg = """
-    <g class="state-recline" transform="translate(4, -12)">
-      <g transform="rotate(18, 0, 0)">
-        <rect x="8" y="-2" width="14" height="5" rx="2" fill="#4338ca"/>
-        <rect x="18" y="-4" width="6" height="5" rx="1.5" fill="#1e1b4b"/>
-        <rect x="-8" y="-8" width="17" height="12" rx="3" fill="#312e81"/>
-        <rect x="-16" y="-12" width="12" height="11" rx="3" fill="#1e1b4b"/>
-        <rect x="-12" y="-9" width="9" height="3.5" rx="1" fill="#00e5ff" filter="url(#glow)"/>
-        <circle cx="-8" cy="-11" r="3" fill="#fbbf24"/>
-      </g>
-      <text x="-12" y="-24" font-family="'Courier New', monospace" font-size="11" font-weight="bold" fill="#38bdf8" filter="url(#glow)">♪ CHILL ♪</text>
-    </g>
-    """
-
-    soldier_victory_svg = """
-    <g class="state-jump">
-      <g class="jumping-figure">
-        <ellipse cx="0" cy="5" rx="12" ry="4" fill="#000000" opacity="0.3"/>
-        <rect x="-8" y="-14" width="5" height="11" rx="1.5" fill="#4338ca" transform="rotate(-15)"/>
-        <rect x="4" y="-14" width="5" height="11" rx="1.5" fill="#4338ca" transform="rotate(15)"/>
-        <rect x="-11" y="-4" width="6" height="5" rx="1" fill="#1e1b4b"/>
-        <rect x="6" y="-4" width="6" height="5" rx="1" fill="#1e1b4b"/>
-        <rect x="-7" y="-28" width="15" height="15" rx="3" fill="#312e81"/>
-        <rect x="-4" y="-25" width="9" height="10" rx="1.5" fill="#4f46e5"/>
-        <rect x="-12" y="-36" width="4" height="14" rx="2" fill="#fbbf24" transform="rotate(-25)"/>
-        <rect x="9" y="-36" width="4" height="14" rx="2" fill="#fbbf24" transform="rotate(25)"/>
-        <circle cx="0.5" cy="-35" r="7.5" fill="#fbbf24"/>
-        <path d="M -4 -36 Q -2 -39 0 -36" stroke="#0f172a" stroke-width="1.5" fill="none"/>
-        <path d="M 1 -36 Q 3 -39 5 -36" stroke="#0f172a" stroke-width="1.5" fill="none"/>
-        <path d="M -2.5 -33 Q 0.5 -30 3.5 -33 Z" fill="#ef4444"/>
-        <path d="M -8 -40 Q 0.5 -46 9 -40 Z" fill="#1e1b4b" stroke="#a855f7" stroke-width="1"/>
-        <text x="0" y="-52" text-anchor="middle" font-family="'Segoe UI', sans-serif" font-size="14" font-weight="900" fill="#facc15" filter="url(#glow)">★ YEAYY! ALL CLEARED! ★</text>
-      </g>
-    </g>
-    """
-
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" width="100%" height="100%">
-  <defs>
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="2.5" result="blur" />
-      <feMerge>
-        <feMergeNode in="blur" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-    <filter id="drop-shadow" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#000000" flood-opacity="0.35"/>
-    </filter>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="{pal['card_a']}"/>
-      <stop offset="100%" stop-color="{pal['card_b']}"/>
-    </linearGradient>
-    <style>
-      {chr(10).join(css)}
-    </style>
-  </defs>
-
-  <rect x="2" y="2" width="{width - 4}" height="{height - 4}" rx="14" fill="url(#bgGrad)"/>
-  <rect x="2" y="2" width="{width - 4}" height="{height - 4}" rx="14" class="glow-border"/>
-
-  <g transform="translate(30, 40)">
-    <circle cx="8" cy="-5" r="4" fill="{pal['accent']}" filter="url(#glow)"/>
-    <text x="22" y="0" class="text-head">CYBER TANK &amp; BBTAN RICOCHET // CHILL COMMANDO</text>
-    <text x="{width - 85}" y="0" text-anchor="end" class="text-stat">COMMITS: {total_commits} | RICOCHET: ACTIVE</text>
-  </g>
-
-  <g id="contribution-grid">
-    {''.join(grid_rects)}
-  </g>
-
-  <g id="shatter-fragments">
-    {''.join(shatter_elements)}
-  </g>
-
-  <g id="bullets-layer">
-    {''.join(bullet_elements)}
-  </g>
-
-  <line x1="40" y1="{RUNWAY_Y + 4}" x2="{width - 40}" y2="{RUNWAY_Y + 4}" class="runway"/>
-  <line x1="40" y1="{RUNWAY_Y + 4}" x2="{width - 40}" y2="{RUNWAY_Y + 4}" class="runway-glow"/>
-
-  {heli_svg}
-  {chair_svg}
-  {tank_svg}
-
-  <g class="soldier-actor">
-    {soldier_walk_svg}
-    {soldier_recline_svg}
-    {soldier_victory_svg}
-  </g>
-</svg>"""
-    return svg
-
-# ==============================================================================
-# PAC-MAN GENERATOR
+# 1. PAC-MAN CYBERPUNK MATRIX GENERATOR
 # ==============================================================================
 def build_pacman_svg(data, palette, title=None):
     pal = PALETTES.get(palette, PALETTES["purple"])
     raw_weeks = data["weeks"][-36:] if len(data["weeks"]) >= 36 else data["weeks"]
     gw = len(raw_weeks)
     width = 920
-    height = 260
-    ox, oy = 75, 60
+    height = 270
+    ox, oy = 75, 65
 
-    header_title = title if title else "PAC-MAN ARCADE // CONTRIB MATRIX"
+    header_title = title if title else "PAC-MAN ARCADE // CHOMPING XP"
+    total_commits = data.get("total", 1342)
 
+    # Render matrix tiles
     rects = []
     for c, col in enumerate(raw_weeks):
         for r, day in enumerate(col):
@@ -553,11 +155,32 @@ def build_pacman_svg(data, palette, title=None):
             stroke = pal["tile_edge"] if lvl == 0 else pal["accent"]
             rects.append(f'<rect x="{x}" y="{y}" width="{S}" height="{S}" rx="3" fill="{fill_c}" stroke="{stroke}" stroke-width="0.8"/>')
 
+    # Ghost renderers
+    ghost_svgs = []
+    for i, (g_name, g_color, g_light) in enumerate(GHOSTS):
+        g_delay = i * 1.8
+        ghost_svgs.append(f"""
+        <g style="animation: ghostPatrol 14s infinite linear; animation-delay: -{g_delay}s;">
+          <g transform="translate(0, {oy + (i % 7) * P})">
+            <!-- Ghost Body -->
+            <path d="M 0 14 L 0 6 A 7 7 0 0 1 14 6 L 14 14 L 11 11 L 8 14 L 5 11 L 2 14 Z" fill="{g_color}" filter="url(#glow-pac)"/>
+            <!-- Eyes -->
+            <circle cx="4" cy="6" r="2" fill="#ffffff"/>
+            <circle cx="10" cy="6" r="2" fill="#ffffff"/>
+            <circle cx="5" cy="6" r="1" fill="#0f172a"/>
+            <circle cx="11" cy="6" r="1" fill="#0f172a"/>
+          </g>
+        </g>
+        """)
+
     svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" width="100%" height="100%">
   <defs>
     <filter id="glow-pac" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="2" result="blur" />
-      <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+      <feGaussianBlur stdDeviation="2.5" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
     </filter>
     <linearGradient id="bgGradPac" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="{pal['card_a']}"/>
@@ -566,43 +189,151 @@ def build_pacman_svg(data, palette, title=None):
     <style>
       .pac-head {{ fill: {pal['text']}; font-family: 'Courier New', monospace; font-weight: bold; font-size: 14px; letter-spacing: 2px; }}
       .pac-stat {{ fill: {pal['glow']}; font-family: 'Courier New', monospace; font-size: 12px; }}
-      @keyframes pacmanWalk {{
-        0% {{ transform: translate({ox - 10}px, {oy + 3 * P}px); }}
-        50% {{ transform: translate({ox + (gw - 2) * P}px, {oy + 3 * P}px); }}
-        100% {{ transform: translate({ox - 10}px, {oy + 3 * P}px); }}
+      
+      @keyframes pacmanRun {{
+        0% {{ transform: translate({ox - 15}px, {oy + 3 * P}px); }}
+        48% {{ transform: translate({ox + (gw - 1) * P}px, {oy + 3 * P}px) scaleX(1); }}
+        50% {{ transform: translate({ox + (gw - 1) * P}px, {oy + 1 * P}px) scaleX(-1); }}
+        98% {{ transform: translate({ox - 15}px, {oy + 1 * P}px) scaleX(-1); }}
+        100% {{ transform: translate({ox - 15}px, {oy + 3 * P}px) scaleX(1); }}
       }}
-      @keyframes pacChomp {{
-        0%, 100% {{ d: path('M 0 0 L 10 -7 A 12 12 0 1 1 10 7 Z'); }}
+      @keyframes pacMouth {{
+        0%, 100% {{ d: path('M 0 0 L 11 -8 A 12 12 0 1 1 11 8 Z'); }}
         50% {{ d: path('M 0 0 L 12 0 A 12 12 0 1 1 12 0 Z'); }}
       }}
-      .pacman-sprite {{ animation: pacmanWalk 12s infinite linear; }}
-      .pacman-body {{ fill: #facc15; animation: pacChomp 0.3s infinite ease-in-out; }}
+      @keyframes ghostPatrol {{
+        0% {{ transform: translate({ox - 30}px, 0); }}
+        50% {{ transform: translate({ox + gw * P + 20}px, 0); }}
+        100% {{ transform: translate({ox - 30}px, 0); }}
+      }}
+      .pacman-sprite {{ animation: pacmanRun 14s infinite linear; }}
+      .pacman-jaw {{ fill: #facc15; animation: pacMouth 0.28s infinite ease-in-out; }}
     </style>
   </defs>
+
+  <!-- Chassis -->
   <rect x="2" y="2" width="{width - 4}" height="{height - 4}" rx="14" fill="url(#bgGradPac)" stroke="{pal['accent']}" stroke-width="1.5"/>
-  <g transform="translate(30, 36)">
+
+  <!-- HUD -->
+  <g transform="translate(30, 38)">
     <circle cx="8" cy="-5" r="4" fill="{pal['accent']}" filter="url(#glow-pac)"/>
     <text x="22" y="0" class="pac-head">{header_title}</text>
-    <text x="{width - 85}" y="0" text-anchor="end" class="pac-stat">SCORE: {data.get('total', 1342) * 10}</text>
+    <text x="{width - 85}" y="0" text-anchor="end" class="pac-stat">SCORE: {total_commits * 10} | LIVE MATRIX</text>
   </g>
-  <g id="pac-grid">{''.join(rects)}</g>
+
+  <!-- Contribution Grid -->
+  <g id="pac-grid">
+    {''.join(rects)}
+  </g>
+
+  <!-- Ghosts -->
+  {''.join(ghost_svgs)}
+
+  <!-- Pac-Man Hero -->
   <g class="pacman-sprite">
-    <path class="pacman-body" d="M 0 0 L 10 -7 A 12 12 0 1 1 10 7 Z" filter="url(#glow-pac)"/>
+    <path class="pacman-jaw" d="M 0 0 L 11 -8 A 12 12 0 1 1 11 8 Z" filter="url(#glow-pac)"/>
   </g>
 </svg>"""
     return svg
 
 # ==============================================================================
-# MAIN DRIVER (ANTI-CRASH WITH UNKNOWN ARGS)
+# 2. ELEGANT REAL-TIME ACTIVITY GRAPH GENERATOR
+# ==============================================================================
+def build_activity_graph_svg(data, palette):
+    pal = PALETTES.get(palette, PALETTES["purple"])
+    raw_weeks = data["weeks"][-32:] if len(data["weeks"]) >= 32 else data["weeks"]
+    total_commits = data.get("total", 1342)
+
+    width = 920
+    height = 240
+    pad_left = 65
+    pad_right = 50
+    pad_top = 65
+    pad_bottom = 45
+
+    gw = len(raw_weeks)
+    week_totals = [sum(d.get("count", 0) for d in w) for w in raw_weeks]
+    max_c = max(max(week_totals, default=1), 10)
+
+    # Calculate smooth bezier curve
+    chart_w = width - pad_left - pad_right
+    chart_h = height - pad_top - pad_bottom
+
+    points = []
+    for i, wt in enumerate(week_totals):
+        px = pad_left + (i / max(1, gw - 1)) * chart_w
+        py = pad_top + chart_h - (wt / max_c) * chart_h
+        points.append((px, py))
+
+    # Build SVG cubic spline
+    path_d = [f"M {num(points[0][0])} {num(points[0][1])}"]
+    for i in range(len(points) - 1):
+        p0 = points[max(0, i - 1)]
+        p1 = points[i]
+        p2 = points[i + 1]
+        p3 = points[min(len(points) - 1, i + 2)]
+        cp1x = p1[0] + (p2[0] - p0[0]) / 6.0
+        cp1y = p1[1] + (p2[1] - p0[1]) / 6.0
+        cp2x = p2[0] - (p3[0] - p1[0]) / 6.0
+        cp2y = p2[1] - (p3[1] - p1[1]) / 6.0
+        path_d.append(f"C {num(cp1x)} {num(cp1y)}, {num(cp2x)} {num(cp2y)}, {num(p2[0])} {num(p2[1])}")
+
+    stroke_d = " ".join(path_d)
+    fill_d = f"{stroke_d} L {num(points[-1][0])} {pad_top + chart_h} L {num(points[0][0])} {pad_top + chart_h} Z"
+
+    # Grid guide lines
+    grid_lines = []
+    for step in range(4):
+        gy = pad_top + (step / 3.0) * chart_h
+        grid_lines.append(f'<line x1="{pad_left}" y1="{num(gy)}" x2="{width - pad_right}" y2="{num(gy)}" stroke="{pal["tile_edge"]}" stroke-dasharray="3 4" stroke-width="1"/>')
+
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" width="100%" height="100%">
+  <defs>
+    <linearGradient id="areaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="{pal['accent']}" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="{pal['accent']}" stop-opacity="0.0"/>
+    </linearGradient>
+    <filter id="lineGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect x="2" y="2" width="{width - 4}" height="{height - 4}" rx="14" fill="{pal['card_a']}" stroke="{pal['accent']}" stroke-width="1.5"/>
+
+  <!-- Header -->
+  <g transform="translate(30, 36)">
+    <circle cx="8" cy="-5" r="4" fill="{pal['accent']}"/>
+    <text x="22" y="0" font-family="'Courier New', monospace" font-weight="bold" font-size="14" fill="{pal['text']}" letter-spacing="2px">ACTIVITY MOMENTUM // REAL-TIME METRICS</text>
+    <text x="{width - 85}" y="0" text-anchor="end" font-family="'Courier New', monospace" font-size="12" fill="{pal['glow']}">TOTAL COMMITS: {total_commits}</text>
+  </g>
+
+  <!-- Guide Lines -->
+  {''.join(grid_lines)}
+
+  <!-- Area Fill & Stroke Curve -->
+  <path d="{fill_d}" fill="url(#areaGrad)"/>
+  <path d="{stroke_d}" fill="none" stroke="{pal['glow']}" stroke-width="2.5" filter="url(#lineGlow)"/>
+
+  <!-- Baseline -->
+  <line x1="{pad_left}" y1="{pad_top + chart_h}" x2="{width - pad_right}" y2="{pad_top + chart_h}" stroke="{pal['accent']}" stroke-width="1.2"/>
+</svg>"""
+    return svg
+
+# ==============================================================================
+# MAIN DRIVER
 # ==============================================================================
 def main():
-    parser = argparse.ArgumentParser(description="Pacman + Cyber Tank BBTAN Generator")
+    parser = argparse.ArgumentParser(description="Pac-Man Arcade & Native Activity Graph")
     parser.add_argument("--user", default="rjoulfiand-afk")
     parser.add_argument("--palette", default="purple")
     parser.add_argument("--out", default="dist")
-    parser.add_argument("--title", default="PAC-MAN ARCADE // CONTRIB MATRIX")
+    parser.add_argument("--title", default="Chomping XP")
     
-    # parse_known_args() mengabaikan argumen tambahan apa pun dari workflow pacman.yml tanpa crash
+    # parse_known_args agar 100% aman dari parameter tak terduga
     args, _ = parser.parse_known_args()
 
     token = os.environ.get("GITHUB_TOKEN")
@@ -611,19 +342,19 @@ def main():
     print(f"[*] Fetching live contributions for {args.user}...")
     data = fetch_contributions(args.user, token)
 
-    # 1. Top: Pac-Man Cyberpunk Matrix
+    # 1. Generate Pac-Man Box
     pacman_svg = build_pacman_svg(data, args.palette, title=args.title)
     with open(os.path.join(args.out, "pacman-contribution-graph-dark.svg"), "w", encoding="utf-8") as f:
         f.write(pacman_svg)
     print(" -> Saved dist/pacman-contribution-graph-dark.svg")
 
-    # 2. Bottom: Cyber Tank & BBTAN Reclining Commando Striker
-    soldier_svg = build_soldier_shooter_svg(data, args.palette)
-    with open(os.path.join(args.out, "soldier-contribution-graph-dark.svg"), "w", encoding="utf-8") as f:
-        f.write(soldier_svg)
-    print(" -> Saved dist/soldier-contribution-graph-dark.svg")
+    # 2. Generate Real-Time Activity Graph
+    act_svg = build_activity_graph_svg(data, args.palette)
+    with open(os.path.join(args.out, "activity-graph.svg"), "w", encoding="utf-8") as f:
+        f.write(act_svg)
+    print(" -> Saved dist/activity-graph.svg")
 
-    print("[✔] Finished generating all vector assets cleanly!")
+    print("[✔] Finished generating all arcade and metric assets cleanly!")
 
 if __name__ == "__main__":
     main()
