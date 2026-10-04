@@ -32,7 +32,12 @@ jobs:
         run: |
           python3 .github/scripts/metrics_cards.py --selftest
 
-      # [BARU] Selftest Arsenal Stack
+      # [PENTING] Unduh & siapkan 29 ikon resmi di runner GitHub Actions
+      - name: Sync Arsenal Icons
+        run: |
+          python3 .github/scripts/arsenal_cards.py --sync-icons
+
+      # Jalankan Arsenal Selftest setelah ikon tersedia
       - name: Run Arsenal Selftest
         run: |
           python3 .github/scripts/arsenal_cards.py --selftest
@@ -52,7 +57,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # [BARU] 2b. Arsenal Stack (ikon vendored, tanpa network)
+      # 2b. Generate Arsenal Stack
       - name: Generate Arsenal Stack
         run: |
           python3 .github/scripts/arsenal_cards.py --out dist
