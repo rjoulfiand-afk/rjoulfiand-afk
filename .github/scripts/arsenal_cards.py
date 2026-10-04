@@ -161,6 +161,12 @@ def sync_icons(dest_dir: pathlib.Path = ICONS_DIR):
         svg_target = dest_dir / f"{item.key}.svg"
         png_target = dest_dir / f"{item.key}.png"
 
+        # Jika sudah ada dan valid, lewati download ulang
+        if svg_target.is_file() and svg_target.stat().st_size > 50:
+            continue
+        if png_target.is_file() and png_target.stat().st_size > 50:
+            continue
+
         try:
             req = urllib.request.Request(item.url, headers=headers)
             with urllib.request.urlopen(req, timeout=15) as resp:
@@ -189,6 +195,15 @@ def sync_icons(dest_dir: pathlib.Path = ICONS_DIR):
     print("[🚀] All 29 manifest icons successfully synced and verified offline!")
 
 def load_icons(dest_dir: pathlib.Path = ICONS_DIR) -> Dict[str, Tuple[str, str]]:
+    # AUTO-SYNC: Jika folder belum ada atau file belum lengkap, unduh otomatis
+    missing = [
+        item.key for item in ALL_ITEMS
+        if not (dest_dir / f"{item.key}.svg").is_file() and not (dest_dir / f"{item.key}.png").is_file()
+    ]
+    if missing:
+        print(f"[*] Missing {len(missing)} vendored icons. Running auto-sync...")
+        sync_icons(dest_dir)
+
     icons: Dict[str, Tuple[str, str]] = {}
     for item in ALL_ITEMS:
         svg_path = dest_dir / f"{item.key}.svg"
