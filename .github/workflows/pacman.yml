@@ -22,7 +22,18 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1. Jalankan Pac-Man Arcade Asli Milikmu (100% Utuh)
+      # T8a: Setup Python 3.12
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # T8d: Step Selftest (Fail-Closed)
+      - name: Run Telemetry Selftest
+        run: |
+          python3 .github/scripts/metrics_cards.py --selftest
+
+      # 1. Jalankan Pac-Man Arcade Asli
       - name: Generate Pac-Man Arcade
         run: |
           python3 .github/scripts/pacman_graph.py \
@@ -30,14 +41,27 @@ jobs:
             --title "Chomping XP" \
             --out dist
 
-      # 2. Jalankan Generator Cyberpunk Metrics (Dengan GITHUB_TOKEN Real)
+      # 2. Jalankan Generator Metrics Suite (Dengan Token Real)
       - name: Generate Developer Metrics Suite
         run: |
           python3 .github/scripts/metrics_cards.py --out dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 3. Push Semua SVGs ke Branch output
+      # T8d: Validasi SVG XML & Ukuran (Fail-Closed)
+      - name: Validate Generated SVGs
+        run: |
+          sudo apt-get install -y libxml2-utils
+          for f in dist/*.svg; do
+            xmllint --noout "$f"
+            size=$(wc -c < "$f")
+            if [ "$size" -gt 61440 ]; then
+              echo "Error: $f exceeds 60 KB ($size bytes)"
+              exit 1
+            fi
+          done
+
+      # 3. Publish ke Output Branch (Hanya jika semua langkah di atas sukses)
       - name: Push SVGs to output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
