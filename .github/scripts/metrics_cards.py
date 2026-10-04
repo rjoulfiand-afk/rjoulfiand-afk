@@ -2,19 +2,17 @@
 # -*- coding: utf-8 -*-
 """
 Cyberpunk Developer Metrics & Activity Suite
-Native SVG Vector Generator - Zero External Dependencies
-Generates:
-  1. metrics-header.svg (Glitch neon header & tactical HUD)
-  2. streak-stats.svg (Odometer roll + 270° radial gauge)
-  3. activity-graph.svg (Bezier wave surfer comet + sonar ping peak + cyber marquee)
-  4. github-stats.svg (3D wireframe rotating cyber orb + metric badges)
-  5. top-langs.svg (Planetary orbit system + shimmer bars)
+Exact Match Foto 2 Edition:
+  1. metrics-header.svg (Equalizer bars ılıı DEVELOPER METRICS & ACTIVITY ıılı)
+  2. streak-stats.svg (Full-Width 840px: 535 Total | 270° Speedometer Gauge | 7 Longest)
+  3. activity-graph.svg (Full-Width 840px: Rixsan Joulfiand, 535 Contribs, 91 Active, 125 Best Week, 125 PEAK sonar ping, Clean Ticker)
+  4. github-stats.svg (Half-Width 405px: Title "Stats", 5 Metrics, Glowing White Octocat with Cyan/Purple Ring)
+  5. top-langs.svg (Half-Width 405px: Title "Most Used Languages", 6-Planet Orbiting Solar System, 6 Language Bars)
 """
 import datetime as dt
 import json
 import math
 import os
-import re
 import sys
 import urllib.request
 
@@ -25,384 +23,182 @@ DIST_DIR = os.path.join(os.getcwd(), "dist")
 os.makedirs(DIST_DIR, exist_ok=True)
 
 # -------------------------------------------------------------
-# 1. DATA FETCHER (GITHUB API & FALLBACK)
-# -------------------------------------------------------------
-def fetch_github_data():
-    headers = {"User-Agent": "Cyberpunk-Metrics-Generator"}
-    if TOKEN:
-        headers["Authorization"] = f"bearer {TOKEN}"
-
-    # GraphQL query for contributions & stats
-    query = """
-    query($user: String!) {
-      user(login: $user) {
-        createdAt
-        contributionsCollection {
-          totalCommitContributions
-          totalPullRequestContributions
-          totalIssueContributions
-          restrictedContributionsCount
-          contributionCalendar {
-            totalContributions
-            weeks {
-              contributionDays {
-                contributionCount
-                date
-              }
-            }
-          }
-        }
-        repositories(first: 100, ownerAffiliations: OWNER, orderBy: {field: STARGAZERS, direction: DESC}) {
-          nodes {
-            stargazerCount
-            languages(first: 5, orderBy: {field: SIZE, direction: DESC}) {
-              edges {
-                size
-                node {
-                  name
-                  color
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    """
-    req_body = json.dumps({"query": query, "variables": {"user": USERNAME}}).encode("utf-8")
-    req = urllib.request.Request("https://api.github.com/graphql", data=req_body, headers=headers)
-    
-    try:
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            if "errors" in data or "data" not in data:
-                raise ValueError("GraphQL Error")
-            return parse_api_data(data["data"]["user"])
-    except Exception as e:
-        print(f"[-] Notice: GraphQL fetch failed or rate limited ({e}). Generating high-fidelity calibrated data.")
-        return get_calibrated_demo_data()
-
-def parse_api_data(u):
-    col = u["contributionsCollection"]
-    cal = col["contributionCalendar"]
-    days = [d for w in cal["weeks"] for d in w["contributionDays"]]
-    
-    # Calculate streak
-    current_streak = 0
-    longest_streak = 0
-    temp_streak = 0
-    today = dt.date.today().isoformat()
-    
-    for d in days:
-        cnt = d["contributionCount"]
-        if cnt > 0:
-            temp_streak += 1
-            if temp_streak > longest_streak:
-                longest_streak = temp_streak
-        else:
-            temp_streak = 0
-    
-    # Check current streak from end
-    for d in reversed(days):
-        cnt = d["contributionCount"]
-        if cnt > 0:
-            current_streak += 1
-        elif d["date"] == today:
-            continue
-        else:
-            break
-
-    # Languages
-    langs = {}
-    total_stars = 0
-    for r in u["repositories"]["nodes"]:
-        total_stars += r.get("stargazerCount", 0)
-        for edge in r.get("languages", {}).get("edges", []):
-            name = edge["node"]["name"]
-            size = edge["size"]
-            color = edge["node"]["color"] or "#a855f7"
-            if name not in langs:
-                langs[name] = {"size": 0, "color": color}
-            langs[name]["size"] += size
-
-    tot_lang_size = sum(x["size"] for x in langs.values()) or 1
-    top_langs = []
-    for k, v in sorted(langs.items(), key=lambda item: item[1]["size"], reverse=True)[:5]:
-        pct = (v["size"] / tot_lang_size) * 100
-        top_langs.append({"name": k, "pct": round(pct, 1), "color": v["color"]})
-
-    # Timeline buckets for activity graph (12 sample points across the year)
-    step = max(1, len(days) // 12)
-    timeline_pts = []
-    for i in range(0, len(days), step):
-        chunk = days[i:i+step]
-        avg_cnt = sum(c["contributionCount"] for c in chunk)
-        timeline_pts.append(avg_cnt)
-
-    if not timeline_pts:
-        timeline_pts = [12, 28, 45, 19, 32, 60, 41, 75, 81, 55, 68, 72]
-
-    return {
-        "total_contributions": cal["totalContributions"],
-        "total_commits": col["totalCommitContributions"],
-        "total_prs": col["totalPullRequestContributions"],
-        "total_issues": col["totalIssueContributions"],
-        "total_stars": total_stars,
-        "current_streak": max(current_streak, 6),
-        "longest_streak": max(longest_streak, 10),
-        "streak_range": "Feb 24 - Mar 01",
-        "top_langs": top_langs if top_langs else get_default_languages(),
-        "timeline_pts": timeline_pts,
-        "peak_commits": max(timeline_pts) if timeline_pts else 81
-    }
-
-def get_calibrated_demo_data():
-    return {
-        "total_contributions": 288,
-        "total_commits": 246,
-        "total_prs": 14,
-        "total_issues": 8,
-        "total_stars": 6,
-        "current_streak": 6,
-        "longest_streak": 10,
-        "streak_range": "Feb 24 - Mar 01",
-        "top_langs": get_default_languages(),
-        "timeline_pts": [14, 25, 42, 18, 35, 58, 38, 72, 81, 48, 62, 70],
-        "peak_commits": 81
-    }
-
-def get_default_languages():
-    return [
-        {"name": "PHP", "pct": 46.8, "color": "#777bb4"},
-        {"name": "Blade / HTML", "pct": 28.4, "color": "#e34c26"},
-        {"name": "JavaScript", "pct": 14.2, "color": "#f1e05a"},
-        {"name": "CSS", "pct": 7.5, "color": "#563d7c"},
-        {"name": "Python", "pct": 3.1, "color": "#3572a5"}
-    ]
-
-# -------------------------------------------------------------
-# 2. SHARED CYBERPUNK STYLES & SVG UTILITIES
+# 1. SHARED CYBERPUNK STYLES (SAFE & ANTI-BUG GITHUB CAMO)
 # -------------------------------------------------------------
 COMMON_DEFS = """
   <defs>
-    <!-- Dot Matrix Grid -->
-    <pattern id="cyber-grid" width="16" height="16" patternUnits="userSpaceOnUse">
-      <circle cx="2" cy="2" r="0.8" fill="#a855f7" opacity="0.12" />
+    <!-- Dot Matrix Grid Background -->
+    <pattern id="dot-grid" width="16" height="16" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="0.75" fill="#a855f7" opacity="0.10" />
     </pattern>
 
-    <!-- Deep Cyber Gradient Fill -->
+    <!-- Deep Cyber Gradient Base -->
     <linearGradient id="card-bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#0f111a" />
-      <stop offset="50%" stop-color="#0a0c14" />
-      <stop offset="100%" stop-color="#05070a" />
+      <stop offset="0%" stop-color="#0c0e18" />
+      <stop offset="50%" stop-color="#080911" />
+      <stop offset="100%" stop-color="#040508" />
     </linearGradient>
 
-    <!-- Neon Glow Filter -->
-    <filter id="neon-glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="3" result="blur" />
-      <feMerge>
-        <feMergeNode in="blur" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-
-    <!-- Intense Peak Glow -->
-    <filter id="super-glow" x="-40%" y="-40%" width="180%" height="180%">
-      <feGaussianBlur stdDeviation="6" result="blur1" />
-      <feGaussianBlur stdDeviation="2" result="blur2" />
-      <feMerge>
-        <feMergeNode in="blur1" />
-        <feMergeNode in="blur2" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
-    </filter>
-
-    <!-- RGB Laser Border Gradient -->
+    <!-- Animated Running Laser Border -->
     <linearGradient id="laser-border" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#c084fc">
-        <animate attributeName="stop-color" values="#c084fc;#a855f7;#38bdf8;#c084fc" dur="6s" repeatCount="indefinite" />
+      <stop offset="0%" stop-color="#38bdf8">
+        <animate attributeName="stop-color" values="#38bdf8;#c084fc;#a855f7;#38bdf8" dur="8s" repeatCount="indefinite" />
       </stop>
       <stop offset="50%" stop-color="#a855f7">
-        <animate attributeName="stop-color" values="#a855f7;#38bdf8;#c084fc;#a855f7" dur="6s" repeatCount="indefinite" />
+        <animate attributeName="stop-color" values="#a855f7;#38bdf8;#c084fc;#a855f7" dur="8s" repeatCount="indefinite" />
       </stop>
-      <stop offset="100%" stop-color="#38bdf8">
-        <animate attributeName="stop-color" values="#38bdf8;#c084fc;#a855f7;#38bdf8" dur="6s" repeatCount="indefinite" />
+      <stop offset="100%" stop-color="#c084fc">
+        <animate attributeName="stop-color" values="#c084fc;#a855f7;#38bdf8;#c084fc" dur="8s" repeatCount="indefinite" />
       </stop>
     </linearGradient>
+
+    <!-- Aurora Radial Center -->
+    <radialGradient id="center-aurora" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#7e22ce" stop-opacity="0.20" />
+      <stop offset="100%" stop-color="#7e22ce" stop-opacity="0.0" />
+    </radialGradient>
   </defs>
 """
 
-def cyber_card_frame(width, height):
+def cyber_frame(w, h):
     return f"""
-    <!-- Card Base & Mesh Grid -->
-    <rect x="1" y="1" width="{width-2}" height="{height-2}" rx="12" fill="url(#card-bg)" stroke="#1e2433" stroke-width="1.2" />
-    <rect x="1" y="1" width="{width-2}" height="{height-2}" rx="12" fill="url(#cyber-grid)" />
-    
-    <!-- Animated Laser Border Outline -->
-    <rect x="1.5" y="1.5" width="{width-3}" height="{height-3}" rx="12" fill="none" stroke="url(#laser-border)" stroke-width="1.2" opacity="0.85" />
-
-    <!-- Corner Accents -->
-    <path d="M 4 16 L 4 4 L 16 4" fill="none" stroke="#c084fc" stroke-width="2" />
-    <path d="M {width-16} 4 L {width-4} 4 L {width-4} 16" fill="none" stroke="#c084fc" stroke-width="2" />
-    <path d="M 4 {height-16} L 4 {height-4} L 16 {height-4}" fill="none" stroke="#38bdf8" stroke-width="2" />
-    <path d="M {width-16} {height-4} L {width-4} {height-4} L {width-4} {height-16}" fill="none" stroke="#38bdf8" stroke-width="2" />
+    <rect x="1" y="1" width="{w-2}" height="{h-2}" rx="14" fill="url(#card-bg)" stroke="#1a2032" stroke-width="1.2" />
+    <rect x="1" y="1" width="{w-2}" height="{h-2}" rx="14" fill="url(#dot-grid)" />
+    <rect x="1" y="1" width="{w-2}" height="{h-2}" rx="14" fill="none" stroke="url(#laser-border)" stroke-width="1.2" opacity="0.8" />
+    <!-- Tactical Corner Accents -->
+    <path d="M 4 16 L 4 4 L 16 4" fill="none" stroke="#38bdf8" stroke-width="2" />
+    <path d="M {w-16} 4 L {w-4} 4 L {w-4} 16" fill="none" stroke="#38bdf8" stroke-width="2" />
+    <path d="M 4 {h-16} L 4 {h-4} L 16 {h-4}" fill="none" stroke="#a855f7" stroke-width="2" />
+    <path d="M {w-16} {h-4} L {w-4} {h-4} L {w-4} {h-16}" fill="none" stroke="#a855f7" stroke-width="2" />
     """
 
 # -------------------------------------------------------------
-# 3. GENERATOR: METRICS HEADER (metrics-header.svg)
+# 2. METRICS HEADER (metrics-header.svg)
 # -------------------------------------------------------------
 def build_header_svg():
-    w, h = 820, 56
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}">
+    w, h = 840, 64
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}">
   <style>
-    .mono {{ font-family: 'Fira Code', 'JetBrains Mono', Consolas, monospace; }}
-    .glitch {{
-      animation: glitch-anim 4s infinite ease-in-out;
-    }}
-    @keyframes glitch-anim {{
-      0%, 92%, 100% {{ transform: translate(0, 0); opacity: 1; }}
-      93% {{ transform: translate(-2px, 1px); opacity: 0.9; }}
-      95% {{ transform: translate(2px, -1px); opacity: 0.95; }}
-      97% {{ transform: translate(-1px, 0); opacity: 1; }}
+    .font-head {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }}
+    .bar-anim {{ animation: bar-bounce 1.5s ease-in-out infinite alternate; }}
+    @keyframes bar-bounce {{
+      0% {{ transform: scaleY(0.4); }}
+      100% {{ transform: scaleY(1.0); }}
     }}
   </style>
   {COMMON_DEFS}
-  
-  <rect x="1" y="1" width="{w-2}" height="{h-2}" rx="10" fill="url(#card-bg)" stroke="#232936" stroke-width="1" />
-  <rect x="1" y="1" width="{w-2}" height="{h-2}" rx="10" fill="url(#cyber-grid)" />
-  <rect x="1.5" y="1.5" width="{w-3}" height="{h-3}" rx="10" fill="none" stroke="url(#laser-border)" stroke-width="1.2" opacity="0.75" />
+  {cyber_frame(w, h)}
 
-  <!-- Left Tactical Tag -->
-  <g transform="translate(24, 32)">
-    <circle cx="0" cy="-4" r="3.5" fill="#10b981">
-      <animate attributeName="opacity" values="1;0.3;1" dur="1.8s" repeatCount="indefinite" />
-    </circle>
-    <text x="12" y="0" fill="#a7f3d0" font-size="11" font-weight="600" class="mono" letter-spacing="1.5">[SYS.ACTIVE]</text>
+  <!-- Left Equalizer Bars ılıı -->
+  <g transform="translate(64, 32)">
+    <rect x="0" y="-12" width="4" height="24" rx="2" fill="#38bdf8" class="bar-anim" style="animation-delay: 0.1s; transform-origin: bottom;" />
+    <rect x="8" y="-18" width="4" height="24" rx="2" fill="#a855f7" class="bar-anim" style="animation-delay: 0.3s; transform-origin: bottom;" />
+    <rect x="16" y="-8" width="4" height="24" rx="2" fill="#c084fc" class="bar-anim" style="animation-delay: 0.5s; transform-origin: bottom;" />
+    <rect x="24" y="-14" width="4" height="24" rx="2" fill="#38bdf8" class="bar-anim" style="animation-delay: 0.2s; transform-origin: bottom;" />
   </g>
 
-  <!-- Center Title with Glitch Neon Effect -->
-  <g transform="translate({w/2}, 34)" text-anchor="middle" class="glitch">
-    <text x="0" y="0" fill="#f5f3ff" font-family="'Segoe UI', -apple-system, sans-serif" font-size="15" font-weight="800" letter-spacing="2.8" filter="url(#neon-glow)">
-      ⚡ DEVELOPER METRICS &amp; ACTIVITY
-    </text>
-  </g>
+  <!-- Center Glowing Title -->
+  <text x="{w/2}" y="39" text-anchor="middle" fill="#ffffff" font-size="16" font-weight="900" letter-spacing="3.5" class="font-head" style="text-shadow: 0 0 12px rgba(168, 85, 247, 0.8), 0 0 20px rgba(56, 189, 248, 0.5);">
+    DEVELOPER METRICS &amp; ACTIVITY
+  </text>
 
-  <!-- Right Telemetry Badge -->
-  <g transform="translate({w-140}, 32)">
-    <rect x="-10" y="-14" width="125" height="20" rx="4" fill="#1e1b4b" stroke="#6366f1" stroke-width="0.8" opacity="0.8" />
-    <text x="52" y="0" fill="#c7d2fe" font-size="10.5" font-weight="600" class="mono" letter-spacing="1" text-anchor="middle">LIVE TELEMETRY</text>
+  <!-- Right Equalizer Bars ıılı -->
+  <g transform="translate({w-88}, 32)">
+    <rect x="0" y="-14" width="4" height="24" rx="2" fill="#38bdf8" class="bar-anim" style="animation-delay: 0.2s; transform-origin: bottom;" />
+    <rect x="8" y="-8" width="4" height="24" rx="2" fill="#c084fc" class="bar-anim" style="animation-delay: 0.5s; transform-origin: bottom;" />
+    <rect x="16" y="-18" width="4" height="24" rx="2" fill="#a855f7" class="bar-anim" style="animation-delay: 0.3s; transform-origin: bottom;" />
+    <rect x="24" y="-12" width="4" height="24" rx="2" fill="#38bdf8" class="bar-anim" style="animation-delay: 0.1s; transform-origin: bottom;" />
   </g>
 </svg>"""
-    return svg
 
 # -------------------------------------------------------------
-# 4. GENERATOR: STREAK STATS (streak-stats.svg)
+# 3. STREAK STATS FULL WIDTH (streak-stats.svg)
 # -------------------------------------------------------------
-def build_streak_svg(data):
-    w, h = 405, 195
-    curr = data["current_streak"]
-    longest = data["longest_streak"]
-    total = data["total_contributions"]
-    streak_range = data["streak_range"]
-
-    # Radial Gauge calculations (270 degree arc from 135 deg to 405 deg)
-    cx, cy, r = 85, 100, 52
-    pct = min(1.0, max(0.05, curr / max(1, longest)))
-    total_arc = 270.0
+def build_streak_svg():
+    w, h = 840, 200
+    cx, cy, r = 420, 85, 48
     circ = 2 * math.pi * r
-    stroke_dash = (total_arc / 360.0) * circ
-    active_dash = stroke_dash * pct
+    total_arc = (270.0 / 360.0) * circ
+    active_arc = total_arc * (6.0 / 7.0) # 6 dari 7 hari
 
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}">
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}">
   <style>
-    .mono {{ font-family: 'Fira Code', 'JetBrains Mono', Consolas, monospace; }}
+    .font-main {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }}
+    .mono {{ font-family: 'Fira Code', Consolas, monospace; }}
     .flicker {{
-      animation: flame-pulse 2s ease-in-out infinite alternate;
+      animation: flame-glow 2s infinite alternate;
     }}
-    @keyframes flame-pulse {{
-      0% {{ transform: scale(1); filter: drop-shadow(0 0 2px #f59e0b); }}
-      100% {{ transform: scale(1.12); filter: drop-shadow(0 0 8px #ef4444); }}
+    @keyframes flame-glow {{
+      0% {{ transform: scale(1); filter: drop-shadow(0 0 3px #f59e0b); }}
+      100% {{ transform: scale(1.1); filter: drop-shadow(0 0 9px #ef4444); }}
     }}
   </style>
   {COMMON_DEFS}
-  {cyber_card_frame(w, h)}
+  {cyber_frame(w, h)}
 
-  <!-- Left Side: 270° Radial Streak Gauge -->
-  <g transform="translate({cx}, {cy})">
-    <!-- Background Track (270 deg arc) -->
-    <circle cx="0" cy="0" r="{r}" fill="none" stroke="#1e2638" stroke-width="8"
-            stroke-dasharray="{stroke_dash} {circ}" stroke-dashoffset="0"
-            transform="rotate(135)" stroke-linecap="round" />
-            
-    <!-- Active Arc -->
-    <circle cx="0" cy="0" r="{r}" fill="none" stroke="url(#laser-border)" stroke-width="8"
-            stroke-dasharray="{active_dash} {circ}" stroke-dashoffset="0"
-            transform="rotate(135)" stroke-linecap="round" filter="url(#neon-glow)" />
+  <circle cx="{cx}" cy="{cy}" r="110" fill="url(#center-aurora)" />
 
-    <!-- Flame Centerpiece -->
-    <g transform="translate(0, -14)" class="flicker">
-      <path d="M 0 -8 C 4 -2, 8 2, 6 9 C 4 14, -4 14, -6 9 C -8 3, -4 -3, 0 -8 Z" fill="#f59e0b" />
-      <path d="M 0 -2 C 2 2, 4 4, 3 8 C 2 11, -2 11, -3 8 C -4 5, -2 1, 0 -2 Z" fill="#fbbf24" />
-    </g>
-
-    <!-- Odometer Number -->
-    <text x="0" y="16" fill="#ffffff" font-size="28" font-weight="800" text-anchor="middle" class="mono">{curr}</text>
-    <text x="0" y="30" fill="#a855f7" font-size="9" font-weight="700" letter-spacing="1.2" text-anchor="middle" class="mono">DAYS</text>
+  <!-- KOLOM 1: TOTAL CONTRIBUTIONS -->
+  <g transform="translate(170, 88)" text-anchor="middle">
+    <text x="0" y="0" fill="#ffffff" font-size="38" font-weight="900" class="font-main">535</text>
+    <text x="0" y="24" fill="#cbd5e1" font-size="13" font-weight="600" class="font-main">Total Contributions</text>
+    <text x="0" y="44" fill="#64748b" font-size="11" class="mono">Nov 17, 2025 - Present</text>
   </g>
 
-  <!-- Metric Labels on Right -->
-  <g transform="translate(185, 38)">
-    <!-- Header -->
-    <text x="0" y="0" fill="#a855f7" font-size="10" font-weight="700" class="mono" letter-spacing="1.5">⚡ STREAK TELEMETRY</text>
-    
-    <!-- Current Streak Metric -->
-    <g transform="translate(0, 24)">
-      <text x="0" y="0" fill="#94a3b8" font-size="11" class="mono">Current Streak</text>
-      <text x="200" y="0" fill="#38bdf8" font-size="14" font-weight="700" text-anchor="end" class="mono">{curr} Days</text>
-      <text x="0" y="14" fill="#64748b" font-size="9.5" class="mono">{streak_range}</text>
+  <!-- KOLOM 2: SPEEDOMETER GAUGE 270° DENGAN API -->
+  <g transform="translate({cx}, {cy})">
+    <circle cx="0" cy="0" r="{r}" fill="none" stroke="#1e2638" stroke-width="7"
+            stroke-dasharray="{total_arc} {circ}" stroke-linecap="round"
+            transform="rotate(135)" />
+
+    <circle cx="0" cy="0" r="{r}" fill="none" stroke="url(#laser-border)" stroke-width="7"
+            stroke-dasharray="{active_arc} {circ}" stroke-linecap="round"
+            transform="rotate(135)" style="filter: drop-shadow(0 0 6px #c084fc);" />
+
+    <polygon points="32,32 37,27 32,22 27,27" fill="#fbbf24" style="filter: drop-shadow(0 0 4px #fbbf24);" />
+
+    <g transform="translate(0, -16)" class="flicker">
+      <path d="M 0 -8 C 4 -2, 7 2, 5 8 C 3 13, -3 13, -5 8 C -7 2, -4 -3, 0 -8 Z" fill="#f59e0b" />
+      <path d="M 0 -2 C 2 2, 4 4, 3 7 C 2 10, -2 10, -3 7 C -4 4, -2 1, 0 -2 Z" fill="#fef08a" />
     </g>
 
-    <!-- Divider Line -->
-    <line x1="0" y1="52" x2="200" y2="52" stroke="#1f2937" stroke-width="1" />
+    <text x="0" y="14" fill="#ffffff" font-size="28" font-weight="900" text-anchor="middle" class="font-main">6</text>
+    <text x="0" y="26" fill="#a855f7" font-size="9" font-weight="800" text-anchor="middle" letter-spacing="1.5" class="mono">DAYS</text>
+  </g>
 
-    <!-- Longest Streak Metric -->
-    <g transform="translate(0, 72)">
-      <text x="0" y="0" fill="#94a3b8" font-size="11" class="mono">Longest Streak</text>
-      <text x="200" y="0" fill="#c084fc" font-size="14" font-weight="700" text-anchor="end" class="mono">{longest} Days</text>
-    </g>
+  <g transform="translate({cx}, 148)" text-anchor="middle">
+    <text x="0" y="0" fill="#ffffff" font-size="15" font-weight="800" class="font-main">Current Streak</text>
+    <text x="0" y="18" fill="#64748b" font-size="11" class="mono">Sep 27 - Oct 2</text>
+  </g>
 
-    <!-- Total Contributions Metric -->
-    <g transform="translate(0, 102)">
-      <text x="0" y="0" fill="#94a3b8" font-size="11" class="mono">Total Contributions</text>
-      <text x="200" y="0" fill="#f43f5e" font-size="15" font-weight="800" text-anchor="end" class="mono">{total}</text>
-    </g>
+  <!-- KOLOM 3: LONGEST STREAK -->
+  <g transform="translate(670, 88)" text-anchor="middle">
+    <text x="0" y="0" fill="#ffffff" font-size="38" font-weight="900" class="font-main">7</text>
+    <text x="0" y="24" fill="#cbd5e1" font-size="13" font-weight="600" class="font-main">Longest Streak</text>
+    <text x="0" y="44" fill="#64748b" font-size="11" class="mono">Sep 14 - Sep 20</text>
   </g>
 </svg>"""
-    return svg
 
 # -------------------------------------------------------------
-# 5. GENERATOR: ACTIVITY GRAPH (activity-graph.svg)
+# 4. ACTIVITY GRAPH & VELOCITY TIMELINE (activity-graph.svg)
 # -------------------------------------------------------------
-def build_activity_graph_svg(data):
-    w, h = 820, 215
-    pts = data.get("timeline_pts", [14, 25, 42, 18, 35, 58, 38, 72, 81, 48, 62, 70])
-    peak = data.get("peak_commits", 81)
+def build_activity_graph_svg():
+    w, h = 840, 245
+    pts = [8, 14, 28, 12, 18, 38, 24, 45, 32, 58, 62, 125]
+    months = ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"]
 
-    # Plot coordinates
-    gx_start, gx_end = 60, 760
-    gy_bottom, gy_top = 145, 55
-    width_span = gx_end - gx_start
-    step = width_span / (len(pts) - 1)
+    gx_start, gx_end = 370, 770
+    gy_bottom, gy_top = 175, 75
+    span = gx_end - gx_start
+    step = span / (len(pts) - 1)
 
     coords = []
-    max_val = max(pts) if max(pts) > 0 else 1
     for idx, val in enumerate(pts):
         x = gx_start + (idx * step)
-        norm = val / max_val
+        norm = val / 125.0
         y = gy_bottom - (norm * (gy_bottom - gy_top))
         coords.append((x, y))
 
-    # Build smooth bezier path
     path_d = f"M {coords[0][0]:.1f} {coords[0][1]:.1f}"
     for i in range(len(coords) - 1):
         x0, y0 = coords[i]
@@ -414,39 +210,32 @@ def build_activity_graph_svg(data):
         path_d += f" C {cx1:.1f} {cy1:.1f}, {cx2:.1f} {cy2:.1f}, {x1:.1f} {y1:.1f}"
 
     area_d = path_d + f" L {coords[-1][0]:.1f} {gy_bottom} L {coords[0][0]:.1f} {gy_bottom} Z"
+    px, py = coords[-1]
 
-    # Peak Point Coordinates
-    peak_idx = pts.index(max(pts))
-    px, py = coords[peak_idx]
+    month_svg = []
+    for idx, m in enumerate(months):
+        x = gx_start + (idx * step)
+        month_svg.append(f'<text x="{x:.1f}" y="{gy_bottom + 18}" fill="#64748b" font-size="9.5" text-anchor="middle" class="mono">{m}</text>')
+    months_markup = "\n    ".join(month_svg)
 
-    # Clean ticker string
-    ticker_text = f"// SYSTEM STATS: {data['total_contributions']} TOTAL CONTRIBUTIONS  •••  PEAK VELOCITY: {peak} COMMITS/CYCLE  •••  CURRENT STREAK: {data['current_streak']} DAYS  •••  BRANCH INTEGRITY: 100% OPERATIONAL  •••  "
+    ticker_text = "★ RECORD 7D   •   ◆ 535 CONTRIBS / YR   •   ● 91/364 ACTIVE DAYS   •   ▶ SHIPPING PRIME NOTES   •   "
 
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}">
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}">
   <style>
-    .mono {{ font-family: 'Fira Code', 'JetBrains Mono', Consolas, monospace; }}
-    .comet-ride {{
-      offset-path: path('{path_d}');
-      animation: ride-wave 6s linear infinite;
-    }}
-    @keyframes ride-wave {{
-      0% {{ offset-distance: 0%; opacity: 0; }}
-      10% {{ opacity: 1; }}
-      90% {{ opacity: 1; }}
-      100% {{ offset-distance: 100%; opacity: 0; }}
-    }}
-    .sonar-ring {{
-      animation: ripple 2.5s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+    .font-main {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }}
+    .mono {{ font-family: 'Fira Code', Consolas, monospace; }}
+    .sonar-ping {{
+      animation: ripple-wave 2.2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
       transform-origin: {px:.1f}px {py:.1f}px;
     }}
-    @keyframes ripple {{
-      0% {{ r: 3px; opacity: 1; stroke-width: 2.5px; }}
-      100% {{ r: 24px; opacity: 0; stroke-width: 0.5px; }}
+    @keyframes ripple-wave {{
+      0% {{ r: 3px; opacity: 1; }}
+      100% {{ r: 26px; opacity: 0; }}
     }}
-    .ticker-scroll {{
-      animation: marquee 25s linear infinite;
+    .marquee-track {{
+      animation: scroll-text 18s linear infinite;
     }}
-    @keyframes marquee {{
+    @keyframes scroll-text {{
       0% {{ transform: translateX(0); }}
       100% {{ transform: translateX(-50%); }}
     }}
@@ -454,258 +243,260 @@ def build_activity_graph_svg(data):
   {COMMON_DEFS}
   
   <defs>
-    <!-- Wave Area Glow -->
-    <linearGradient id="area-grad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.38" />
-      <stop offset="60%" stop-color="#7e22ce" stop-opacity="0.12" />
+    <linearGradient id="wave-fill" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.32" />
       <stop offset="100%" stop-color="#3b0764" stop-opacity="0.0" />
     </linearGradient>
   </defs>
 
-  {cyber_card_frame(w, h)}
+  {cyber_frame(w, h)}
 
-  <!-- Header Section -->
-  <g transform="translate(32, 32)">
-    <text x="0" y="0" fill="#a855f7" font-size="11" font-weight="700" class="mono" letter-spacing="1.5">📈 COMMIT VELOCITY TIMELINE</text>
-    <text x="{w-64}" y="0" fill="#38bdf8" font-size="10.5" font-weight="600" class="mono" text-anchor="end">[ YEAR CYCLE: 2025-2026 ]</text>
+  <!-- PANEL KIRI: PROFIL & METRIK ASLI RIXSAN -->
+  <g transform="translate(36, 40)">
+    <text x="0" y="0" fill="#ffffff" font-size="17" font-weight="900" class="font-main">Rixsan Joulfiand</text>
+    <text x="0" y="16" fill="#a855f7" font-size="12" font-weight="700" class="mono">@rjoulfiand-afk</text>
+
+    <g transform="translate(260, -3)">
+      <text x="0" y="0" fill="#38bdf8" font-size="11" font-weight="800" class="mono" letter-spacing="1">ılıı LIVE</text>
+    </g>
+
+    <!-- Contributions -->
+    <g transform="translate(0, 48)">
+      <circle cx="6" cy="-4" r="5" fill="#1e1b4b" stroke="#a855f7" stroke-width="1.2" />
+      <text x="20" y="0" fill="#ffffff" font-size="12.5" font-weight="800" class="font-main">535 Contributions</text>
+      <text x="20" y="14" fill="#64748b" font-size="10" class="mono">in the last year</text>
+    </g>
+
+    <!-- Active Days -->
+    <g transform="translate(0, 84)">
+      <circle cx="6" cy="-4" r="5" fill="#0f172a" stroke="#38bdf8" stroke-width="1.2" />
+      <text x="20" y="0" fill="#ffffff" font-size="12.5" font-weight="800" class="font-main">91 Active Days</text>
+      <text x="20" y="14" fill="#64748b" font-size="10" class="mono">25% of the last 364 days</text>
+    </g>
+
+    <!-- Best Week -->
+    <g transform="translate(0, 120)">
+      <circle cx="6" cy="-4" r="5" fill="#311042" stroke="#f43f5e" stroke-width="1.2" />
+      <text x="20" y="0" fill="#ffffff" font-size="12.5" font-weight="800" class="font-main">125 Best Week</text>
+      <text x="20" y="14" fill="#64748b" font-size="10" class="mono">week of Sep 27</text>
+    </g>
   </g>
 
-  <!-- Horizontal Grid Guides -->
-  <g stroke="#1a2030" stroke-width="0.8" stroke-dasharray="3 3">
-    <line x1="{gx_start}" y1="{gy_top}" x2="{gx_end}" y2="{gy_top}" />
-    <line x1="{gx_start}" y1="{(gy_top+gy_bottom)/2}" x2="{gx_end}" y2="{(gy_top+gy_bottom)/2}" />
-    <line x1="{gx_start}" y1="{gy_bottom}" x2="{gx_end}" y2="{gy_bottom}" />
-  </g>
+  <!-- PANEL KANAN: GRAFIK & SUMBU -->
+  <text x="{gx_end}" y="36" fill="#a855f7" font-size="10.5" font-weight="700" text-anchor="end" class="mono" letter-spacing="1.5">CONTRIBUTIONS IN THE LAST YEAR</text>
 
-  <!-- Gradient Area Under Curve -->
-  <path d="{area_d}" fill="url(#area-grad)" />
+  <line x1="{gx_start}" y1="{gy_top}" x2="{gx_end}" y2="{gy_top}" stroke="#1e2638" stroke-width="0.8" stroke-dasharray="3 3" />
+  <line x1="{gx_start}" y1="{(gy_top+gy_bottom)/2}" x2="{gx_end}" y2="{(gy_top+gy_bottom)/2}" stroke="#1e2638" stroke-width="0.8" stroke-dasharray="3 3" />
+  <line x1="{gx_start}" y1="{gy_bottom}" x2="{gx_end}" y2="{gy_bottom}" stroke="#1e2638" stroke-width="0.8" />
 
-  <!-- Spline Curve Line -->
-  <path d="{path_d}" fill="none" stroke="url(#laser-border)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#neon-glow)" />
+  <text x="{gx_end + 18}" y="{gy_top + 4}" fill="#64748b" font-size="9.5" class="mono">125</text>
+  <text x="{gx_end + 18}" y="{(gy_top+gy_bottom)/2 + 4}" fill="#64748b" font-size="9.5" class="mono">82</text>
+  <text x="{gx_end + 18}" y="{gy_bottom + 4}" fill="#64748b" font-size="9.5" class="mono">41</text>
 
-  <!-- Sonar Ping at Peak commits -->
-  <circle cx="{px:.1f}" cy="{py:.1f}" r="4" fill="none" stroke="#c084fc" class="sonar-ring" />
-  <circle cx="{px:.1f}" cy="{py:.1f}" r="5" fill="#f5f3ff" stroke="#a855f7" stroke-width="2" filter="url(#super-glow)" />
+  <path d="{area_d}" fill="url(#wave-fill)" />
+  <path d="{path_d}" fill="none" stroke="url(#laser-border)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 6px #c084fc);" />
+
+  {months_markup}
+
+  <!-- Sonar Ping Ripple & 125 PEAK Badge -->
+  <circle cx="{px:.1f}" cy="{py:.1f}" r="4" fill="none" stroke="#c084fc" stroke-width="1.5" class="sonar-ping" />
+  <circle cx="{px:.1f}" cy="{py:.1f}" r="5" fill="#fef08a" stroke="#f59e0b" stroke-width="2" style="filter: drop-shadow(0 0 6px #f59e0b);" />
   
-  <!-- Peak Flag Tag -->
   <g transform="translate({px:.1f}, {py - 14})">
-    <rect x="-28" y="-14" width="56" height="15" rx="3" fill="#3b0764" stroke="#c084fc" stroke-width="0.8" />
-    <text x="0" y="-3" fill="#ffffff" font-size="8.5" font-weight="700" text-anchor="middle" class="mono">PEAK: {peak}</text>
+    <rect x="-26" y="-12" width="52" height="15" rx="4" fill="#3b0764" stroke="#fbbf24" stroke-width="1" />
+    <text x="0" y="-1" fill="#fef08a" font-size="8.5" font-weight="900" text-anchor="middle" class="mono">125 PEAK</text>
   </g>
 
-  <!-- Wave Surfer Comet Riding Along Path -->
-  <g class="comet-ride">
-    <circle cx="0" cy="0" r="4.5" fill="#38bdf8" filter="url(#super-glow)" />
-    <circle cx="-5" cy="0" r="2" fill="#a855f7" opacity="0.6" />
-    <circle cx="-10" cy="0" r="1" fill="#c084fc" opacity="0.3" />
-  </g>
-
-  <!-- Bottom Cyber Ticker Bar -->
-  <g transform="translate(0, {h-32})">
-    <rect x="12" y="0" width="{w-24}" height="22" rx="4" fill="#090d16" stroke="#1c2333" stroke-width="0.8" />
-    <svg x="18" y="0" width="{w-36}" height="22" style="overflow: hidden;">
-      <g class="ticker-scroll">
-        <text x="0" y="14" fill="#94a3b8" font-size="9.5" font-weight="600" class="mono" letter-spacing="1">
+  <!-- MARQUEE TICKER (BERSIH & SEAMLESS) -->
+  <g transform="translate(0, {h-24})">
+    <rect x="8" y="0" width="{w-16}" height="20" rx="4" fill="#06080e" stroke="#161c28" stroke-width="0.8" />
+    <svg x="14" y="0" width="{w-28}" height="20" style="overflow: hidden;">
+      <g class="marquee-track">
+        <text x="0" y="13" fill="#cbd5e1" font-size="9.5" font-weight="600" class="mono" letter-spacing="1">
           {ticker_text}{ticker_text}
         </text>
       </g>
     </svg>
   </g>
 </svg>"""
-    return svg
 
 # -------------------------------------------------------------
-# 6. GENERATOR: GITHUB STATS (github-stats.svg)
+# 5. GITHUB STATS DENGAN LOGO OCTOCAT (github-stats.svg)
 # -------------------------------------------------------------
-def build_github_stats_svg(data):
-    w, h = 405, 195
-    commits = data.get("total_commits", 246)
-    prs = data.get("total_prs", 14)
-    issues = data.get("total_issues", 8)
-    stars = data.get("total_stars", 6)
-
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}">
+def build_github_stats_svg():
+    w, h = 405, 205
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}">
   <style>
-    .mono {{ font-family: 'Fira Code', 'JetBrains Mono', Consolas, monospace; }}
-    .spin-orb {{
-      animation: orb-rot 12s linear infinite;
-      transform-origin: 80px 105px;
+    .font-main {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }}
+    .mono {{ font-family: 'Fira Code', Consolas, monospace; }}
+    .octo-ring {{
+      animation: ring-pulse 4s linear infinite;
+      transform-origin: 325px 105px;
     }}
-    @keyframes orb-rot {{
-      from {{ transform: rotate(0deg); }}
-      to {{ transform: rotate(360deg); }}
+    @keyframes ring-pulse {{
+      0% {{ transform: rotate(0deg); }}
+      100% {{ transform: rotate(360deg); }}
     }}
   </style>
   {COMMON_DEFS}
-  {cyber_card_frame(w, h)}
+  {cyber_frame(w, h)}
 
-  <!-- Left: 3D Rotating Cyber Wireframe Orb -->
-  <g class="spin-orb">
-    <!-- Outer Rings -->
-    <ellipse cx="80" cy="105" rx="46" ry="46" fill="none" stroke="#334155" stroke-width="1.2" stroke-dasharray="4 3" />
-    <ellipse cx="80" cy="105" rx="46" ry="18" fill="none" stroke="#a855f7" stroke-width="1.4" opacity="0.85" />
-    <ellipse cx="80" cy="105" rx="18" ry="46" fill="none" stroke="#38bdf8" stroke-width="1.4" opacity="0.85" />
-    
-    <!-- Core Nodes -->
-    <circle cx="80" cy="105" r="5" fill="#c084fc" filter="url(#super-glow)" />
-    <circle cx="126" cy="105" r="2.5" fill="#38bdf8" />
-    <circle cx="34" cy="105" r="2.5" fill="#38bdf8" />
-    <circle cx="80" cy="59" r="2.5" fill="#a855f7" />
-    <circle cx="80" cy="151" r="2.5" fill="#a855f7" />
+  <text x="24" y="34" fill="#a855f7" font-size="14" font-weight="800" class="font-main">Stats</text>
+
+  <!-- 5 Metrik Asli -->
+  <g transform="translate(24, 60)">
+    <g transform="translate(0, 0)">
+      <text x="0" y="0" fill="#94a3b8" font-size="11" class="font-main">★  Total Stars Earned:</text>
+      <text x="200" y="0" fill="#ffffff" font-size="11.5" font-weight="800" text-anchor="end" class="mono">0</text>
+    </g>
+
+    <g transform="translate(0, 24)">
+      <text x="0" y="0" fill="#94a3b8" font-size="11" class="font-main">⏱  Total Commits (last year):</text>
+      <text x="200" y="0" fill="#ffffff" font-size="11.5" font-weight="800" text-anchor="end" class="mono">262</text>
+    </g>
+
+    <g transform="translate(0, 48)">
+      <text x="0" y="0" fill="#94a3b8" font-size="11" class="font-main">⑂  Total PRs:</text>
+      <text x="200" y="0" fill="#ffffff" font-size="11.5" font-weight="800" text-anchor="end" class="mono">0</text>
+    </g>
+
+    <g transform="translate(0, 72)">
+      <text x="0" y="0" fill="#94a3b8" font-size="11" class="font-main">ⓘ  Total Issues:</text>
+      <text x="200" y="0" fill="#ffffff" font-size="11.5" font-weight="800" text-anchor="end" class="mono">0</text>
+    </g>
+
+    <g transform="translate(0, 96)">
+      <text x="0" y="0" fill="#94a3b8" font-size="11" class="font-main">⎘  Contributed to (last year):</text>
+      <text x="200" y="0" fill="#ffffff" font-size="11.5" font-weight="800" text-anchor="end" class="mono">0</text>
+    </g>
   </g>
 
-  <!-- Right: Cyber Metrics Grid -->
-  <g transform="translate(170, 32)">
-    <text x="0" y="0" fill="#a855f7" font-size="10" font-weight="700" class="mono" letter-spacing="1.5">⚡ SYSTEM METRICS</text>
+  <!-- LOGO GITHUB OCTOCAT PUTIH DENGAN CINCIN NEON DI KANAN -->
+  <g transform="translate(325, 105)">
+    <circle cx="0" cy="0" r="38" fill="none" stroke="#1f293d" stroke-width="3" />
+    <circle cx="0" cy="0" r="38" fill="none" stroke="url(#laser-border)" stroke-width="3.5"
+            stroke-dasharray="120 120" stroke-linecap="round" class="octo-ring" style="filter: drop-shadow(0 0 6px #c084fc);" />
 
-    <!-- Total Commits -->
-    <g transform="translate(0, 22)">
-      <circle cx="4" cy="-4" r="2" fill="#38bdf8" />
-      <text x="14" y="0" fill="#94a3b8" font-size="11" class="mono">Total Commits</text>
-      <text x="215" y="0" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="end" class="mono">{commits}</text>
-    </g>
+    <circle cx="0" cy="0" r="30" fill="#0d1117" stroke="#2a354c" stroke-width="1.2" />
 
-    <!-- Total PRs -->
-    <g transform="translate(0, 48)">
-      <circle cx="4" cy="-4" r="2" fill="#a855f7" />
-      <text x="14" y="0" fill="#94a3b8" font-size="11" class="mono">Pull Requests</text>
-      <text x="215" y="0" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="end" class="mono">{prs}</text>
-    </g>
-
-    <!-- Total Issues -->
-    <g transform="translate(0, 74)">
-      <circle cx="4" cy="-4" r="2" fill="#f43f5e" />
-      <text x="14" y="0" fill="#94a3b8" font-size="11" class="mono">Issues Closed</text>
-      <text x="215" y="0" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="end" class="mono">{issues}</text>
-    </g>
-
-    <!-- Total Stars -->
-    <g transform="translate(0, 100)">
-      <circle cx="4" cy="-4" r="2" fill="#fbbf24" />
-      <text x="14" y="0" fill="#94a3b8" font-size="11" class="mono">Total Stars</text>
-      <text x="215" y="0" fill="#f8fafc" font-size="13" font-weight="700" text-anchor="end" class="mono">{stars} ★</text>
-    </g>
-
-    <!-- Cyber Rank Badge -->
-    <g transform="translate(0, 126)">
-      <rect x="0" y="-12" width="215" height="20" rx="4" fill="#1e1b4b" stroke="#6366f1" stroke-width="0.8" />
-      <text x="107" y="1.5" fill="#e0e7ff" font-size="9" font-weight="800" text-anchor="middle" class="mono" letter-spacing="1">
-        RANK: S+ CYBER ARCHITECT
-      </text>
-    </g>
+    <path d="M 0 -18 C -10 -18, -18 -10, -18 0 C -18 8, -13 15, -6 17.5 C -5 17.7, -4.7 17.1, -4.7 16.5 L -4.7 13.5 C -9.8 14.6, -10.8 11, -10.8 11 C -11.6 9, -12.7 8.5, -12.7 8.5 C -14.4 7.3, -12.6 7.4, -12.6 7.4 C -10.7 7.5, -9.7 9.3, -9.7 9.3 C -8 12.2, -5.3 11.4, -4.3 10.9 C -4.1 9.7, -3.6 8.8, -3 8.3 C -7 7.8, -11.3 6.3, -11.3 -0.7 C -11.3 -2.7, -10.6 -4.3, -9.4 -5.6 C -9.6 -6.1, -10.2 -7.9, -9.2 -10.3 C -9.2 -10.3, -7.7 -10.8, -4.2 -8.4 C -2.7 -8.8, -1.2 -9, 0.3 -9 C 1.8 -9, 3.3 -8.8, 4.8 -8.4 C 8.3 -10.8, 9.8 -10.3, 9.8 -10.3 C 10.8 -7.9, 10.2 -6.1, 10 -5.6 C 11.2 -4.3, 11.9 -2.7, 11.9 -0.7 C 11.9 6.3, 7.6 7.8, 3.5 8.3 C 4.2 8.9, 4.8 10, 4.8 11.7 L 4.8 16.5 C 4.8 17.1, 5.2 17.7, 6.2 17.5 C 13.2 15, 18.2 8, 18.2 0 C 18.2 -10, 10 -18, 0 -18 Z" fill="#ffffff" transform="scale(1.1) translate(0, 0)" />
   </g>
 </svg>"""
-    return svg
 
 # -------------------------------------------------------------
-# 7. GENERATOR: TOP LANGUAGES (top-langs.svg)
+# 6. MOST USED LANGUAGES SOLAR SYSTEM (top-langs.svg)
 # -------------------------------------------------------------
-def build_top_langs_svg(data):
-    w, h = 405, 195
-    langs = data.get("top_langs", get_default_languages())
+def build_top_langs_svg():
+    w, h = 405, 205
+    langs = [
+        {"name": "Jupyter Notebook", "pct": 88.85, "color": "#f97316"},
+        {"name": "HTML", "pct": 5.04, "color": "#e34c26"},
+        {"name": "PHP", "pct": 2.47, "color": "#4f5b93"},
+        {"name": "Blade", "pct": 1.93, "color": "#8b5cf6"},
+        {"name": "TypeScript", "pct": 0.96, "color": "#3178c6"},
+        {"name": "JavaScript", "pct": 0.75, "color": "#f1e05a"}
+    ]
 
-    # Build Language Progress Rows
-    rows_svg = []
-    y_offset = 24
-    for item in langs[:4]:
-        name = item["name"]
-        pct = item["pct"]
-        color = item["color"]
-        bar_width = int((pct / 100.0) * 115)
-        
+    rows = []
+    y_pos = 58
+    for l in langs:
+        bar_w = int((l["pct"] / 100.0) * 110)
         row = f"""
-        <g transform="translate(0, {y_offset})">
-          <circle cx="3" cy="-3.5" r="3" fill="{color}" />
-          <text x="14" y="0" fill="#cbd5e1" font-size="10.5" class="mono">{name}</text>
-          <text x="215" y="0" fill="#94a3b8" font-size="10.5" font-weight="600" text-anchor="end" class="mono">{pct:.1f}%</text>
-          
-          <!-- Progress Track -->
-          <rect x="14" y="5" width="201" height="4.5" rx="2" fill="#1a202c" />
-          <!-- Shimmer Progress Fill -->
-          <rect x="14" y="5" width="{bar_width}" height="4.5" rx="2" fill="{color}">
-            <animate attributeName="opacity" values="0.8;1;0.8" dur="2.5s" repeatCount="indefinite" />
-          </rect>
+        <g transform="translate(0, {y_pos})">
+          <circle cx="0" cy="-3.5" r="3" fill="{l['color']}" />
+          <text x="10" y="0" fill="#cbd5e1" font-size="10" font-weight="600" class="font-main">{l['name']}</text>
+          <text x="210" y="0" fill="#94a3b8" font-size="10" class="mono" text-anchor="end">{l['pct']:.2f}%</text>
+          <rect x="10" y="5" width="200" height="3" rx="1.5" fill="#151b28" />
+          <rect x="10" y="5" width="{bar_w}" height="3" rx="1.5" fill="{l['color']}" style="filter: drop-shadow(0 0 3px {l['color']});" />
         </g>
         """
-        rows_svg.append(row)
-        y_offset += 30
+        rows.append(row)
+        y_pos += 23
 
-    langs_content = "\n".join(rows_svg)
+    rows_markup = "\n".join(rows)
 
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}">
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}">
   <style>
-    .mono {{ font-family: 'Fira Code', 'JetBrains Mono', Consolas, monospace; }}
+    .font-main {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }}
+    .mono {{ font-family: 'Fira Code', Consolas, monospace; }}
     .orbit-1 {{
-      animation: rot-orb 8s linear infinite;
-      transform-origin: 75px 105px;
+      animation: spin-cw 7s linear infinite;
+      transform-origin: 75px 115px;
     }}
     .orbit-2 {{
-      animation: rot-orb-rev 14s linear infinite;
-      transform-origin: 75px 105px;
+      animation: spin-ccw 12s linear infinite;
+      transform-origin: 75px 115px;
     }}
-    @keyframes rot-orb {{
+    .orbit-3 {{
+      animation: spin-cw 18s linear infinite;
+      transform-origin: 75px 115px;
+    }}
+    @keyframes spin-cw {{
       from {{ transform: rotate(0deg); }}
       to {{ transform: rotate(360deg); }}
     }}
-    @keyframes rot-orb-rev {{
+    @keyframes spin-ccw {{
       from {{ transform: rotate(360deg); }}
       to {{ transform: rotate(0deg); }}
     }}
   </style>
   {COMMON_DEFS}
-  {cyber_card_frame(w, h)}
+  {cyber_frame(w, h)}
 
-  <!-- Left: Planetary Language Solar System -->
-  <g>
-    <!-- Central Sun Planet (PHP / Primary Core) -->
-    <circle cx="75" cy="105" r="16" fill="#777bb4" filter="url(#super-glow)" />
-    <circle cx="75" cy="105" r="11" fill="#4f5b93" />
-    <text x="75" y="108" fill="#ffffff" font-size="8" font-weight="800" text-anchor="middle" class="mono">CORE</text>
+  <text x="24" y="34" fill="#a855f7" font-size="14" font-weight="800" class="font-main">Most Used Languages</text>
 
-    <!-- Orbit Ring 1 & Planet (HTML/JS) -->
-    <circle cx="75" cy="105" r="30" fill="none" stroke="#2a354c" stroke-width="1" stroke-dasharray="2 3" />
+  <!-- PLANETARY SOLAR SYSTEM DI SEBELAH KIRI -->
+  <g transform="translate(0, 0)">
+    <circle cx="75" cy="115" r="14" fill="#8b5cf6" style="filter: drop-shadow(0 0 8px #a855f7);" />
+    <circle cx="75" cy="115" r="10" fill="#581c87" />
+    <text x="75" y="118" fill="#ffffff" font-size="8" font-weight="900" text-anchor="middle" class="mono">&lt;/&gt;</text>
+
+    <!-- Orbit Ring 1 -->
+    <circle cx="75" cy="115" r="28" fill="none" stroke="#252f44" stroke-width="1" stroke-dasharray="2 3" />
     <g class="orbit-1">
-      <circle cx="105" cy="105" r="5" fill="#e34c26" filter="url(#neon-glow)" />
+      <circle cx="103" cy="115" r="7" fill="#f97316" style="filter: drop-shadow(0 0 5px #f97316);" />
+      <circle cx="47" cy="115" r="3.5" fill="#e34c26" />
     </g>
 
-    <!-- Orbit Ring 2 & Planet (Python/CSS) -->
-    <circle cx="75" cy="105" r="46" fill="none" stroke="#20293a" stroke-width="1" stroke-dasharray="3 4" />
+    <!-- Orbit Ring 2 -->
+    <circle cx="75" cy="115" r="44" fill="none" stroke="#1d2638" stroke-width="1" stroke-dasharray="3 4" />
     <g class="orbit-2">
-      <circle cx="29" cy="105" r="4.5" fill="#f1e05a" filter="url(#neon-glow)" />
-      <circle cx="75" cy="59" r="3.5" fill="#38bdf8" />
+      <circle cx="31" cy="115" r="4.5" fill="#4f5b93" />
+      <circle cx="119" cy="115" r="3.5" fill="#3178c6" />
+    </g>
+
+    <!-- Orbit Ring 3 -->
+    <circle cx="75" cy="115" r="58" fill="none" stroke="#151d2c" stroke-width="1" stroke-dasharray="2 4" />
+    <g class="orbit-3">
+      <circle cx="75" cy="57" r="4" fill="#f1e05a" style="filter: drop-shadow(0 0 4px #f1e05a);" />
     </g>
   </g>
 
-  <!-- Right: Top Languages Bars -->
-  <g transform="translate(170, 32)">
-    <text x="0" y="0" fill="#a855f7" font-size="10" font-weight="700" class="mono" letter-spacing="1.5">🪐 LANGUAGE SPECTRUM</text>
-    {langs_content}
+  <!-- DAFTAR 6 BAHASA DI SEBELAH KANAN -->
+  <g transform="translate(170, 0)">
+    {rows_markup}
   </g>
 </svg>"""
-    return svg
 
 # -------------------------------------------------------------
-# 8. EXECUTION PIPELINE
+# 7. MAIN RUNNER
 # -------------------------------------------------------------
 def main():
-    print("[+] Fetching GitHub Data & Telemetry...")
-    data = fetch_github_data()
-
     cards = {
         "metrics-header.svg": build_header_svg(),
-        "streak-stats.svg": build_streak_svg(data),
-        "activity-graph.svg": build_activity_graph_svg(data),
-        "github-stats.svg": build_github_stats_svg(data),
-        "top-langs.svg": build_top_langs_svg(data)
+        "streak-stats.svg": build_streak_svg(),
+        "activity-graph.svg": build_activity_graph_svg(),
+        "github-stats.svg": build_github_stats_svg(),
+        "top-langs.svg": build_top_langs_svg()
     }
 
-    for fname, svg_content in cards.items():
-        out_path = os.path.join(DIST_DIR, fname)
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.write(svg_content.strip())
-        print(f"[✓] Generated: {out_path}")
+    for fname, content in cards.items():
+        out = os.path.join(DIST_DIR, fname)
+        with open(out, "w", encoding="utf-8") as f:
+            f.write(content.strip())
+        print(f"[✓] Berhasil digenerate: {out}")
 
-    print("[🚀] All Cyberpunk Metrics Cards successfully compiled!")
+    print("[🚀] Seluruh kartu SVG Developer Metrics (Foto 2) berhasil dibuat!")
 
 if __name__ == "__main__":
     main()
