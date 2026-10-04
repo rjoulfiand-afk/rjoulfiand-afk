@@ -66,31 +66,34 @@
 ### 👾 PAC-MAN & MONSTERS CHOMPING XP
 *Cyberpunk Matrix Contribution Runner*
 
-<!-- ================= PAC-MAN ARCADE MATRIX ================= -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg?v=2" alt="Pac-Man Arcade Contribution Graph" width="94%" style="max-width: 820px;" />
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg?v=5" alt="Pac-Man & Monsters eating contribution grid" width="94%" style="max-width: 740px;" />
 </p>
 
-<!-- ================= CYBERPUNK METRICS HEADER ================= -->
+<br>
+
+### 📊 DEVELOPER METRICS & ACTIVITY
+
+<!-- ================= HEADER EQUALIZER ================= -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/metrics-header.svg?v=2" alt="Developer Metrics & Activity" width="94%" style="max-width: 820px;" />
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/metrics-header.svg?v=5" alt="Developer Metrics & Activity" width="94%" style="max-width: 740px;" />
+</p>
+
+<!-- ================= STREAK STATS FULL WIDTH ================= -->
+<p align="center">
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/streak-stats.svg?v=5" alt="GitHub Streak" width="94%" style="max-width: 740px;" />
 </p>
 
 <!-- ================= VELOCITY TIMELINE (ACTIVITY GRAPH) ================= -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/activity-graph.svg?v=2" alt="Activity Timeline" width="94%" style="max-width: 820px;" />
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/activity-graph.svg?v=5" alt="Activity Graph" width="94%" style="max-width: 740px;" />
 </p>
 
-<!-- ================= ROW 1: STREAK & GITHUB STATS ================= -->
+<!-- ================= STATS & MOST USED LANGUAGES BERDAMPINGAN ================= -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/streak-stats.svg?v=2" alt="Streak Stats" width="46.5%" style="max-width: 405px;" />
-  &nbsp;
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/github-stats.svg?v=2" alt="GitHub Stats" width="46.5%" style="max-width: 405px;" />
-</p>
-
-<!-- ================= ROW 2: TOP LANGUAGES PLANETARY ================= -->
-<p align="center">
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/top-langs.svg?v=2" alt="Top Languages" width="46.5%" style="max-width: 405px;" />
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/github-stats.svg?v=5" alt="GitHub Stats" width="46%" style="max-width: 362px; vertical-align: top;" />
+  &nbsp;&nbsp;
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/top-langs.svg?v=5" alt="Top Languages" width="46%" style="max-width: 362px; vertical-align: top;" />
 </p>
 
 <br>
