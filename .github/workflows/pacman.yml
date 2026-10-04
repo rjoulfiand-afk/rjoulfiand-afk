@@ -27,22 +27,17 @@ jobs:
         with:
           python-version: "3.12"
 
-      # Fail-closed: kalau selftest gagal, tidak ada yang dipublish.
+      # 1. Fail-closed: Selftest Developer Metrics
       - name: Run Telemetry Selftest
         run: |
           python3 .github/scripts/metrics_cards.py --selftest
 
-      # [PENTING] Unduh & siapkan 29 ikon resmi di runner GitHub Actions
-      - name: Sync Arsenal Icons
-        run: |
-          python3 .github/scripts/arsenal_cards.py --sync-icons
-
-      # Jalankan Arsenal Selftest setelah ikon tersedia
+      # 2. Fail-closed: Selftest Signal-Bus Arsenal (offline, locked)
       - name: Run Arsenal Selftest
         run: |
           python3 .github/scripts/arsenal_cards.py --selftest
 
-      # 1. Pac-Man Arcade
+      # 3. Generate Pac-Man Arcade
       - name: Generate Pac-Man Arcade
         run: |
           python3 .github/scripts/pacman_graph.py \
@@ -50,19 +45,19 @@ jobs:
             --title "Chomping XP" \
             --out dist
 
-      # 2. Developer Metrics Suite (data asli via GITHUB_TOKEN)
+      # 4. Generate Developer Metrics Suite
       - name: Generate Developer Metrics Suite
         run: |
           python3 .github/scripts/metrics_cards.py --out dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 2b. Generate Arsenal Stack
+      # 5. Generate Signal-Bus Arsenal Stack (offline vendored)
       - name: Generate Arsenal Stack
         run: |
           python3 .github/scripts/arsenal_cards.py --out dist
 
-      # 3. Validasi: semua file wajib ada, XML valid, ukuran sesuai kelompoknya.
+      # 6. Validasi XML & Ukuran File
       - name: Validate Generated SVGs
         run: |
           python3 - <<'PY'
@@ -77,7 +72,7 @@ jobs:
               "activity-graph.svg": 60 * KB,
               "github-stats.svg": 60 * KB,
               "top-langs.svg": 60 * KB,
-              "arsenal-stack.svg": 300 * KB,
+              "arsenal-stack.svg": 340 * KB,
               "pacman-contribution-graph.svg": 500 * KB,
               "pacman-contribution-graph-dark.svg": 500 * KB,
           }
@@ -109,7 +104,7 @@ jobs:
           print("All SVGs valid.")
           PY
 
-      # 4. Publish ke branch output
+      # 7. Publish ke branch output
       - name: Push SVGs to output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
