@@ -67,33 +67,31 @@
 *Cyberpunk Matrix Contribution Runner*
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg?v=5" alt="Pac-Man & Monsters eating contribution grid" width="94%" style="max-width: 740px;" />
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg?v=7" alt="Pac-Man & Monsters eating contribution grid" width="94%" style="max-width: 740px;" />
 </p>
 
 <br>
 
-### 📊 DEVELOPER METRICS & ACTIVITY
-
 <!-- ================= HEADER EQUALIZER ================= -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/metrics-header.svg?v=5" alt="Developer Metrics & Activity" width="94%" style="max-width: 740px;" />
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/metrics-header.svg?v=7" alt="Developer Metrics & Activity" width="94%" style="max-width: 740px;" />
 </p>
 
 <!-- ================= STREAK STATS FULL WIDTH ================= -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/streak-stats.svg?v=5" alt="GitHub Streak" width="94%" style="max-width: 740px;" />
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/streak-stats.svg?v=7" alt="GitHub Streak" width="94%" style="max-width: 740px;" />
 </p>
 
 <!-- ================= VELOCITY TIMELINE (ACTIVITY GRAPH) ================= -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/activity-graph.svg?v=5" alt="Activity Graph" width="94%" style="max-width: 740px;" />
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/activity-graph.svg?v=7" alt="Activity Graph" width="94%" style="max-width: 740px;" />
 </p>
 
-<!-- ================= STATS & MOST USED LANGUAGES BERDAMPINGAN ================= -->
+<!-- ================= STATS & MOST USED LANGUAGES ================= -->
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/github-stats.svg?v=5" alt="GitHub Stats" width="46%" style="max-width: 362px; vertical-align: top;" />
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/github-stats.svg?v=7" alt="GitHub Stats" width="46%" style="max-width: 362px; vertical-align: top;" />
   &nbsp;&nbsp;
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/top-langs.svg?v=5" alt="Top Languages" width="46%" style="max-width: 362px; vertical-align: top;" />
+  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/top-langs.svg?v=7" alt="Top Languages" width="46%" style="max-width: 362px; vertical-align: top;" />
 </p>
 
 <br>
