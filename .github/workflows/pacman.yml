@@ -35,6 +35,7 @@ jobs:
       # 2. Fail-closed: Selftest Signal-Bus Arsenal (offline, locked)
       - name: Run Arsenal Selftest
         run: |
+          python3 .github/scripts/arsenal_cards.py --sync-icons
           python3 .github/scripts/arsenal_cards.py --selftest
 
       # 3. Generate Pac-Man Arcade
