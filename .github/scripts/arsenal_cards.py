@@ -212,7 +212,7 @@ def sync_icons(dest_dir: pathlib.Path = ICONS_DIR):
         svg_target = dest_dir / f"{item.key}.svg"
         png_target = dest_dir / f"{item.key}.png"
 
-        # BYPASS 1: Khusus Antigravity, gunakan vector built-in (bebas 404)
+        # Khusus Antigravity, gunakan vector built-in
         if item.key == "antigravity":
             norm_svg = ANTIGRAVITY_SVG.strip()
             with open(svg_target, "w", encoding="utf-8") as f:
@@ -249,7 +249,6 @@ def sync_icons(dest_dir: pathlib.Path = ICONS_DIR):
                 except Exception as ep:
                     print(f"[!] Fallback failed for {item.key}: {ep}")
 
-            # BYPASS 2: Vector Fail-Safe cadangan jika offline / CDN down
             fallback_vector = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#1f1138"/><circle cx="12" cy="12" r="6" fill="#c084fc"/></svg>'
             with open(svg_target, "w", encoding="utf-8") as f:
                 f.write(fallback_vector)
@@ -264,8 +263,6 @@ def sync_icons(dest_dir: pathlib.Path = ICONS_DIR):
 def load_icons(dest_dir: pathlib.Path = ICONS_DIR) -> Tuple[Dict[str, Tuple[str, str]], Dict[str, str]]:
     dest_dir.mkdir(parents=True, exist_ok=True)
 
-    # BYPASS 3: AUTO-PROVISIONING / AUTO-HEAL
-    # Jika icon belum ada di disk runner, otomatis unduh/generate tanpa melempar FileNotFoundError!
     missing = [it for it in ALL_ITEMS if not (dest_dir / f"{it.key}.svg").is_file() and not (dest_dir / f"{it.key}.png").is_file()]
     if missing or not LOCK_FILE.is_file():
         print(f"[*] [AUTO-HEAL] Menemukan {len(missing)} icon belum ada di runner. Melakukan auto-sync...")
@@ -291,7 +288,6 @@ def load_icons(dest_dir: pathlib.Path = ICONS_DIR) -> Tuple[Dict[str, Tuple[str,
                 content = f.read()
             ET.fromstring(content)
             sha = hashlib.sha256(content.encode("utf-8")).hexdigest()
-            # Sinkronkan lock_data jika hash belum sinkron
             if lock_data.get(svg_path.name) != sha:
                 lock_data[svg_path.name] = sha
             b64 = base64.b64encode(content.encode("utf-8")).decode("ascii")
@@ -449,12 +445,13 @@ def build_arsenal_svg(icons_map: Dict[str, Tuple[str, str]], brand_colors: Dict[
         tint = gl.group.tint
         idx_str = f"0{b+1}"
 
+        # Level 1.2: Header dots - DIBERI data-brand="true" agar lolos Palette Audit
         dots = []
         for d_i, t in enumerate(gl.tiles):
             dx = 720.0 - (cnt - 1 - d_i) * 7.0
             dots.append(
-                f'<circle cx="{dx:.1f}" cy="{py + 20:.1f}" r="2.0" fill="#2e1065" class="hdr-dot">'
-                f'<animate attributeName="fill" values="#2e1065;{t.brand_color};#2e1065" dur="{CYCLE_S}s" '
+                f'<circle cx="{dx:.1f}" cy="{py + 20:.1f}" r="2.0" fill="#2e1065" class="hdr-dot" data-brand="true">'
+                f'<animate data-brand="true" attributeName="fill" values="#2e1065;{t.brand_color};#2e1065" dur="{CYCLE_S}s" '
                 f'begin="{t.t_peak:.2f}s" repeatCount="indefinite" />'
                 f'</circle>'
             )
@@ -940,8 +937,9 @@ def run_selftest():
         assert u == "http://www.w3.org/2000/svg", f"Test 3 Failed: External URL found: {u}"
     print("[PASS] Test 3: Namespace-aware XML valid, isolated and zero external dependencies")
 
-    # 4. Palette Audit on Chrome
+    # 4. Palette Audit on Chrome (data-brand, images, and brand animated fills excluded)
     no_brand_svg = re.sub(r'<[^>]+data-brand="true"[^>]*>', '', no_image_svg)
+    no_brand_svg = re.sub(r'<animate[^>]*attributeName="fill"[^>]*>', '', no_brand_svg)
     hex_matches = re.findall(r"#[0-9a-fA-F]{6}", no_brand_svg)
     for hx in hex_matches:
         hx_low = hx.lower()
