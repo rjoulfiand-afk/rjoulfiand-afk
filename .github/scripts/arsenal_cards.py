@@ -28,6 +28,7 @@ import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
+from html import escape
 from typing import Dict, List, Optional, Tuple
 
 # Import visual chrome dari metrics_cards jika ada di direktori yang sama
@@ -161,7 +162,6 @@ def sync_icons(dest_dir: pathlib.Path = ICONS_DIR):
         svg_target = dest_dir / f"{item.key}.svg"
         png_target = dest_dir / f"{item.key}.png"
 
-        # Jika sudah ada dan valid, lewati download ulang
         if svg_target.is_file() and svg_target.stat().st_size > 50:
             continue
         if png_target.is_file() and png_target.stat().st_size > 50:
@@ -195,7 +195,6 @@ def sync_icons(dest_dir: pathlib.Path = ICONS_DIR):
     print("[🚀] All 29 manifest icons successfully synced and verified offline!")
 
 def load_icons(dest_dir: pathlib.Path = ICONS_DIR) -> Dict[str, Tuple[str, str]]:
-    # AUTO-SYNC: Jika folder belum ada atau file belum lengkap, unduh otomatis
     missing = [
         item.key for item in ALL_ITEMS
         if not (dest_dir / f"{item.key}.svg").is_file() and not (dest_dir / f"{item.key}.png").is_file()
@@ -348,16 +347,17 @@ def build_arsenal_svg(icons_map: Dict[str, Tuple[str, str]], now_dt: dt.datetime
         py = gl.panel_y
         ry = gl.rail_y
         cnt = len(gl.tiles)
-        title = gl.group.title
+        # XML-Safe escaped title
+        safe_title = escape(gl.group.title)
 
         panels_markup.append(f"""
-    <!-- Panel {b+1}: {title} -->
+    <!-- Panel {b+1}: {safe_title} -->
     <rect x="30" y="{py}" width="780" height="124" rx="14" fill="url(#{prefix}_panel_grad)" stroke="#a855f7" stroke-opacity="0.14" stroke-width="1" />
     <line x1="38" y1="{py+1}" x2="802" y2="{py+1}" stroke="#e9d5ff" stroke-opacity="0.10" stroke-width="1" />
     <circle cx="46" cy="{py+12}" r="2.2" fill="#c084fc">
       <animate attributeName="opacity" values="1;0.3;1" dur="2.4s" repeatCount="indefinite" begin="{b*0.5:.1f}s" />
     </circle>
-    <text x="54" y="{py+16}" fill="#a855f7" font-size="12.5" font-weight="800">{title}</text>
+    <text x="54" y="{py+16}" fill="#a855f7" font-size="12.5" font-weight="800">{safe_title}</text>
     <text x="794" y="{py+16}" fill="#8b7fb0" font-size="9.5" text-anchor="end" class="mono grp-cnt">{cnt} tools</text>
     <line x1="46" y1="{py+21}" x2="794" y2="{py+21}" stroke="#a855f7" stroke-opacity="0.10" stroke-dasharray="3 3" />
         """)
@@ -384,9 +384,9 @@ def build_arsenal_svg(icons_map: Dict[str, Tuple[str, str]], now_dt: dt.datetime
             tx, ty, tcx = t.x, t.y, t.cx
             d_s = f"{t.delay:.2f}s"
             key = t.item.key
-            name = t.item.name
+            name = escape(t.item.name)
 
-            lbl_len_attr = 'textLength="68" lengthAdjust="spacingAndGlyphs"' if len(name) >= 12 else ''
+            lbl_len_attr = 'textLength="68" lengthAdjust="spacingAndGlyphs"' if len(t.item.name) >= 12 else ''
 
             rails_markup.append(f"""
     <line x1="{tcx}" y1="{ty + 78}" x2="{tcx}" y2="{ry}" stroke="#4c1d95" stroke-width="1.2" />
