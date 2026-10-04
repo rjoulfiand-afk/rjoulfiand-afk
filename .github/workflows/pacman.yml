@@ -1,38 +1,42 @@
-name: Generate Pac-Man & Cyberpunk Metrics
+name: Generate Pac-Man & GitHub Stats
 
 on:
   schedule:
-    - cron: "0 */6 * * *" # Berjalan otomatis tiap 6 jam
-  workflow_dispatch:      # Bisa di-trigger manual lewat tombol Run Workflow di GitHub
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
   push:
     branches:
       - main
 
+concurrency:
+  group: pacman-graph
+  cancel-in-progress: true
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  generate:
     permissions:
       contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+      # 1. Jalankan Pac-Man Arcade Asli Milikmu
+      - name: Generate Pac-Man Arcade
+        run: |
+          python3 .github/scripts/pacman_graph.py \
+            --user "${{ github.repository_owner }}" \
+            --title "Chomping XP" \
+            --out dist
 
-      - name: Generate Pac-Man Graph
-        run: python .github/scripts/pacman_graph.py
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # 2. Jalankan Generator Cyberpunk Developer Metrics (Persis Foto 2)
+      - name: Generate Developer Metrics Suite
+        run: |
+          python3 .github/scripts/metrics_cards.py
 
-      - name: Generate Cyberpunk Developer Metrics
-        run: python .github/scripts/metrics_cards.py
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Deploy SVGs to Output Branch
+      # 3. Push Semua SVGs ke Branch output
+      - name: Push SVGs to output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
           target_branch: output
