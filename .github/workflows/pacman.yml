@@ -22,18 +22,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # T8a: Setup Python 3.12
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
-      # T8d: Step Selftest (Fail-Closed)
+      # Fail-closed: kalau selftest gagal, tidak ada yang dipublish.
       - name: Run Telemetry Selftest
         run: |
           python3 .github/scripts/metrics_cards.py --selftest
 
-      # 1. Jalankan Pac-Man Arcade Asli
+      # 1. Pac-Man Arcade
       - name: Generate Pac-Man Arcade
         run: |
           python3 .github/scripts/pacman_graph.py \
@@ -41,27 +40,63 @@ jobs:
             --title "Chomping XP" \
             --out dist
 
-      # 2. Jalankan Generator Metrics Suite (Dengan Token Real)
+      # 2. Developer Metrics Suite (data asli via GITHUB_TOKEN)
       - name: Generate Developer Metrics Suite
         run: |
           python3 .github/scripts/metrics_cards.py --out dist
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # T8d: Validasi SVG XML & Ukuran (Fail-Closed)
+      # 3. Validasi: semua file wajib ada, XML valid, ukuran sesuai kelompoknya.
+      #    Kartu metrics dibatasi 60 KB. Pac-Man memang besar (keyframe animasi
+      #    tiap langkah), jadi dibatasi terpisah 500 KB hanya sebagai pagar pengaman.
+      #    Pakai ElementTree (bawaan Python), tanpa apt-get / libxml2-utils.
       - name: Validate Generated SVGs
         run: |
-          sudo apt-get install -y libxml2-utils
-          for f in dist/*.svg; do
-            xmllint --noout "$f"
-            size=$(wc -c < "$f")
-            if [ "$size" -gt 61440 ]; then
-              echo "Error: $f exceeds 60 KB ($size bytes)"
-              exit 1
-            fi
-          done
+          python3 - <<'PY'
+          import os
+          import sys
+          import xml.etree.ElementTree as ET
 
-      # 3. Publish ke Output Branch (Hanya jika semua langkah di atas sukses)
+          KB = 1024
+          LIMITS = {
+              "metrics-header.svg": 60 * KB,
+              "streak-stats.svg": 60 * KB,
+              "activity-graph.svg": 60 * KB,
+              "github-stats.svg": 60 * KB,
+              "top-langs.svg": 60 * KB,
+              "pacman-contribution-graph.svg": 500 * KB,
+              "pacman-contribution-graph-dark.svg": 500 * KB,
+          }
+
+          errors = []
+          for name, limit in LIMITS.items():
+              path = os.path.join("dist", name)
+              if not os.path.isfile(path):
+                  errors.append("MISSING     " + path)
+                  print("MISSING  " + name)
+                  continue
+              size = os.path.getsize(path)
+              try:
+                  ET.parse(path)
+                  xml_ok = True
+              except ET.ParseError as exc:
+                  xml_ok = False
+                  errors.append("INVALID XML " + path + ": " + str(exc))
+              if size > limit:
+                  errors.append("TOO BIG     " + path + ": " + str(size) + " bytes (limit " + str(limit) + ")")
+              status = "OK" if (xml_ok and size <= limit) else "FAIL"
+              print("{:8} {:38} {:8.1f} KB (limit {} KB)".format(status, name, size / KB, limit // KB))
+
+          if errors:
+              print("")
+              for line in errors:
+                  print("Error: " + line)
+              sys.exit(1)
+          print("All SVGs valid.")
+          PY
+
+      # 4. Publish ke branch output (hanya jika semua langkah di atas sukses)
       - name: Push SVGs to output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
