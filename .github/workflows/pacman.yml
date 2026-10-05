@@ -33,9 +33,9 @@ jobs:
           python3 .github/scripts/metrics_cards.py --selftest
 
       # 2. Fail-closed: Sync & Selftest Signal-Bus Arsenal
+      # 2. Fail-closed: Sync & Selftest Signal-Bus Arsenal
       - name: Run Arsenal Selftest
         run: |
-          python3 .github/scripts/arsenal_cards.py --sync-icons
           python3 .github/scripts/arsenal_cards.py --selftest
 
       # 3. Generate Pac-Man Arcade
@@ -73,8 +73,8 @@ jobs:
               "activity-graph.svg": 60 * KB,
               "github-stats.svg": 60 * KB,
               "top-langs.svg": 60 * KB,
-              "arsenal-stack.svg": 250 * KB,
-              "arsenal-stack-static.svg": 220 * KB,
+              "arsenal-stack.svg": 160 * KB,
+              "arsenal-stack-static.svg": 160 * KB,
               "pacman-contribution-graph.svg": 500 * KB,
               "pacman-contribution-graph-dark.svg": 500 * KB,
           }
