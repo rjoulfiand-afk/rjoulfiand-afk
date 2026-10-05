@@ -9,7 +9,10 @@
 <br>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/arsenal-stack.svg?v=2" alt="Core tech stack and arsenal: PHP, Laravel, HTML5, CSS3, JavaScript, TypeScript, React Native, Python, Jupyter, MySQL, PostgreSQL, Git, GitHub, VS Code, Figma, ChatGPT, Gemini, Claude, Antigravity, GitHub Copilot, Cursor, Perplexity, Ollama, Hugging Face, DeepSeek, Mistral AI, Qwen, Grok, Meta Llama" width="94%" style="max-width: 840px;" />
+  <picture>
+    <source media="(prefers-reduced-motion: reduce)" srcset="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/arsenal-stack-static.svg?v=3">
+    <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/arsenal-stack.svg?v=3" alt="Core tech stack and arsenal: PHP, Laravel, HTML5, CSS3, JavaScript, TypeScript, React Native, Python, Jupyter, MySQL, PostgreSQL, Git, GitHub, VS Code, Figma, ChatGPT, Gemini, Claude, Antigravity, GitHub Copilot, Cursor, Perplexity, Ollama, Hugging Face, DeepSeek, Mistral AI, Qwen, Grok, Meta Llama" width="94%" />
+  </picture>
 </p>
 
 <br>
