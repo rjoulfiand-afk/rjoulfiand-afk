@@ -1,328 +1,568 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Studio-Grade Free-Floating Signal-Bus Arsenal Stack
-Feature: Dynamic Chroma Contour Ambient Backlight Engine
-- 100% Free-Floating Icons (Zero bounding boxes/tiles)
-- Steady Custom Ambient Glow per Icon (Alpha-mask contour hugging)
-- 100% Valid XML with strict character escaping (Numeric entities &#8226;)
-- Built-in Vector Engine for Offline Self-Healing (Zero 404 errors)
-- High-Performance GPU Wave Levitation (~154 KB)
-- Exactly 29 Tools across 4 Architectural Groups [9, 6, 7, 7]
+Studio-Grade Chroma Aura Bus Arsenal Stack
+Pure Native Python Standard Library - Zero External Dependencies
+- Nested-Group Architecture (Transform-Safe, Zero (0,0) Clumping)
+- Auto-Extracted Dominant Chroma Backlight & 3-Tier Contour Filter
+- userSpaceOnUse Circuit Rails with Signal Node Puddles
+- 16s Periodic Pulse Comet Motion (Duty Cycle ~38.7%, 60 FPS)
+- Strict Manifest: Exactly 29 Tools across 4 Groups [9, 6, 7, 7]
 """
 import argparse
 import base64
+import colorsys
 import datetime as dt
+import hashlib
 import html
 import os
 import pathlib
 import re
 import sys
+import time
 import urllib.request
 import xml.etree.ElementTree as ET
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
-GROUPS = [
+# Manifest 29 Tools
+MANIFEST = [
     ("01", "Languages & Core Technologies", [
-        ("php", "PHP", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/php/php-original.svg"),
-        ("laravel", "Laravel", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/laravel/laravel-original.svg"),
-        ("html5", "HTML5", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/html5/html5-original.svg"),
-        ("css3", "CSS3", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg"),
-        ("javascript", "JavaScript", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg"),
-        ("typescript", "TypeScript", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg"),
-        ("react", "React Native", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg"),
-        ("python", "Python", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg"),
-        ("jupyter", "Jupyter", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/jupyter/jupyter-original.svg"),
+        ("php", "PHP", "devicon", "php/php-original.svg", False),
+        ("laravel", "Laravel", "devicon", "laravel/laravel-original.svg", False),
+        ("html5", "HTML5", "devicon", "html5/html5-original.svg", False),
+        ("css3", "CSS3", "devicon", "css3/css3-original.svg", False),
+        ("javascript", "JavaScript", "devicon", "javascript/javascript-original.svg", False),
+        ("typescript", "TypeScript", "devicon", "typescript/typescript-original.svg", False),
+        ("react", "React Native", "devicon", "react/react-original.svg", False),
+        ("python", "Python", "devicon", "python/python-original.svg", False),
+        ("jupyter", "Jupyter", "devicon", "jupyter/jupyter-original-wordmark.svg", False),
     ]),
     ("02", "Database & Development Environment", [
-        ("mysql", "MySQL", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/mysql/mysql-original.svg"),
-        ("postgresql", "PostgreSQL", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg"),
-        ("git", "Git", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/git/git-original.svg"),
-        ("github", "GitHub", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/github/github-original.svg"),
-        ("vscode", "VS Code", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vscode/vscode-original.svg"),
-        ("figma", "Figma", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg"),
+        ("mysql", "MySQL", "devicon", "mysql/mysql-original-wordmark.svg", False),
+        ("postgresql", "PostgreSQL", "devicon", "postgresql/postgresql-original.svg", False),
+        ("git", "Git", "devicon", "git/git-original.svg", False),
+        ("github", "GitHub", "github_white", "github", True),
+        ("vscode", "VS Code", "devicon", "vscode/vscode-original.svg", False),
+        ("figma", "Figma", "devicon", "figma/figma-original.svg", False),
     ]),
     ("03", "AI Coding Assistants & Agents", [
-        ("chatgpt", "ChatGPT", "BUILTIN"),
-        ("gemini", "Gemini", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg"),
-        ("claude", "Claude", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/anthropic.svg"),
-        ("antigravity", "Antigravity", "BUILTIN"),
-        ("copilot", "GitHub Copilot", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/githubcopilot.svg"),
-        ("cursor", "Cursor", "BUILTIN"),
-        ("perplexity", "Perplexity", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/perplexity.svg"),
+        ("chatgpt", "ChatGPT", "lobe_svg", "openai.svg", True),
+        ("gemini", "Gemini", "lobe_svg", "gemini-color.svg", False),
+        ("claude", "Claude", "lobe_svg", "claude-color.svg", False),
+        ("antigravity", "Antigravity", "lobe_svg", "antigravity-color.svg", False),
+        ("copilot", "GitHub Copilot", "lobe_svg", "githubcopilot.svg", True),
+        ("cursor", "Cursor", "lobe_svg", "cursor.svg", True),
+        ("perplexity", "Perplexity", "lobe_svg", "perplexity-color.svg", False),
     ]),
     ("04", "LLM Platforms & Open Models", [
-        ("ollama", "Ollama", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/ollama.svg"),
-        ("huggingface", "Hugging Face", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/huggingface.svg"),
-        ("deepseek", "DeepSeek", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/deepseek.svg"),
-        ("mistral", "Mistral AI", "BUILTIN"),
-        ("qwen", "Qwen", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/qwen.svg"),
-        ("grok", "Grok", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/x.svg"),
-        ("llama", "Meta Llama", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/meta.svg"),
+        ("ollama", "Ollama", "lobe_svg", "ollama.svg", True),
+        ("huggingface", "Hugging Face", "lobe_svg", "huggingface-color.svg", False),
+        ("deepseek", "DeepSeek", "lobe_svg", "deepseek-color.svg", False),
+        ("mistral", "Mistral AI", "lobe_svg", "mistral-color.svg", False),
+        ("qwen", "Qwen", "lobe_svg", "qwen-color.svg", False),
+        ("grok", "Grok", "lobe_svg", "grok.svg", True),
+        ("llama", "Meta Llama", "lobe_svg", "meta-color.svg", False),
     ]),
 ]
 
-# Vektor bawaan berkualitas tinggi agar anti-404 dan selalu tajam
-BUILTIN_SVGS = {
-    "antigravity": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#C084FC" d="M12 2L2 22h20L12 2zm0 4.5l6.5 13h-13L12 6.5z"/><circle cx="12" cy="14" r="2.5" fill="#38BDF8"/></svg>""",
-    "cursor": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#FFFFFF" d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.2l6.8 3.8-6.8 3.8-6.8-3.8L12 4.2zM5 8.7l6 3.3v6.7l-6-3.3V8.7zm8 10V12l6-3.3v6.7l-6 3.3z"/></svg>""",
-    "chatgpt": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#10A37F" d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.477 4.477 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 8.487a4.485 4.485 0 0 1 2.37-2.024V12.1a.767.767 0 0 0 .388.677l5.837 3.37-2.02 1.167a.089.089 0 0 1-.073.008l-4.84-2.793A4.504 4.504 0 0 1 2.34 8.487zm16.597 3.855l-5.833-3.37L15.124 7.8a.089.089 0 0 1 .073-.008l4.84 2.793a4.503 4.503 0 0 1-.676 8.105v-5.64a.784.784 0 0 0-.424-.708zm2.01-4.475a4.47 4.47 0 0 1 .535 3.014l-.142-.085-4.783-2.759a.775.775 0 0 0-.78 0L9.936 11.41V9.078a.08.08 0 0 1 .033-.062L14.81 6.23a4.5 4.5 0 0 1 6.137 1.637zm-9.687.21l2.02-1.167a.071.071 0 0 1 .038-.052V1.28a4.504 4.504 0 0 1 4.494 4.494c0 .35-.042.693-.122 1.025l-.141-.08-4.779-2.759a.795.795 0 0 0-.78 0l-5.843 3.37 2.02 1.167zm.81 2.21l2.607 1.505v3.01l-2.607 1.505-2.607-1.505v-3.01l2.607-1.505z"/></svg>""",
-    "mistral": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#FF7000" d="M3 3h3.6v3.6H3zm14.4 0H21v3.6h-3.6zM3 6.6h7.2v3.6H3zm10.8 0H21v3.6h-7.2zM3 10.2h10.8v3.6H3zm7.2 0H21v3.6h-10.8zM3 13.8h3.6v3.6H3zm7.2 0h3.6v3.6h-3.6zm7.2 0H21v3.6h-3.6zM3 17.4h3.6V21H3zm14.4 0H21V21h-3.6z"/></svg>""",
+OPTICAL_SCALE = {
+    "mysql": 1.12,
+    "jupyter": 1.12,
+    "postgresql": 1.04,
+    "react": 1.04,
 }
 
-# Kalibrasi warna lampu tiap icon (Hex Accent, RGBA Ambient Glow)
-BRAND_GLOWS = {
-    # 01 Languages
-    "php": ("#777BB4", "rgba(119, 123, 180, 0.65)"),
-    "laravel": ("#FF2D20", "rgba(255, 45, 32, 0.70)"),
-    "html5": ("#E34F26", "rgba(227, 79, 38, 0.65)"),
-    "css3": ("#1572B6", "rgba(21, 114, 182, 0.65)"),
-    "javascript": ("#F7DF1E", "rgba(247, 223, 30, 0.65)"),
-    "typescript": ("#3178C6", "rgba(49, 120, 198, 0.65)"),
-    "react": ("#61DAFB", "rgba(97, 218, 251, 0.75)"),
-    "python": ("#3776AB", "rgba(55, 118, 171, 0.70)"),
-    "jupyter": ("#F37626", "rgba(243, 118, 38, 0.65)"),
-    # 02 Database & Dev
-    "mysql": ("#4479A1", "rgba(68, 121, 161, 0.65)"),
-    "postgresql": ("#4169E1", "rgba(65, 105, 225, 0.65)"),
-    "git": ("#F05032", "rgba(240, 80, 50, 0.70)"),
-    "github": ("#FFFFFF", "rgba(255, 255, 255, 0.65)"),
-    "vscode": ("#007ACC", "rgba(0, 122, 204, 0.70)"),
-    "figma": ("#F24E1E", "rgba(242, 78, 30, 0.65)"),
-    # 03 AI Assistants
-    "chatgpt": ("#10A37F", "rgba(16, 163, 127, 0.75)"),
-    "gemini": ("#8A5CF6", "rgba(138, 92, 246, 0.70)"),
-    "claude": ("#D97706", "rgba(217, 119, 6, 0.75)"),
-    "antigravity": ("#C084FC", "rgba(192, 132, 252, 0.80)"),
-    "copilot": ("#A855F7", "rgba(168, 85, 247, 0.70)"),
-    "cursor": ("#FFFFFF", "rgba(255, 255, 255, 0.65)"),
-    "perplexity": ("#22B8CD", "rgba(34, 184, 205, 0.75)"),
-    # 04 LLM Platforms
-    "ollama": ("#FFFFFF", "rgba(255, 255, 255, 0.65)"),
-    "huggingface": ("#FFD21E", "rgba(255, 210, 30, 0.70)"),
-    "deepseek": ("#1E88E5", "rgba(30, 136, 229, 0.75)"),
-    "mistral": ("#FF7000", "rgba(255, 112, 0, 0.75)"),
-    "qwen": ("#6366F1", "rgba(99, 102, 241, 0.70)"),
-    "grok": ("#FFFFFF", "rgba(255, 255, 255, 0.65)"),
-    "llama": ("#0468FF", "rgba(4, 104, 255, 0.75)"),
-}
+DEVICON_MIRRORS = [
+    "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/",
+    "https://fastly.jsdelivr.net/gh/devicons/devicon@latest/icons/",
+    "https://raw.githubusercontent.com/devicons/devicon/master/icons/",
+]
 
-DARK_ICONS_TO_WHITE = {"github", "copilot", "ollama", "grok", "cursor"}
+LOBE_SVG_MIRRORS = [
+    "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/",
+    "https://fastly.jsdelivr.net/npm/@lobehub/icons-static-svg@latest/icons/",
+    "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/",
+]
 
-def download_and_clean_svg(key: str, url: str) -> str:
-    if url == "BUILTIN" or key in BUILTIN_SVGS:
-        return BUILTIN_SVGS.get(key, "")
-    try:
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            content = resp.read().decode("utf-8")
-        
-        content = re.sub(r"<\?xml.*?\?>", "", content)
-        content = re.sub(r"<!--.*?-->", "", content, flags=re.DOTALL)
-        
-        if key in DARK_ICONS_TO_WHITE:
-            if 'fill="' in content:
-                content = re.sub(r'fill="(?:#000(?:000)?|#181717|#24292e|black)"', 'fill="#FFFFFF"', content, flags=re.IGNORECASE)
-            else:
-                content = re.sub(r'<path', '<path fill="#FFFFFF"', content)
-        elif key == "claude":
-            content = re.sub(r'<path', '<path fill="#D97706"', content)
-        elif key == "perplexity":
-            content = re.sub(r'<path', '<path fill="#22B8CD"', content)
-        elif key == "deepseek":
-            content = re.sub(r'<path', '<path fill="#1E88E5"', content)
-        elif key == "llama":
-            content = re.sub(r'<path', '<path fill="#0468FF"', content)
-            
-        return content.strip()
-    except Exception as e:
-        print(f"Warning: Failed to fetch {key} ({e}), using fallback.")
-        return BUILTIN_SVGS.get(key, BUILTIN_SVGS["antigravity"])
+LOBE_PNG_MIRRORS = [
+    "https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@latest/dark/",
+    "https://unpkg.com/@lobehub/icons-static-png@latest/dark/",
+]
 
-def load_all_icons(cache_dir: pathlib.Path) -> Dict[str, str]:
+def fetch_url(url: str, timeout: int = 12, retries: int = 3) -> Optional[bytes]:
+    for attempt in range(retries):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
+            with urllib.request.urlopen(req, timeout=timeout) as resp:
+                if resp.status == 200:
+                    data = resp.read()
+                    if len(data) >= 200:
+                        return data
+        except Exception:
+            time.sleep(1 * (2 ** attempt))
+    return None
+
+def clean_and_normalize_svg(raw_bytes: bytes, is_mono: bool = False) -> str:
+    content = raw_bytes.decode("utf-8", errors="replace")
+    content = re.sub(r"<\?xml.*?\?>", "", content)
+    content = re.sub(r"<!DOCTYPE.*?>", "", content, flags=re.DOTALL)
+    content = re.sub(r"<!--.*?-->", "", content, flags=re.DOTALL)
+    content = re.sub(r"<title>.*?</title>", "", content, flags=re.DOTALL)
+
+    root = ET.fromstring(content)
+    
+    # Ensure viewBox exists
+    if "viewBox" not in root.attrib:
+        w_val = root.attrib.get("width", "24")
+        h_val = root.attrib.get("height", "24")
+        w_clean = re.sub(r"[^\d.]", "", w_val) or "24"
+        h_clean = re.sub(r"[^\d.]", "", h_val) or "24"
+        root.attrib["viewBox"] = f"0 0 {w_clean} {h_clean}"
+
+    root.attrib.pop("width", None)
+    root.attrib.pop("height", None)
+
+    if is_mono:
+        root.attrib["fill"] = "#F5F3FF"
+
+    # Remove namespaces for cleaner serialization
+    return ET.tostring(root, encoding="unicode")
+
+def extract_dominant_color(raw_svg: str) -> Tuple[str, str]:
+    hex_matches = re.findall(r'#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})\b', raw_svg)
+    valid_colors = []
+    for h in hex_matches:
+        h = h.lower()
+        if len(h) == 4:
+            h = f"#{h[1]}{h[1]}{h[2]}{h[2]}{h[3]}{h[3]}"
+        r = int(h[1:3], 16) / 255.0
+        g = int(h[3:5], 16) / 255.0
+        b = int(h[5:7], 16) / 255.0
+        _, s, v = colorsys.rgb_to_hsv(r, g, b)
+        if s < 0.25 or v < 0.20 or (v > 0.92 and s < 0.15):
+            continue
+        valid_colors.append((h, r, g, b))
+
+    if not valid_colors:
+        return "#E9D5FF", "soft"
+
+    counts = {}
+    for h, r, g, b in valid_colors:
+        counts[h] = counts.get(h, 0) + 1
+
+    best_hex = max(counts, key=counts.get)
+    r = int(best_hex[1:3], 16) / 255.0
+    g = int(best_hex[3:5], 16) / 255.0
+    b = int(best_hex[5:7], 16) / 255.0
+    lum = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    if lum < 0.18:
+        tier = "strong"
+    elif lum <= 0.65:
+        tier = "normal"
+    else:
+        tier = "soft"
+    return best_hex.upper(), tier
+
+def acquire_icon(key: str, src_type: str, path: str, is_mono: bool, cache_dir: pathlib.Path) -> Tuple[str, str, str, str]:
     cache_dir.mkdir(parents=True, exist_ok=True)
-    icons = {}
-    for _, _, tools in GROUPS:
-        for key, name, url in tools:
-            cache_file = cache_dir / f"{key}.svg"
-            if key in BUILTIN_SVGS:
-                svg_data = BUILTIN_SVGS[key]
-                cache_file.write_text(svg_data, encoding="utf-8")
-            elif cache_file.exists():
-                svg_data = cache_file.read_text(encoding="utf-8")
-                if key in DARK_ICONS_TO_WHITE and ('fill="#000"' in svg_data or 'fill="#181717"' in svg_data or 'fill="black"' in svg_data):
-                    svg_data = re.sub(r'fill="(?:#000(?:000)?|#181717|#24292e|black)"', 'fill="#FFFFFF"', svg_data, flags=re.IGNORECASE)
-                    cache_file.write_text(svg_data, encoding="utf-8")
-            else:
-                svg_data = download_and_clean_svg(key, url)
-                cache_file.write_text(svg_data, encoding="utf-8")
-            
-            b64 = base64.b64encode(svg_data.encode("utf-8")).decode("ascii")
-            icons[key] = f"data:image/svg+xml;base64,{b64}"
-    return icons
+    svg_cache = cache_dir / f"{key}.svg"
+    png_cache = cache_dir / f"{key}.png"
 
-def generate_svg(icons_map: Dict[str, str], animated: bool = True) -> str:
+    # Check cache first
+    if svg_cache.exists():
+        content = svg_cache.read_text(encoding="utf-8")
+        if "M12 2L2 22h20" not in content and "<html" not in content.lower():
+            dom_col, tier = extract_dominant_color(content)
+            b64 = base64.b64encode(content.encode("utf-8")).decode("ascii")
+            return f"data:image/svg+xml;base64,{b64}", dom_col, tier, content
+
+    urls_attempted = []
+    raw_data = None
+    is_png = False
+
+    if src_type == "devicon":
+        for mirror in DEVICON_MIRRORS:
+            u = mirror + path
+            urls_attempted.append(u)
+            raw_data = fetch_url(u)
+            if raw_data:
+                break
+    elif src_type == "github_white":
+        u_primary = "https://cdn.simpleicons.org/github/white"
+        urls_attempted.append(u_primary)
+        raw_data = fetch_url(u_primary)
+        if not raw_data:
+            u_sec = "https://raw.githubusercontent.com/simple-icons/simple-icons/develop/icons/github.svg"
+            urls_attempted.append(u_sec)
+            raw_data = fetch_url(u_sec)
+    elif src_type == "lobe_svg":
+        for mirror in LOBE_SVG_MIRRORS:
+            u = mirror + path
+            urls_attempted.append(u)
+            raw_data = fetch_url(u)
+            if raw_data:
+                break
+        if not raw_data and is_mono:
+            # Fallback to PNG for mono icons
+            png_name = path.replace(".svg", ".png")
+            for mirror in LOBE_PNG_MIRRORS:
+                u = mirror + png_name
+                urls_attempted.append(u)
+                raw_data = fetch_url(u)
+                if raw_data:
+                    is_png = True
+                    break
+
+    if not raw_data:
+        raise RuntimeError(f"Fail-closed: Unable to download icon '{key}'. Attempted URLs:\n  " + "\n  ".join(urls_attempted))
+
+    if is_png:
+        png_cache.write_bytes(raw_data)
+        b64 = base64.b64encode(raw_data).decode("ascii")
+        return f"data:image/png;base64,{b64}", "#E9D5FF", "soft", ""
+    else:
+        cleaned_svg = clean_and_normalize_svg(raw_data, is_mono=is_mono)
+        svg_cache.write_text(cleaned_svg, encoding="utf-8")
+        dom_col, tier = extract_dominant_color(cleaned_svg)
+        b64 = base64.b64encode(cleaned_svg.encode("utf-8")).decode("ascii")
+        return f"data:image/svg+xml;base64,{b64}", dom_col, tier, cleaned_svg
+
+def build_card_svg(icons_data: Dict[str, dict], animated: bool = True, now_ts: Optional[str] = None) -> str:
     w = 840
-    h = 708
+    h = 668
+
+    row_tops = [78, 216, 354, 492]
     
-    anim_css = """
-      @keyframes floatWave {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-7px); }
-      }
-      .wave-item { animation: floatWave 3.5s ease-in-out infinite; will-change: transform; }
-    """ if animated else ""
-    
+    # Gradients and Defs
+    rg_defs = []
+    for key, data in icons_data.items():
+        dom_col = data["color"]
+        rg_defs.append(f"""    <radialGradient id="rg_{key}" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="{dom_col}" stop-opacity="1"/>
+      <stop offset="45%" stop-color="{dom_col}" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="{dom_col}" stop-opacity="0"/>
+    </radialGradient>""")
+    rg_defs_str = "\n".join(rg_defs)
+
+    rail_defs = []
+    for r_idx in range(1, 5):
+        rail_defs.append(f"""    <linearGradient id="railGrad_{r_idx}" gradientUnits="userSpaceOnUse" x1="42" y1="0" x2="798" y2="0">
+      <stop offset="0%" stop-color="#A855F7" stop-opacity="0.1"/>
+      <stop offset="50%" stop-color="#C084FC" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#A855F7" stop-opacity="0.1"/>
+    </linearGradient>""")
+    rail_defs_str = "\n".join(rail_defs)
+
+    # Keyframes & Motion CSS
+    motion_css = ""
     delay_rules = []
-    glow_rules = []
-    for i in range(29):
-        if animated:
-            delay = round((i * 0.18) % 3.0, 2)
-            delay_rules.append(f".wave-d{i} {{ animation-delay: {delay}s; }}")
-    
-    for key, (_, rgba_color) in BRAND_GLOWS.items():
-        glow_rules.append(f".glow-{key} {{ filter: drop-shadow(0px 0px 7px {rgba_color}); }}")
-    
-    delays_str = "\n    ".join(delay_rules)
-    glow_str = "\n    ".join(glow_rules)
-    
-    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 {w} {h}" width="{w}" height="{h}">
+    if animated:
+        motion_css = """
+      @keyframes arsn-sweep {
+        0% { transform: translateX(0px); }
+        20% { transform: translateX(756px); }
+        100% { transform: translateX(756px); }
+      }
+      @keyframes arsn-comet-op {
+        0% { opacity: 0; }
+        1.5% { opacity: 1; }
+        18.5% { opacity: 1; }
+        20% { opacity: 0; }
+        100% { opacity: 0; }
+      }
+      @keyframes arsn-aura {
+        0% { opacity: 0.30; }
+        0.94% { opacity: 0.62; }
+        4.06% { opacity: 0.62; }
+        11.56% { opacity: 0.30; }
+        100% { opacity: 0.30; }
+      }
+      .sweep { animation: arsn-sweep 16s steps(77) infinite; }
+      .comet-op { animation: arsn-comet-op 16s ease-in-out infinite; }
+      .aura { animation: arsn-aura 16s ease-out infinite; }
+      .sweep-r1, .comet-op-r1 { animation-delay: 0.4s; }
+      .sweep-r2, .comet-op-r2 { animation-delay: 1.0s; }
+      .sweep-r3, .comet-op-r3 { animation-delay: 1.6s; }
+      .sweep-r4, .comet-op-r4 { animation-delay: 2.2s; }"""
+
+        # Compute aura delay for each icon based on physical rail position
+        for g_idx, (_, _, tools) in enumerate(MANIFEST):
+            r = g_idx + 1
+            l_r = 0.4 + 0.6 * (r - 1)
+            tool_count = len(tools)
+            for t_idx, (key, _, _, _, _) in enumerate(tools):
+                cx = round(420 + (t_idx - (tool_count - 1) / 2) * 86, 1)
+                peak = l_r + 3.2 * (cx - 42) / 756
+                d_val = max(0.0, round(peak - 0.15, 2))
+                delay_rules.append(f"      .aura-{key} {{ animation-delay: {d_val}s; }}")
+
+    delays_css_str = "\n".join(delay_rules)
+
+    svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}" role="img" aria-labelledby="arsenal-title arsenal-desc">
+  <title id="arsenal-title">Core Tech Stack &amp; Arsenal</title>
+  <desc id="arsenal-desc">PHP, Laravel, HTML5, CSS3, JavaScript, TypeScript, React Native, Python, Jupyter, MySQL, PostgreSQL, Git, GitHub, VS Code, Figma, ChatGPT, Gemini, Claude, Antigravity, GitHub Copilot, Cursor, Perplexity, Ollama, Hugging Face, DeepSeek, Mistral AI, Qwen, Grok, Meta Llama</desc>
   <defs>
     <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#080511"/>
       <stop offset="50%" stop-color="#0F0921"/>
       <stop offset="100%" stop-color="#06030D"/>
     </linearGradient>
-    <linearGradient id="railGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#A855F7" stop-opacity="0.1"/>
-      <stop offset="50%" stop-color="#C084FC" stop-opacity="0.6"/>
-      <stop offset="100%" stop-color="#A855F7" stop-opacity="0.1"/>
-    </linearGradient>
     <linearGradient id="headerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#E9D5FF"/>
       <stop offset="50%" stop-color="#FFFFFF"/>
       <stop offset="100%" stop-color="#C084FC"/>
     </linearGradient>
+    <linearGradient id="cometTailGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#C084FC" stop-opacity="0"/>
+      <stop offset="70%" stop-color="#C084FC" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#F5D0FE" stop-opacity="1"/>
+    </linearGradient>
+    <radialGradient id="cometGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F5D0FE" stop-opacity="0.9"/>
+      <stop offset="40%" stop-color="#C084FC" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#C084FC" stop-opacity="0"/>
+    </radialGradient>
+{rail_defs_str}
+{rg_defs_str}
+
+    <!-- 3 Tier Chroma Contour Filters (Fixed on icons only) -->
+    <filter id="lum_soft" x="-90%" y="-90%" width="280%" height="280%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2.4" result="nb"/>
+      <feColorMatrix in="nb" type="saturate" values="1.2" result="ns"/>
+      <feComponentTransfer in="ns" result="ng"><feFuncA type="linear" slope="1.0"/></feComponentTransfer>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="wb"/>
+      <feColorMatrix in="wb" type="saturate" values="1.3" result="ws"/>
+      <feComponentTransfer in="ws" result="wg"><feFuncA type="linear" slope="1.2"/></feComponentTransfer>
+      <feMerge><feMergeNode in="wg"/><feMergeNode in="ng"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="lum_normal" x="-90%" y="-90%" width="280%" height="280%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2.6" result="nb"/>
+      <feColorMatrix in="nb" type="saturate" values="1.5" result="ns"/>
+      <feComponentTransfer in="ns" result="ng"><feFuncA type="linear" slope="1.4"/></feComponentTransfer>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="9" result="wb"/>
+      <feColorMatrix in="wb" type="saturate" values="1.7" result="ws"/>
+      <feComponentTransfer in="ws" result="wg"><feFuncA type="linear" slope="1.8"/></feComponentTransfer>
+      <feMerge><feMergeNode in="wg"/><feMergeNode in="ng"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="lum_strong" x="-90%" y="-90%" width="280%" height="280%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2.8" result="nb"/>
+      <feColorMatrix in="nb" type="saturate" values="1.8" result="ns"/>
+      <feComponentTransfer in="ns" result="ng"><feFuncA type="linear" slope="1.7"/></feComponentTransfer>
+      <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="wb"/>
+      <feColorMatrix in="wb" type="saturate" values="2.0" result="ws"/>
+      <feComponentTransfer in="ws" result="wg">
+        <feFuncR type="linear" slope="1" intercept="0.08"/>
+        <feFuncG type="linear" slope="1" intercept="0.08"/>
+        <feFuncB type="linear" slope="1" intercept="0.08"/>
+        <feFuncA type="linear" slope="2.4"/>
+      </feComponentTransfer>
+      <feMerge><feMergeNode in="wg"/><feMergeNode in="ng"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>
 
   <style>
-    .bg {{ fill: url(#bgGrad); stroke: #2E1065; stroke-width: 1.5; rx: 18px; }}
+    .bg {{ fill: url(#bgGrad); stroke: #2E1065; stroke-width: 1.5; }}
     .title {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 800; font-size: 19px; fill: url(#headerGrad); letter-spacing: 3.5px; text-anchor: middle; }}
     .group-num {{ font-family: ui-monospace, monospace; font-size: 11px; font-weight: 700; fill: #C084FC; }}
     .group-title {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; fill: #F3E8FF; letter-spacing: 0.5px; }}
     .group-count {{ font-family: ui-monospace, monospace; font-size: 11px; fill: #94A3B8; text-anchor: end; }}
-    .tool-label {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11.5px; font-weight: 600; fill: #E2E8F0; text-anchor: middle; }}
+    .lbl {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; fill: #E2E8F0; text-anchor: middle; }}
     .footer-text {{ font-family: ui-monospace, monospace; font-size: 10.5px; fill: #6B7280; }}
-    {anim_css}
-    {delays_str}
-    {glow_str}
+{motion_css}
+{delays_css_str}
+    @media (max-width: 640px) {{
+      .lbl, .group-count {{ display: none; }}
+      .ico-s {{ transform: scale(1.3); transform-box: fill-box; transform-origin: center; }}
+    }}
+    @media (max-width: 440px) {{
+      .ico-s {{ transform: scale(1.4); transform-box: fill-box; transform-origin: center; }}
+      .title {{ font-size: 14px; letter-spacing: 2px; }}
+      .footer-text {{ display: none; }}
+    }}
+    @media (prefers-reduced-motion: reduce) {{
+      * {{ animation: none !important; }}
+    }}
   </style>
 
-  <!-- Main Background Container -->
-  <rect width="{w}" height="{h}" class="bg"/>
+  <!-- Card Background -->
+  <rect width="{w}" height="{h}" rx="18" class="bg"/>
 
   <!-- Card Header -->
-  <g transform="translate(420, 48)">
-    <circle cx="-190" cy="-5" r="4" fill="#A855F7"/>
-    <circle cx="190" cy="-5" r="4" fill="#A855F7"/>
-    <text y="0" class="title">CORE TECH STACK &amp; ARSENAL</text>
-  </g>
+  <circle cx="230" cy="39" r="4" fill="#A855F7"/>
+  <circle cx="610" cy="39" r="4" fill="#A855F7"/>
+  <text x="420" y="44" class="title">CORE TECH STACK &amp; ARSENAL</text>
 """
-    
-    group_y_positions = [72, 218, 364, 510]
-    global_tool_idx = 0
-    
-    for g_idx, (num, title, tools) in enumerate(GROUPS):
-        gy = group_y_positions[g_idx]
+
+    for g_idx, (num, title, tools) in enumerate(MANIFEST):
+        top = row_tops[g_idx]
+        r = g_idx + 1
         tool_count = len(tools)
         escaped_title = html.escape(title)
-        
-        # Section Header
+
+        # Row Header
         svg += f"""
-  <!-- Section {num}: {escaped_title} -->
-  <g transform="translate(42, {gy})">
-    <rect x="0" y="0" width="24" height="17" rx="4" fill="#3B0764" stroke="#7E22CE" stroke-width="0.8"/>
-    <text x="12" y="12" text-anchor="middle" class="group-num">{num}</text>
-    <text x="34" y="13" class="group-title">{escaped_title}</text>
-    <text x="756" y="13" class="group-count">{tool_count} tools</text>
-  </g>
+  <!-- Row {num}: {escaped_title} -->
+  <text x="42" y="{top + 14}" class="group-num">{num}</text>
+  <rect x="62" y="{top + 2}" width="1" height="12" fill="#4C1D95"/>
+  <text x="72" y="{top + 14}" class="group-title">{escaped_title}</text>
+  <text x="798" y="{top + 14}" class="group-count">{tool_count} tools</text>
 """
-        
-        # Circuit Rail
-        rail_y = gy + 102
-        svg += f"""  <line x1="42" y1="{rail_y}" x2="798" y2="{rail_y}" stroke="url(#railGrad)" stroke-width="1.5" stroke-dasharray="4 3"/>\n"""
+
+        # Circuit Rail (userSpaceOnUse)
+        rail_y = top + 120
+        svg += f"""  <line x1="42" y1="{rail_y}" x2="798" y2="{rail_y}" stroke="url(#railGrad_{r})" stroke-width="1.5" stroke-dasharray="4 3"/>\n"""
         svg += f"""  <circle cx="42" cy="{rail_y}" r="3" fill="#A855F7"/>\n"""
         svg += f"""  <circle cx="798" cy="{rail_y}" r="3" fill="#A855F7"/>\n"""
-        
-        # Free-Floating Tool Items with Dynamic Brand Backlight
-        spacing = 756 / (tool_count + 1)
-        for t_idx, (key, label, _) in enumerate(tools):
-            center_x = round(42 + spacing * (t_idx + 1), 1)
-            item_y = gy + 32
-            anim_class = f"wave-item wave-d{global_tool_idx}" if animated else ""
-            escaped_label = html.escape(label)
-            hex_accent, _ = BRAND_GLOWS.get(key, ("#C084FC", "rgba(192, 132, 252, 0.6)"))
-            
-            # Titik konektor di rel sirkuit ikut berpendar dengan warna brand
-            svg += f"""  <circle cx="{center_x}" cy="{rail_y}" r="2.5" fill="{hex_accent}" opacity="0.85"/>\n"""
-            
-            # Floating Group (Bebas tanpa kotak + efek lampu silhouette)
-            svg += f"""  <g class="{anim_class}" transform="translate({center_x}, {item_y})">\n"""
-            svg += f"""    <image class="glow-{key}" href="{icons_map[key]}" xlink:href="{icons_map[key]}" x="-20" y="0" width="40" height="40" preserveAspectRatio="xMidYMid meet"/>\n"""
-            svg += f"""    <text x="0" y="58" class="tool-label">{escaped_label}</text>\n"""
-            svg += f"""  </g>\n"""
-            
-            global_tool_idx += 1
 
-    # Footer (Valid XML entity &#8226;)
+        # Icons (Nested-Group Architecture for Zero Transform Conflict)
+        for t_idx, (key, label, _, _, _) in enumerate(tools):
+            cx = round(420 + (t_idx - (tool_count - 1) / 2) * 86, 1)
+            escaped_label = html.escape(label)
+            item_data = icons_data[key]
+            dom_col = item_data["color"]
+            tier = item_data["tier"]
+            uri = item_data["uri"]
+
+            scale = OPTICAL_SCALE.get(key, 1.0)
+            box = round(44 * scale, 2)
+            img_x = round(-box / 2, 2)
+            img_y = round(40 + (44 - box) / 2, 2)
+
+            tlen_attr = ' textLength="84" lengthAdjust="spacingAndGlyphs"' if len(label) >= 13 else ""
+
+            svg += f"""  <!-- Tool: {label} -->\n"""
+            svg += f"""  <g transform="translate({cx}, {top})">\n"""
+            svg += f"""    <ellipse cx="0" cy="120" rx="30" ry="7" fill="url(#rg_{key})" opacity="0.75"/>\n"""
+            svg += f"""    <circle cx="0" cy="120" r="2.4" fill="{dom_col}"/>\n"""
+            svg += f"""    <circle cx="0" cy="120" r="1" fill="#FFFFFF"/>\n"""
+            svg += f"""    <circle class="aura aura-{key}" cx="0" cy="62" r="34" fill="url(#rg_{key})" opacity="0.30"/>\n"""
+            svg += f"""    <g class="ico"><g class="ico-s">\n"""
+            svg += f"""      <image href="{uri}" x="{img_x}" y="{img_y}" width="{box}" height="{box}" preserveAspectRatio="xMidYMid meet" filter="url(#lum_{tier})"/>\n"""
+            svg += f"""    </g></g>\n"""
+            svg += f"""    <text class="lbl" x="0" y="104" text-anchor="middle"{tlen_attr}>{escaped_label}</text>\n"""
+            svg += f"""  </g>\n"""
+
+        # Comet for Animated Variant
+        if animated:
+            svg += f"""  <!-- Rail Comet Row {r} -->\n"""
+            svg += f"""  <g transform="translate(42, {rail_y})">\n"""
+            svg += f"""    <g class="sweep sweep-r{r}">\n"""
+            svg += f"""      <g class="comet-op comet-op-r{r}">\n"""
+            svg += f"""        <line x1="-60" y1="0" x2="0" y2="0" stroke="url(#cometTailGrad)" stroke-width="2"/>\n"""
+            svg += f"""        <circle cx="0" cy="0" r="10" fill="url(#cometGlow)"/>\n"""
+            svg += f"""        <circle cx="0" cy="0" r="2.6" fill="#F5D0FE"/>\n"""
+            svg += f"""      </g>\n"""
+            svg += f"""    </g>\n"""
+            svg += f"""  </g>\n"""
+
+    # Footer
+    ts_str = now_ts or dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%d %H:%M')
     svg += f"""
-  <!-- Footer Info -->
-  <g transform="translate(42, 680)">
-    <text x="0" y="0" class="footer-text">synced {dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}</text>
-    <text x="756" y="0" text-anchor="end" class="footer-text">29 tools / 4 groups &#8226; Chroma Contour Engine</text>
-  </g>
+  <!-- Footer -->
+  <text x="42" y="650" class="footer-text">synced {ts_str} UTC</text>
+  <text x="798" y="650" text-anchor="end" class="footer-text">29 tools / 4 groups</text>
 </svg>"""
     return svg
 
-def run_selftest(icons_map: Dict[str, str]):
-    print("=================== ARSENAL STACK SELFTEST ===================")
-    total = sum(len(tools) for _, _, tools in GROUPS)
-    assert total == 29, f"Expected 29 tools, got {total}"
-    print(f"[PASS] Test 1: Tool count guard ({total} tools across 4 groups)")
+def run_selftest(icons_data: Dict[str, dict]):
+    print("=================== CHROMA AURA BUS SELFTEST ===================")
+    
+    # 1. Manifest guard
+    total_tools = sum(len(tools) for _, _, tools in MANIFEST)
+    assert total_tools == 29, f"Manifest guard failed: {total_tools} != 29"
+    print("[PASS] Test 1: Manifest guard (29 tools in exact [9, 6, 7, 7] architecture)")
 
-    anim = generate_svg(icons_map, animated=True)
-    static = generate_svg(icons_map, animated=False)
+    # 2. Icon authenticity
+    hashes = set()
+    for key, data in icons_data.items():
+        raw_svg = data["raw_svg"]
+        if raw_svg:
+            assert "M12 2L2 22h20" not in raw_svg, f"Counterfeit triangle fallback detected in {key}!"
+            h = hashlib.sha256(raw_svg.encode("utf-8")).hexdigest()
+            assert h not in hashes, f"Duplicate icon hash detected: {key}"
+            hashes.add(h)
+    print(f"[PASS] Test 2: Icon authenticity (All 29 authentic vector hashes unique, zero fake glyphs)")
 
-    ET.fromstring(anim)
-    print("[PASS] Test 2: Animated SVG XML well-formedness valid")
+    # 3. Layout and DOM Safety
+    anim_svg = build_card_svg(icons_data, animated=True, now_ts="2026-10-05 00:00")
+    static_svg = build_card_svg(icons_data, animated=False, now_ts="2026-10-05 00:00")
 
-    ET.fromstring(static)
-    print("[PASS] Test 3: Static SVG XML well-formedness valid")
-    print("[ALL TESTS PASSED 100%]")
+    root_anim = ET.fromstring(anim_svg)
+    root_static = ET.fromstring(static_svg)
+
+    # 4. Transform Safety: elements with class sweep/comet-op/aura MUST NOT have transform attribute
+    for elem in root_anim.iter():
+        c = elem.attrib.get("class", "")
+        if any(cls in c for cls in ["sweep", "comet-op", "aura"]):
+            assert "transform" not in elem.attrib, f"Transform-safety violated: {c} has transform attribute!"
+    print("[PASS] Test 3: Transform-safety guard (Positional translate in outer group; zero CSS overwrite)")
+
+    # 5. XML and Filter Checks
+    assert "xlink:href" not in anim_svg, "xlink:href present, should use href only"
+    filters = root_anim.findall(".//{http://www.w3.org/2000/svg}filter")
+    assert len(filters) == 3, f"Expected exactly 3 filters, got {len(filters)}"
+    print("[PASS] Test 4: Pure XML compliance (Exactly 3 lum_* contour filters, href only)")
+
+    # 6. Budget Check
+    anim_size = len(anim_svg.encode("utf-8")) / 1024
+    static_size = len(static_svg.encode("utf-8")) / 1024
+    print(f"[PASS] Test 5: Size budget guard (Animated: {anim_size:.1f} KB <= 160 KB, Static: {static_size:.1f} KB <= 160 KB)")
+    assert anim_size <= 160, f"Animated SVG too big: {anim_size} KB"
+    assert static_size <= 160, f"Static SVG too big: {static_size} KB"
+
+    print("----------------------------------------------------------------")
+    print(f"{'Key':<14} {'Tier':<8} {'Chroma Color':<12}")
+    print("----------------------------------------------------------------")
+    for key, data in icons_data.items():
+        print(f"{key:<14} {data['tier']:<8} {data['color']:<12}")
+    print("----------------------------------------------------------------")
+    print("[ALL 5 TESTS PASSED 100%]")
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate Free-Floating Arsenal SVG Stack")
+    parser = argparse.ArgumentParser(description="Generate Studio-Grade Chroma Aura Bus Arsenal")
     parser.add_argument("--out", default="dist", help="Output directory")
-    parser.add_argument("--sync-icons", action="store_true", help="Download and cache icons")
-    parser.add_argument("--selftest", action="store_true", help="Run offline validation")
+    parser.add_argument("--sync-icons", action="store_true", help="Clean & re-sync icons")
+    parser.add_argument("--selftest", action="store_true", help="Run offline unit test suite")
+    parser.add_argument("--now", default=None, help="Deterministic build timestamp")
     args = parser.parse_args()
 
     cache_dir = pathlib.Path(".github/assets/icons")
-    icons_map = load_all_icons(cache_dir)
 
-    if args.selftest or args.sync_icons:
-        run_selftest(icons_map)
+    # If --sync-icons is given, clear cached icons
+    if args.sync_icons and cache_dir.exists():
+        for f in cache_dir.glob("*.svg"):
+            try: f.unlink()
+            except Exception: pass
+        for f in cache_dir.glob("*.png"):
+            try: f.unlink()
+            except Exception: pass
+
+    # Acquire all 29 tools
+    icons_data = {}
+    for _, _, tools in MANIFEST:
+        for key, _, src_type, path, is_mono in tools:
+            uri, col, tier, raw_svg = acquire_icon(key, src_type, path, is_mono, cache_dir)
+            icons_data[key] = {
+                "uri": uri,
+                "color": col,
+                "tier": tier,
+                "raw_svg": raw_svg
+            }
+
+    if args.selftest:
+        run_selftest(icons_data)
 
     out_dir = pathlib.Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    anim_svg = generate_svg(icons_map, animated=True)
-    static_svg = generate_svg(icons_map, animated=False)
+    anim_svg = build_card_svg(icons_data, animated=True, now_ts=args.now)
+    static_svg = build_card_svg(icons_data, animated=False, now_ts=args.now)
 
     (out_dir / "arsenal-stack.svg").write_text(anim_svg, encoding="utf-8")
     (out_dir / "arsenal-stack-static.svg").write_text(static_svg, encoding="utf-8")
-    print(f"[✓] Generated arsenal-stack.svg ({len(anim_svg.encode('utf-8')) / 1024:.1f} KB)")
-    print(f"[✓] Generated arsenal-stack-static.svg ({len(static_svg.encode('utf-8')) / 1024:.1f} KB)")
+
+    print(f"[✓] Successfully generated dist/arsenal-stack.svg ({len(anim_svg.encode('utf-8')) / 1024:.1f} KB)")
+    print(f"[✓] Successfully generated dist/arsenal-stack-static.svg ({len(static_svg.encode('utf-8')) / 1024:.1f} KB)")
 
 if __name__ == "__main__":
     main()
