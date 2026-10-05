@@ -32,7 +32,7 @@ jobs:
         run: |
           python3 .github/scripts/metrics_cards.py --selftest
 
-      # 2. Fail-closed: Selftest Signal-Bus Arsenal (offline, locked)
+      # 2. Fail-closed: Sync & Selftest Signal-Bus Arsenal
       - name: Run Arsenal Selftest
         run: |
           python3 .github/scripts/arsenal_cards.py --sync-icons
