@@ -5,8 +5,9 @@ Studio-Grade Free-Floating Signal-Bus Arsenal Stack
 Feature: Dynamic Chroma Contour Ambient Backlight Engine
 - 100% Free-Floating Icons (Zero bounding boxes/tiles)
 - Steady Custom Ambient Glow per Icon (Alpha-mask contour hugging)
-- 100% Valid XML with strict character escaping (&amp;)
-- High-Performance GPU-accelerated Wave Levitation (~85 KB)
+- 100% Valid XML with strict character escaping (Numeric entities &#8226;)
+- Built-in Vector Engine for Offline Self-Healing (Zero 404 errors)
+- High-Performance GPU Wave Levitation (~154 KB)
 - Exactly 29 Tools across 4 Architectural Groups [9, 6, 7, 7]
 """
 import argparse
@@ -42,24 +43,32 @@ GROUPS = [
         ("figma", "Figma", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/figma/figma-original.svg"),
     ]),
     ("03", "AI Coding Assistants & Agents", [
-        ("chatgpt", "ChatGPT", "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@develop/icons/openai.svg"),
+        ("chatgpt", "ChatGPT", "BUILTIN"),
         ("gemini", "Gemini", "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/google/google-original.svg"),
-        ("claude", "Claude", "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@develop/icons/anthropic.svg"),
+        ("claude", "Claude", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/anthropic.svg"),
         ("antigravity", "Antigravity", "BUILTIN"),
-        ("copilot", "GitHub Copilot", "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@develop/icons/githubcopilot.svg"),
+        ("copilot", "GitHub Copilot", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/githubcopilot.svg"),
         ("cursor", "Cursor", "BUILTIN"),
-        ("perplexity", "Perplexity", "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@develop/icons/perplexity.svg"),
+        ("perplexity", "Perplexity", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/perplexity.svg"),
     ]),
     ("04", "LLM Platforms & Open Models", [
-        ("ollama", "Ollama", "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@develop/icons/ollama.svg"),
-        ("huggingface", "Hugging Face", "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@develop/icons/huggingface.svg"),
-        ("deepseek", "DeepSeek", "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@develop/icons/deepseek.svg"),
-        ("mistral", "Mistral AI", "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@develop/icons/mistral.svg"),
-        ("qwen", "Qwen", "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@develop/icons/qwen.svg"),
-        ("grok", "Grok", "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@develop/icons/x.svg"),
-        ("llama", "Meta Llama", "https://cdn.jsdelivr.net/gh/simple-icons/simple-icons@develop/icons/meta.svg"),
+        ("ollama", "Ollama", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/ollama.svg"),
+        ("huggingface", "Hugging Face", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/huggingface.svg"),
+        ("deepseek", "DeepSeek", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/deepseek.svg"),
+        ("mistral", "Mistral AI", "BUILTIN"),
+        ("qwen", "Qwen", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/qwen.svg"),
+        ("grok", "Grok", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/x.svg"),
+        ("llama", "Meta Llama", "https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/meta.svg"),
     ]),
 ]
+
+# Vektor bawaan berkualitas tinggi agar anti-404 dan selalu tajam
+BUILTIN_SVGS = {
+    "antigravity": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#C084FC" d="M12 2L2 22h20L12 2zm0 4.5l6.5 13h-13L12 6.5z"/><circle cx="12" cy="14" r="2.5" fill="#38BDF8"/></svg>""",
+    "cursor": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#FFFFFF" d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.2l6.8 3.8-6.8 3.8-6.8-3.8L12 4.2zM5 8.7l6 3.3v6.7l-6-3.3V8.7zm8 10V12l6-3.3v6.7l-6 3.3z"/></svg>""",
+    "chatgpt": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#10A37F" d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.477 4.477 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 8.487a4.485 4.485 0 0 1 2.37-2.024V12.1a.767.767 0 0 0 .388.677l5.837 3.37-2.02 1.167a.089.089 0 0 1-.073.008l-4.84-2.793A4.504 4.504 0 0 1 2.34 8.487zm16.597 3.855l-5.833-3.37L15.124 7.8a.089.089 0 0 1 .073-.008l4.84 2.793a4.503 4.503 0 0 1-.676 8.105v-5.64a.784.784 0 0 0-.424-.708zm2.01-4.475a4.47 4.47 0 0 1 .535 3.014l-.142-.085-4.783-2.759a.775.775 0 0 0-.78 0L9.936 11.41V9.078a.08.08 0 0 1 .033-.062L14.81 6.23a4.5 4.5 0 0 1 6.137 1.637zm-9.687.21l2.02-1.167a.071.071 0 0 1 .038-.052V1.28a4.504 4.504 0 0 1 4.494 4.494c0 .35-.042.693-.122 1.025l-.141-.08-4.779-2.759a.795.795 0 0 0-.78 0l-5.843 3.37 2.02 1.167zm.81 2.21l2.607 1.505v3.01l-2.607 1.505-2.607-1.505v-3.01l2.607-1.505z"/></svg>""",
+    "mistral": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#FF7000" d="M3 3h3.6v3.6H3zm14.4 0H21v3.6h-3.6zM3 6.6h7.2v3.6H3zm10.8 0H21v3.6h-7.2zM3 10.2h10.8v3.6H3zm7.2 0H21v3.6h-10.8zM3 13.8h3.6v3.6H3zm7.2 0h3.6v3.6h-3.6zm7.2 0H21v3.6h-3.6zM3 17.4h3.6V21H3zm14.4 0H21V21h-3.6z"/></svg>""",
+}
 
 # Kalibrasi warna lampu tiap icon (Hex Accent, RGBA Ambient Glow)
 BRAND_GLOWS = {
@@ -98,15 +107,10 @@ BRAND_GLOWS = {
     "llama": ("#0468FF", "rgba(4, 104, 255, 0.75)"),
 }
 
-BUILTIN_SVGS = {
-    "antigravity": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#C084FC" d="M12 2L2 22h20L12 2zm0 4.5l6.5 13h-13L12 6.5z"/><circle cx="12" cy="14" r="2.5" fill="#38BDF8"/></svg>""",
-    "cursor": """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="#FFFFFF" d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.2l6.8 3.8-6.8 3.8-6.8-3.8L12 4.2zM5 8.7l6 3.3v6.7l-6-3.3V8.7zm8 10V12l6-3.3v6.7l-6 3.3z"/></svg>""",
-}
-
-DARK_ICONS_TO_WHITE = {"github", "chatgpt", "copilot", "ollama", "grok", "cursor"}
+DARK_ICONS_TO_WHITE = {"github", "copilot", "ollama", "grok", "cursor"}
 
 def download_and_clean_svg(key: str, url: str) -> str:
-    if url == "BUILTIN":
+    if url == "BUILTIN" or key in BUILTIN_SVGS:
         return BUILTIN_SVGS.get(key, "")
     try:
         req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
@@ -133,7 +137,7 @@ def download_and_clean_svg(key: str, url: str) -> str:
         return content.strip()
     except Exception as e:
         print(f"Warning: Failed to fetch {key} ({e}), using fallback.")
-        return BUILTIN_SVGS.get("antigravity", "")
+        return BUILTIN_SVGS.get(key, BUILTIN_SVGS["antigravity"])
 
 def load_all_icons(cache_dir: pathlib.Path) -> Dict[str, str]:
     cache_dir.mkdir(parents=True, exist_ok=True)
@@ -141,7 +145,10 @@ def load_all_icons(cache_dir: pathlib.Path) -> Dict[str, str]:
     for _, _, tools in GROUPS:
         for key, name, url in tools:
             cache_file = cache_dir / f"{key}.svg"
-            if cache_file.exists():
+            if key in BUILTIN_SVGS:
+                svg_data = BUILTIN_SVGS[key]
+                cache_file.write_text(svg_data, encoding="utf-8")
+            elif cache_file.exists():
                 svg_data = cache_file.read_text(encoding="utf-8")
                 if key in DARK_ICONS_TO_WHITE and ('fill="#000"' in svg_data or 'fill="#181717"' in svg_data or 'fill="black"' in svg_data):
                     svg_data = re.sub(r'fill="(?:#000(?:000)?|#181717|#24292e|black)"', 'fill="#FFFFFF"', svg_data, flags=re.IGNORECASE)
@@ -166,7 +173,6 @@ def generate_svg(icons_map: Dict[str, str], animated: bool = True) -> str:
       .wave-item { animation: floatWave 3.5s ease-in-out infinite; will-change: transform; }
     """ if animated else ""
     
-    # Generate CSS rules: delays dan filter lampu contour per-icon
     delay_rules = []
     glow_rules = []
     for i in range(29):
@@ -175,7 +181,6 @@ def generate_svg(icons_map: Dict[str, str], animated: bool = True) -> str:
             delay_rules.append(f".wave-d{i} {{ animation-delay: {delay}s; }}")
     
     for key, (_, rgba_color) in BRAND_GLOWS.items():
-        # filter: drop-shadow presisi mengikuti garis & lekuk silhouette icon
         glow_rules.append(f".glow-{key} {{ filter: drop-shadow(0px 0px 7px {rgba_color}); }}")
     
     delays_str = "\n    ".join(delay_rules)
@@ -261,7 +266,7 @@ def generate_svg(icons_map: Dict[str, str], animated: bool = True) -> str:
             # Titik konektor di rel sirkuit ikut berpendar dengan warna brand
             svg += f"""  <circle cx="{center_x}" cy="{rail_y}" r="2.5" fill="{hex_accent}" opacity="0.85"/>\n"""
             
-            # Floating Group (100% Bebas Tanpa Kotak + Efek Lampu Presisi)
+            # Floating Group (Bebas tanpa kotak + efek lampu silhouette)
             svg += f"""  <g class="{anim_class}" transform="translate({center_x}, {item_y})">\n"""
             svg += f"""    <image class="glow-{key}" href="{icons_map[key]}" xlink:href="{icons_map[key]}" x="-20" y="0" width="40" height="40" preserveAspectRatio="xMidYMid meet"/>\n"""
             svg += f"""    <text x="0" y="58" class="tool-label">{escaped_label}</text>\n"""
@@ -269,12 +274,12 @@ def generate_svg(icons_map: Dict[str, str], animated: bool = True) -> str:
             
             global_tool_idx += 1
 
-    # Footer
+    # Footer (Valid XML entity &#8226;)
     svg += f"""
   <!-- Footer Info -->
   <g transform="translate(42, 680)">
     <text x="0" y="0" class="footer-text">synced {dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}</text>
-    <text x="756" y="0" text-anchor="end" class="footer-text">29 tools / 4 groups &bull; Chroma Contour Engine</text>
+    <text x="756" y="0" text-anchor="end" class="footer-text">29 tools / 4 groups &#8226; Chroma Contour Engine</text>
   </g>
 </svg>"""
     return svg
@@ -305,7 +310,7 @@ def main():
     cache_dir = pathlib.Path(".github/assets/icons")
     icons_map = load_all_icons(cache_dir)
 
-    if args.selftest:
+    if args.selftest or args.sync_icons:
         run_selftest(icons_map)
 
     out_dir = pathlib.Path(args.out)
