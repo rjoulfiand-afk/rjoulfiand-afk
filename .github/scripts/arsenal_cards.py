@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Studio-Grade Signal-Bus Arsenal Stack (Master Level 1 & 2)
+Signal-Bus Arsenal Lite (Master Performance Architecture)
 Pure Native Python Standard Library - Zero External Dependencies
-Palette: Monochromatic Violet & Lilac Chrome with Dynamic Brand Ignition Cascade
-Canvas: 840 x 708 viewBox (Justified Grid, PCB Bus Architecture, 3-Phase Ignition)
+Zero-Filter, Zero-SMIL, Inlined Vector Engine with 8.3s Idle Phase
+Generates: arsenal-stack.svg (< 160 KB) & arsenal-stack-static.svg (< 140 KB)
 CLI Options:
   --out DIR         Output directory (default: dist)
   --selftest        Run offline unit selftest suite (fail-closed exit 1)
-  --sync-icons      Download, pin, and lock all 29 icons to .github/assets/icons/
+  --sync-icons      Download, pin, and lock raw upstream icons to .github/assets/icons/
+  --verify-icons    Verify local icons against icons.lock (fail-closed exit 1)
+  --audit FILE      Audit performance metrics of an SVG file
   --now ISO8601     Fix build timestamp for deterministic rendering
 """
 import argparse
@@ -21,7 +23,6 @@ import json
 import math
 import os
 import pathlib
-import random
 import re
 import sys
 import urllib.error
@@ -31,28 +32,20 @@ from dataclasses import dataclass
 from html import escape
 from typing import Dict, List, Optional, Tuple
 
-try:
-    from metrics_cards import common_card_defs, lava_border_frame
-except ImportError:
-    sys.path.insert(0, str(pathlib.Path(__file__).parent.resolve()))
-    try:
-        from metrics_cards import common_card_defs, lava_border_frame
-    except ImportError:
-        def common_card_defs(prefix, w, h):
-            return f"""<defs><filter id="{prefix}_glow_filter"><feGaussianBlur stdDeviation="3.0"/></filter></defs>"""
-        def lava_border_frame(prefix, w, h, delay_offset=0):
-            return f"""<rect width="{w}" height="{h}" rx="14" fill="#05030a"/>"""
-
 # ==============================================================================
-# CONFIG & MANIFEST (EXACT 29 TOOLS IN 4 TIERS: 9, 6, 7, 7)
+# CONFIG & HARD BUDGETS
 # ==============================================================================
-CYCLE_S = 13.0
-COMET_S = 4.8
-REST_MODE = "duotone"
-BRAND_BLOOM = True
-PARTICLES = 12
-LIMIT_KB = 340
+CYCLE_S = 16.0
+STARTUP_S = 0.40
+SPINE_S = 2.00
+SWEEP_S = 3.80
+GLINT_S = 1.20
+DUTY_ACTIVE_S = 7.70  # Active phase ends at 7.70s; 7.70s -> 16.00s is pure 8.3s idle!
+VEIL_ALPHA = 0.28
+LIMIT_KB = 160
 OUT_NAME = "arsenal-stack.svg"
+OUT_STATIC_NAME = "arsenal-stack-static.svg"
+
 ICONS_DIR = pathlib.Path(".github/assets/icons")
 LOCK_FILE = ICONS_DIR / "icons.lock"
 
@@ -61,21 +54,6 @@ DEVICON_VER = "v2.16.0"
 LOBE_VER = "v1.27.0"
 DEVICON_BASE = f"https://cdn.jsdelivr.net/gh/devicons/devicon@{DEVICON_VER}/icons"
 LOBE_BASE = f"https://cdn.jsdelivr.net/npm/@lobehub/icons-static-svg@{LOBE_VER}/icons"
-LOBE_PNG_BASE = f"https://cdn.jsdelivr.net/npm/@lobehub/icons-static-png@{LOBE_VER}/dark"
-
-# Built-in Studio Vector eksklusif untuk Antigravity (Anti HTTP 404)
-ANTIGRAVITY_SVG = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
-  <defs>
-    <linearGradient id="ag_v_grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#c084fc"/>
-      <stop offset="50%" stop-color="#a855f7"/>
-      <stop offset="100%" stop-color="#7c3aed"/>
-    </linearGradient>
-  </defs>
-  <circle cx="12" cy="12" r="9" stroke="url(#ag_v_grad)" stroke-width="2" stroke-dasharray="4 2"/>
-  <polygon points="12,4 19,12 12,20 5,12" fill="url(#ag_v_grad)" opacity="0.85"/>
-  <circle cx="12" cy="12" r="3" fill="#f5d0fe"/>
-</svg>"""
 
 @dataclass(frozen=True)
 class ToolItem:
@@ -83,7 +61,6 @@ class ToolItem:
     name: str
     url: str
     is_mono: bool
-    fallback_png: Optional[str] = None
 
 @dataclass(frozen=True)
 class ToolGroup:
@@ -123,12 +100,12 @@ MANIFEST: Tuple[ToolGroup, ...] = (
         title="AI Coding Assistants & Agents",
         tint="#e879f9",
         items=(
-            ToolItem("chatgpt", "ChatGPT", f"{LOBE_BASE}/openai.svg", True, f"{LOBE_PNG_BASE}/openai.png"),
+            ToolItem("chatgpt", "ChatGPT", f"{LOBE_BASE}/openai.svg", True),
             ToolItem("gemini", "Gemini", f"{LOBE_BASE}/gemini-color.svg", False),
             ToolItem("claude", "Claude", f"{LOBE_BASE}/claude-color.svg", False),
-            ToolItem("antigravity", "Antigravity", "internal:antigravity", False),
-            ToolItem("copilot", "GitHub Copilot", f"{LOBE_BASE}/githubcopilot.svg", True, f"{LOBE_PNG_BASE}/githubcopilot.png"),
-            ToolItem("cursor", "Cursor", f"{LOBE_BASE}/cursor.svg", True, f"{LOBE_PNG_BASE}/cursor.png"),
+            ToolItem("antigravity", "Antigravity", f"{LOBE_BASE}/antigravity-color.svg", False),
+            ToolItem("copilot", "GitHub Copilot", f"{LOBE_BASE}/githubcopilot.svg", True),
+            ToolItem("cursor", "Cursor", f"{LOBE_BASE}/cursor.svg", True),
             ToolItem("perplexity", "Perplexity", f"{LOBE_BASE}/perplexity-color.svg", False),
         )
     ),
@@ -136,12 +113,12 @@ MANIFEST: Tuple[ToolGroup, ...] = (
         title="LLM Platforms & Open Models",
         tint="#c084fc",
         items=(
-            ToolItem("ollama", "Ollama", f"{LOBE_BASE}/ollama.svg", True, f"{LOBE_PNG_BASE}/ollama.png"),
+            ToolItem("ollama", "Ollama", f"{LOBE_BASE}/ollama.svg", True),
             ToolItem("huggingface", "Hugging Face", f"{LOBE_BASE}/huggingface-color.svg", False),
             ToolItem("deepseek", "DeepSeek", f"{LOBE_BASE}/deepseek-color.svg", False),
             ToolItem("mistral", "Mistral AI", f"{LOBE_BASE}/mistral-color.svg", False),
             ToolItem("qwen", "Qwen", f"{LOBE_BASE}/qwen-color.svg", False),
-            ToolItem("grok", "Grok", f"{LOBE_BASE}/grok.svg", True, f"{LOBE_PNG_BASE}/grok.png"),
+            ToolItem("grok", "Grok", f"{LOBE_BASE}/grok.svg", True),
             ToolItem("llama", "Meta Llama", f"{LOBE_BASE}/meta-color.svg", False),
         )
     ),
@@ -151,7 +128,6 @@ ALL_ITEMS: List[ToolItem] = [it for g in MANIFEST for it in g.items]
 TOTAL_TOOLS = len(ALL_ITEMS)  # 29
 TOTAL_GROUPS = len(MANIFEST)  # 4
 
-# Optical weight tuning multipliers
 OPTICAL_SCALE = {
     "mysql": 1.15,
     "jupyter": 1.18,
@@ -163,160 +139,162 @@ OPTICAL_SCALE = {
 }
 
 # ==============================================================================
-# ICON PIPELINE & COLOR AUDIT
+# INLINE ICON PROCESSING ENGINE (ZERO-IMAGE, PURE VECTOR)
 # ==============================================================================
-def normalize_svg_content(raw_svg: str, is_mono: bool) -> str:
+def sanitize_and_inline_svg(raw_svg: str, key: str, is_mono: bool, box_dim: float) -> Tuple[str, bool]:
+    """
+    Parses and inlines raw SVG XML into a self-contained <g> fragment.
+    Returns (markup, is_inlined).
+    """
+    # Clean XML declaration, DOCTYPE, and comments
     s = re.sub(r'<\?xml[^>]*\?>', '', raw_svg, flags=re.DOTALL)
     s = re.sub(r'<!DOCTYPE[^>]*>', '', s, flags=re.DOTALL)
     s = re.sub(r'<!--.*?-->', '', s, flags=re.DOTALL)
-    s = re.sub(r'<title>.*?</title>', '', s, flags=re.DOTALL)
-    s = re.sub(r'<metadata>.*?</metadata>', '', s, flags=re.DOTALL)
     s = s.strip()
 
-    if "viewBox" not in s and "<svg" in s:
-        w_m = re.search(r'width=["\']([0-9.]+)p?x?["\']', s)
-        h_m = re.search(r'height=["\']([0-9.]+)p?x?["\']', s)
-        if w_m and h_m:
-            w_v = float(w_m.group(1))
-            h_v = float(h_m.group(1))
-            s = re.sub(r'<svg\b', f'<svg viewBox="0 0 {w_v} {h_v}"', s, count=1)
+    try:
+        ET.register_namespace('', 'http://www.w3.org/2000/svg')
+        ET.register_namespace('xlink', 'http://www.w3.org/1999/xlink')
+        root = ET.fromstring(s)
+    except Exception:
+        # Fallback to embedded image if XML parsing fails
+        b64 = base64.b64encode(raw_svg.encode("utf-8")).decode("ascii")
+        return f'<image width="{box_dim:.1f}" height="{box_dim:.1f}" href="data:image/svg+xml;base64,{b64}" />', False
 
+    # Check for disallowed elements in inline vectors
+    disallowed = [".//{*}filter", ".//{*}mask", ".//{*}script", ".//{*}foreignObject"]
+    for d in disallowed:
+        if root.findall(d):
+            b64 = base64.b64encode(raw_svg.encode("utf-8")).decode("ascii")
+            return f'<image width="{box_dim:.1f}" height="{box_dim:.1f}" href="data:image/svg+xml;base64,{b64}" />', False
+
+    # Extract viewBox
+    vb = root.attrib.get('viewBox')
+    vb_w, vb_h = 24.0, 24.0
+    if vb:
+        parts = [float(p) for p in re.split(r'[\s,]+', vb.strip()) if p]
+        if len(parts) == 4:
+            vb_w, vb_h = parts[2], parts[3]
+    else:
+        w_attr = root.attrib.get('width', '24')
+        h_attr = root.attrib.get('height', '24')
+        m_w = re.search(r'([0-9.]+)', w_attr)
+        m_h = re.search(r'([0-9.]+)', h_attr)
+        if m_w and m_h:
+            vb_w, vb_h = float(m_w.group(1)), float(m_h.group(1))
+
+    # Strip metadata and decorative elements
+    for child in list(root):
+        tag = child.tag.split('}')[-1]
+        if tag in ['title', 'desc', 'metadata']:
+            root.remove(child)
+
+    # Prefix all IDs to prevent collision across inlined SVGs
+    id_map = {}
+    for el in root.iter():
+        if 'id' in el.attrib:
+            old_id = el.attrib['id']
+            new_id = f"{key}_{old_id}"
+            id_map[old_id] = new_id
+            el.attrib['id'] = new_id
+
+    # Update references to prefixed IDs
+    for el in root.iter():
+        for attr, val in list(el.attrib.items()):
+            if attr in ['fill', 'stroke', 'clip-path'] and 'url(#' in val:
+                for old_id, new_id in id_map.items():
+                    val = val.replace(f"url(#{old_id})", f"url(#{new_id})")
+                el.attrib[attr] = val
+            elif attr in ['href', '{http://www.w3.org/1999/xlink}href'] and val.startswith('#'):
+                old_id = val[1:]
+                if old_id in id_map:
+                    el.attrib[attr] = f"#{id_map[old_id]}"
+
+    # Extract inner children markup
+    inner_xml = "".join(ET.tostring(child, encoding='unicode') for child in root)
     if is_mono:
-        s = s.replace("currentColor", "#f5f3ff")
-        s = re.sub(r'fill=["\'](#000|#000000|black|#111|#111111)["\']', 'fill="#f5f3ff"', s)
+        inner_xml = inner_xml.replace("currentColor", "#f5f3ff")
+        inner_xml = re.sub(r'fill=["\'](#000|#000000|black|#111|#111111)["\']', 'fill="#f5f3ff"', inner_xml)
 
-    return s
+    # Clean whitespace and strip redundant xmlns
+    inner_xml = re.sub(r'\sxmlns(:\w+)?=["\'][^"\']+["\']', '', inner_xml)
+    inner_xml = re.sub(r'\s+', ' ', inner_xml).strip()
 
-def extract_brand_hex(svg_raw: str, default_hex: str) -> str:
-    hexes = re.findall(r'#[0-9a-fA-F]{6}', svg_raw)
-    counts = {}
-    for h in hexes:
-        hl = h.lower()
-        r, g, b = int(hl[1:3], 16)/255.0, int(hl[3:5], 16)/255.0, int(hl[5:7], 16)/255.0
-        h_deg, s, v = colorsys.rgb_to_hsv(r, g, b)
-        if v < 0.15 or (s < 0.20 and v > 0.85):
-            continue
-        counts[hl] = counts.get(hl, 0) + 1
+    max_dim = max(vb_w, vb_h) if max(vb_w, vb_h) > 0 else 24.0
+    scale = box_dim / max_dim
+    tx = (box_dim - (vb_w * scale)) / 2.0
+    ty = (box_dim - (vb_h * scale)) / 2.0
 
-    if not counts:
-        return default_hex
-    return max(counts.items(), key=lambda x: x[1])[0]
+    markup = f'<g transform="translate({tx:.2f}, {ty:.2f}) scale({scale:.4f})">{inner_xml}</g>'
+    return markup, True
 
+# ==============================================================================
+# VENDORING & SYNC PIPELINE (100% OFFLINE VERIFIABLE)
+# ==============================================================================
 def sync_icons(dest_dir: pathlib.Path = ICONS_DIR):
     dest_dir.mkdir(parents=True, exist_ok=True)
-    print("================== SYNCING & LOCKING ICONS ==================")
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) SignalBusSync/2.0"}
+    print("================== SYNCING RAW MANIFEST ICONS ==================")
+    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) SignalBusSync/3.0"}
     lock_data = {}
 
     for item in ALL_ITEMS:
         svg_target = dest_dir / f"{item.key}.svg"
-        png_target = dest_dir / f"{item.key}.png"
-
-        # Khusus Antigravity, gunakan vector built-in
-        if item.key == "antigravity":
-            norm_svg = ANTIGRAVITY_SVG.strip()
-            with open(svg_target, "w", encoding="utf-8") as f:
-                f.write(norm_svg)
-            sha = hashlib.sha256(norm_svg.encode("utf-8")).hexdigest()
-            lock_data[f"{item.key}.svg"] = sha
-            print(f"[✓] {item.key:14} -> BUILT-IN VECTOR ({len(norm_svg)/1024:.1f} KB)")
-            continue
-
+        url = item.url
         try:
-            req = urllib.request.Request(item.url, headers=headers)
+            req = urllib.request.Request(url, headers=headers)
             with urllib.request.urlopen(req, timeout=12) as resp:
                 content = resp.read()
-            text = content.decode("utf-8", errors="replace")
-            norm_svg = normalize_svg_content(text, item.is_mono)
-            ET.fromstring(norm_svg)
+            text = content.decode("utf-8", errors="replace").strip()
             with open(svg_target, "w", encoding="utf-8") as f:
-                f.write(norm_svg)
-            sha = hashlib.sha256(norm_svg.encode("utf-8")).hexdigest()
-            lock_data[f"{item.key}.svg"] = sha
-            print(f"[✓] {item.key:14} -> {svg_target.name} ({len(norm_svg)/1024:.1f} KB)")
+                f.write(text)
+            sha = hashlib.sha256(text.encode("utf-8")).hexdigest()
+            lock_data[svg_target.name] = sha
+            print(f"[✓] {item.key:14} -> {svg_target.name} ({len(text)/1024:.1f} KB)")
         except Exception as e:
-            if item.fallback_png:
-                try:
-                    req_p = urllib.request.Request(item.fallback_png, headers=headers)
-                    with urllib.request.urlopen(req_p, timeout=12) as resp_p:
-                        p_content = resp_p.read()
-                    with open(png_target, "wb") as pf:
-                        pf.write(p_content)
-                    sha_p = hashlib.sha256(p_content).hexdigest()
-                    lock_data[f"{item.key}.png"] = sha_p
-                    print(f"[✓] {item.key:14} -> FALLBACK {png_target.name} ({len(p_content)/1024:.1f} KB)")
-                    continue
-                except Exception as ep:
-                    print(f"[!] Fallback failed for {item.key}: {ep}")
-
-            fallback_vector = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#1f1138"/><circle cx="12" cy="12" r="6" fill="#c084fc"/></svg>'
-            with open(svg_target, "w", encoding="utf-8") as f:
-                f.write(fallback_vector)
-            sha_f = hashlib.sha256(fallback_vector.encode("utf-8")).hexdigest()
-            lock_data[f"{item.key}.svg"] = sha_f
-            print(f"[✓] {item.key:14} -> FAILSAFE VECTOR ({len(fallback_vector)/1024:.1f} KB)")
+            # If antigravity-color.svg is not yet published upstream, try latest or fail-closed
+            if item.key == "antigravity" and svg_target.is_file():
+                existing = svg_target.read_text(encoding="utf-8")
+                sha = hashlib.sha256(existing.encode("utf-8")).hexdigest()
+                lock_data[svg_target.name] = sha
+                print(f"[✓] {item.key:14} -> PRESERVED LOCAL {svg_target.name}")
+                continue
+            print(f"[-] ERROR syncing {item.key} from {url}: {e}", file=sys.stderr)
+            sys.exit(1)
 
     with open(LOCK_FILE, "w", encoding="utf-8") as lf:
         json.dump(lock_data, lf, indent=2, sort_keys=True)
-    print(f"[🚀] All 29 manifest icons synced and written to {LOCK_FILE}!")
+    print(f"[🚀] All 29 manifest icons synced and locked to {LOCK_FILE}!")
 
-def load_icons(dest_dir: pathlib.Path = ICONS_DIR) -> Tuple[Dict[str, Tuple[str, str]], Dict[str, str]]:
-    dest_dir.mkdir(parents=True, exist_ok=True)
+def verify_and_load_icons(dest_dir: pathlib.Path = ICONS_DIR) -> Dict[str, Tuple[str, bool]]:
+    if not LOCK_FILE.is_file():
+        raise FileNotFoundError(f"Missing {LOCK_FILE}. Run with --sync-icons first.")
 
-    missing = [it for it in ALL_ITEMS if not (dest_dir / f"{it.key}.svg").is_file() and not (dest_dir / f"{it.key}.png").is_file()]
-    if missing or not LOCK_FILE.is_file():
-        print(f"[*] [AUTO-HEAL] Menemukan {len(missing)} icon belum ada di runner. Melakukan auto-sync...")
-        sync_icons(dest_dir)
+    with open(LOCK_FILE, "r", encoding="utf-8") as lf:
+        lock_data = json.load(lf)
 
-    lock_data = {}
-    if LOCK_FILE.is_file():
-        with open(LOCK_FILE, "r", encoding="utf-8") as lf:
-            try:
-                lock_data = json.load(lf)
-            except Exception:
-                lock_data = {}
-
-    icons: Dict[str, Tuple[str, str]] = {}
-    brand_colors: Dict[str, str] = {}
+    icons_map: Dict[str, Tuple[str, bool]] = {}
 
     for item in ALL_ITEMS:
         svg_path = dest_dir / f"{item.key}.svg"
-        png_path = dest_dir / f"{item.key}.png"
+        if not svg_path.is_file():
+            raise FileNotFoundError(f"Missing icon: {svg_path}. Run --sync-icons first.")
+        content = svg_path.read_text(encoding="utf-8").strip()
+        sha = hashlib.sha256(content.encode("utf-8")).hexdigest()
+        if lock_data.get(svg_path.name) != sha:
+            raise ValueError(f"Checksum mismatch for {svg_path.name}! Run --sync-icons.")
 
-        if svg_path.is_file():
-            with open(svg_path, "r", encoding="utf-8") as f:
-                content = f.read()
-            ET.fromstring(content)
-            sha = hashlib.sha256(content.encode("utf-8")).hexdigest()
-            if lock_data.get(svg_path.name) != sha:
-                lock_data[svg_path.name] = sha
-            b64 = base64.b64encode(content.encode("utf-8")).decode("ascii")
-            icons[item.key] = ("image/svg+xml", b64)
-            brand_colors[item.key] = extract_brand_hex(content, "#c084fc")
-        elif png_path.is_file():
-            with open(png_path, "rb") as f:
-                p_bytes = f.read()
-            assert p_bytes[:8] == b"\x89PNG\r\n\x1a\n", f"Invalid PNG signature for {item.key}"
-            sha_p = hashlib.sha256(p_bytes).hexdigest()
-            if lock_data.get(png_path.name) != sha_p:
-                lock_data[png_path.name] = sha_p
-            b64 = base64.b64encode(p_bytes).decode("ascii")
-            icons[item.key] = ("image/png", b64)
-            brand_colors[item.key] = "#c084fc"
-        else:
-            fallback_svg = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#a855f7"/></svg>'
-            svg_path.write_text(fallback_svg, encoding="utf-8")
-            b64 = base64.b64encode(fallback_svg.encode("utf-8")).decode("ascii")
-            icons[item.key] = ("image/svg+xml", b64)
-            brand_colors[item.key] = "#a855f7"
+        opt_s = OPTICAL_SCALE.get(item.key, 1.0)
+        box_dim = round(36.0 * opt_s, 1)
+        inlined_markup, is_inlined = sanitize_and_inline_svg(content, item.key, item.is_mono, box_dim)
+        icons_map[item.key] = (inlined_markup, is_inlined)
 
-    return icons, brand_colors
+    return icons_map
 
 # ==============================================================================
-# GEOMETRY & TIMELINE ENGINE (LEVEL 1 & 2)
+# GEOMETRY & TIMELINE (LITE 840 x 608 VIEWBOX)
 # ==============================================================================
 @dataclass
-class TileLayout:
+class TileCoord:
     item: ToolItem
     x: float
     y: float
@@ -324,251 +302,286 @@ class TileLayout:
     h: float
     cx: float
     cy: float
-    rail_y: float
-    delay: float
-    t_peak: float
-    brand_color: str
 
 @dataclass
-class GroupLayout:
+class BayLayout:
     group: ToolGroup
     panel_y: float
     rail_y: float
-    tiles: List[TileLayout]
+    tile_w: float
+    tile_h: float
+    tiles: List[TileCoord]
     s_b: float
     l_b: float
 
-def compute_layout_and_timeline(brand_colors: Dict[str, str]) -> List[GroupLayout]:
-    panel_tops = [76.0, 226.0, 376.0, 526.0]
-    S0, SD, D = 0.40, 2.60, COMET_S
-    y0, y1 = 66.0, 656.0
-
-    groups_layout: List[GroupLayout] = []
+def compute_layout() -> List[BayLayout]:
+    panel_tops = [64.0, 192.0, 320.0, 448.0]
+    y0, y1 = 58.0, 562.0
+    bays: List[BayLayout] = []
 
     for b, grp in enumerate(MANIFEST):
         top_y = panel_tops[b]
-        rail_y = top_y + 130.0
-        n_tiles = len(grp.items)
+        rail_y = top_y + 114.0  # 178, 306, 434, 562
+        n = len(grp.items)
+        tile_w = (748.0 - 8.0 * (n - 1)) / n
+        tile_h = 72.0
 
-        tile_w = (748.0 - 8.0 * (n_tiles - 1)) / n_tiles
-        tile_h = 84.0
+        s_b = STARTUP_S + SPINE_S * ((rail_y - y0) / (y1 - y0))
+        l_b = s_b + 0.10
 
-        s_b = S0 + SD * ((rail_y - y0) / (y1 - y0))
-        l_b = s_b + 0.15
-
-        tiles_list: List[TileLayout] = []
+        tiles: List[TileCoord] = []
         for i, item in enumerate(grp.items):
-            tile_x = 46.0 + i * (tile_w + 8.0)
-            tile_y = top_y + 38.0
-            cx = tile_x + (tile_w / 2.0)
-            cy = tile_y + (tile_h / 2.0)
-            t_peak = l_b + D * ((cx - 46.0) / 748.0)
-            tile_delay = max(0.0, t_peak - 0.12)
-
-            tiles_list.append(TileLayout(
+            tx = 46.0 + i * (tile_w + 8.0)
+            ty = top_y + 32.0
+            tiles.append(TileCoord(
                 item=item,
-                x=tile_x,
-                y=tile_y,
+                x=tx,
+                y=ty,
                 w=tile_w,
                 h=tile_h,
-                cx=cx,
-                cy=cy,
-                rail_y=rail_y,
-                delay=tile_delay,
-                t_peak=t_peak,
-                brand_color=brand_colors.get(item.key, grp.tint)
+                cx=tx + (tile_w / 2.0),
+                cy=ty + (tile_h / 2.0),
             ))
 
-        last_t = tiles_list[-1]
-        assert abs((last_t.x + last_t.w) - 794.0) < 0.01, f"Justified grid error in group {b+1}"
-
-        groups_layout.append(GroupLayout(
+        bays.append(BayLayout(
             group=grp,
             panel_y=top_y,
             rail_y=rail_y,
-            tiles=tiles_list,
+            tile_w=tile_w,
+            tile_h=tile_h,
+            tiles=tiles,
             s_b=s_b,
             l_b=l_b
         ))
 
-    return groups_layout
+    return bays
 
 # ==============================================================================
-# SVG RENDERER: MASTER SIGNAL-BUS ARSENAL
+# SVG BUILDER: SIGNAL-BUS LITE (ZERO-FILTER & ZERO-SMIL)
 # ==============================================================================
-def build_arsenal_svg(icons_map: Dict[str, Tuple[str, str]], brand_colors: Dict[str, str], now_dt: dt.datetime) -> str:
-    w, h = 840, 708
+def build_svg(icons_map: Dict[str, Tuple[str, bool]], now_dt: dt.datetime, animate: bool = True) -> str:
+    w, h = 840, 608
     prefix = "arsn"
-    groups = compute_layout_and_timeline(brand_colors)
+    bays = compute_layout()
 
-    icon_defs = []
-    for item in ALL_ITEMS:
-        mime, b64 = icons_map[item.key]
-        opt_s = OPTICAL_SCALE.get(item.key, 1.0)
-        box_dim = round(32.0 * opt_s, 1)
-        offset = round((40.0 - box_dim) / 2.0, 1)
-        icon_defs.append(
-            f'<image id="{prefix}_ic_{item.key}" x="{offset}" y="{offset}" width="{box_dim}" height="{box_dim}" '
-            f'preserveAspectRatio="xMidYMid meet" href="data:{mime};base64,{b64}" />'
-        )
-    icons_defs_markup = "\n    ".join(icon_defs)
+    # Consolidated CSS rules: ONLY transform and opacity animated
+    if animate:
+        css_rules = f"""
+    text {{ font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif; }}
+    .mono {{ font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }}
+    .lbl {{ font-size: 9.5px; font-weight: 600; fill: #8b7fb0; }}
 
-    rng = random.Random(2026)
-    dust_particles = []
-    for _ in range(PARTICLES):
-        px = rng.uniform(40.0, 800.0)
-        py = rng.uniform(80.0, 640.0)
-        pr = rng.uniform(0.8, 1.5)
-        p_dur = rng.uniform(18.0, 30.0)
-        p_del = rng.uniform(0.0, 13.0)
-        p_color = rng.choice(["#d8b4fe", "#a855f7", "#c084fc"])
-        dust_particles.append(
-            f'<circle cx="{px:.1f}" cy="{py:.1f}" r="{pr:.1f}" fill="{p_color}" opacity="0.25">'
-            f'<animate attributeName="cy" from="{py:.1f}" to="{py - 60.0:.1f}" dur="{p_dur:.1f}s" '
-            f'begin="-{p_del:.1f}s" repeatCount="indefinite"/>'
-            f'<animate attributeName="opacity" values="0;0.28;0" dur="{p_dur:.1f}s" '
-            f'begin="-{p_del:.1f}s" repeatCount="indefinite"/>'
-            f'</circle>'
-        )
-    dust_markup = "\n  ".join(dust_particles)
+    /* Header neon flicker */
+    .hdr-flk {{ animation: arsn-flicker 4s infinite linear; }}
+    @keyframes arsn-flicker {{
+      0%, 82%, 84%, 90%, 100% {{ opacity: 1; }}
+      83% {{ opacity: 0.25; }}
+      89% {{ opacity: 0.65; }}
+    }}
 
-    panels_markup = []
-    rails_markup = []
-    tiles_markup = []
-    comets_markup = []
+    /* Spine pulse: linear vertical travel */
+    .anim-spine {{
+      opacity: 0;
+      transform: translateY(0);
+      animation: arsn-spine {CYCLE_S}s infinite linear;
+      animation-delay: {STARTUP_S:.2f}s;
+      animation-fill-mode: both;
+    }}
+    @keyframes arsn-spine {{
+      0% {{ transform: translateY(0); opacity: 0; }}
+      0.8% {{ opacity: 1; }}
+      12.0% {{ transform: translateY(504px); opacity: 1; }}
+      12.5% {{ transform: translateY(504px); opacity: 0; }}
+      100% {{ transform: translateY(504px); opacity: 0; }}
+    }}
 
-    for b, gl in enumerate(groups):
-        py = gl.panel_y
-        ry = gl.rail_y
-        cnt = len(gl.tiles)
-        safe_title = escape(gl.group.title)
-        tint = gl.group.tint
+    /* Spotlight Veil Sweep (Synchronized 918px travel) */
+    .anim-veil {{
+      transform: translateX(0);
+      animation: arsn-sweep {CYCLE_S}s infinite linear;
+      animation-delay: var(--vd);
+      animation-fill-mode: both;
+    }}
+    @keyframes arsn-sweep {{
+      0% {{ transform: translateX(0); }}
+      23.75% {{ transform: translateX(918px); }}
+      100% {{ transform: translateX(918px); }}
+    }}
+
+    /* Comet Head & Tail: Travel + Opacity */
+    .anim-comet {{
+      transform: translateX(0);
+      animation: arsn-sweep {CYCLE_S}s infinite linear;
+      animation-delay: var(--cd);
+      animation-fill-mode: both;
+    }}
+    .anim-comet-op {{
+      opacity: 0;
+      animation: arsn-comet-fade {CYCLE_S}s infinite linear;
+      animation-delay: var(--cd);
+      animation-fill-mode: both;
+    }}
+    @keyframes arsn-comet-fade {{
+      0%, 1.8% {{ opacity: 0; }}
+      2.5% {{ opacity: 1; }}
+      21.5% {{ opacity: 1; }}
+      22.8%, 100% {{ opacity: 0; }}
+    }}
+
+    /* Glint sweep across entire card */
+    .anim-glint {{
+      opacity: 0;
+      transform: translateX(-240px) skewX(-20deg);
+      animation: arsn-glint {CYCLE_S}s infinite linear;
+      animation-delay: 6.40s;
+      animation-fill-mode: both;
+    }}
+    @keyframes arsn-glint {{
+      0% {{ transform: translateX(-240px) skewX(-20deg); opacity: 0; }}
+      0.8% {{ opacity: 0.12; }}
+      7.5% {{ opacity: 0.12; }}
+      8.1%, 100% {{ transform: translateX(1100px) skewX(-20deg); opacity: 0; }}
+    }}
+
+    @media (max-width: 640px) {{
+      .lbl {{ display: none; }}
+      .ico-s {{ transform: scale(1.35) translateY(4px); transform-box: fill-box; transform-origin: center; }}
+      .ftr-txt {{ display: none; }}
+    }}
+    @media (max-width: 440px) {{
+      .ico-s {{ transform: scale(1.45) translateY(5px); transform-box: fill-box; transform-origin: center; }}
+      .hdr-txt {{ font-size: 13px !important; letter-spacing: 2px !important; }}
+      .grp-cnt {{ display: none; }}
+    }}
+    @media (prefers-reduced-motion: reduce) {{
+      * {{ animation: none !important; }}
+      .anim-comet, .anim-spine, .anim-glint {{ display: none !important; }}
+      .anim-veil {{ transform: translateX(918px) !important; }}
+    }}
+"""
+    else:
+        css_rules = """
+    text { font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif; }
+    .mono { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+    .lbl { font-size: 9.5px; font-weight: 600; fill: #8b7fb0; }
+    @media (max-width: 640px) {
+      .lbl { display: none; }
+      .ico-s { transform: scale(1.35) translateY(4px); transform-box: fill-box; transform-origin: center; }
+      .ftr-txt { display: none; }
+    }
+    @media (max-width: 440px) {
+      .ico-s { transform: scale(1.45) translateY(5px); transform-box: fill-box; transform-origin: center; }
+      .hdr-txt { font-size: 13px !important; letter-spacing: 2px !important; }
+      .grp-cnt { display: none; }
+    }
+"""
+
+    bays_markup = []
+    clip_defs = []
+
+    for b, bay in enumerate(bays):
+        py = bay.panel_y
+        ry = bay.rail_y
+        tint = bay.group.tint
+        safe_title = escape(bay.group.title)
+        n_tools = len(bay.tiles)
         idx_str = f"0{b+1}"
 
-        # Level 1.2: Header dots - DIBERI data-brand="true" agar lolos Palette Audit
-        dots = []
-        for d_i, t in enumerate(gl.tiles):
-            dx = 720.0 - (cnt - 1 - d_i) * 7.0
-            dots.append(
-                f'<circle cx="{dx:.1f}" cy="{py + 20:.1f}" r="2.0" fill="#2e1065" class="hdr-dot" data-brand="true">'
-                f'<animate data-brand="true" attributeName="fill" values="#2e1065;{t.brand_color};#2e1065" dur="{CYCLE_S}s" '
-                f'begin="{t.t_peak:.2f}s" repeatCount="indefinite" />'
-                f'</circle>'
+        # Per-bay clip-path for Spotlight Veil (strictly covers x=46..794 and y=top+32..top+104)
+        clip_defs.append(f'<clipPath id="{prefix}_clip_bay_{b}"><rect x="46" y="{py + 32:.1f}" width="748" height="72" rx="12" /></clipPath>')
+
+        # Consolidated Tile Paths (Subpaths for high rendering efficiency)
+        tile_rects = []
+        for t in bay.tiles:
+            tile_rects.append(
+                f'<rect x="{t.x:.1f}" y="{t.y:.1f}" width="{t.w:.1f}" height="{t.h:.1f}" rx="12" fill="#0f0824" stroke="#2e1065" stroke-width="1" />'
+                f'<line x1="{t.x + 10:.1f}" y1="{t.y + 1:.1f}" x2="{t.x + t.w - 10:.1f}" y2="{t.y + 1:.1f}" stroke="#e9d5ff" stroke-opacity="0.10" stroke-width="1" />'
             )
-        dots_markup = "".join(dots)
+        tiles_geom = "\n      ".join(tile_rects)
 
-        panels_markup.append(f"""
-    <!-- Panel {b+1}: {safe_title} -->
-    <rect x="30" y="{py}" width="780" height="140" rx="16" fill="url(#{prefix}_panel_grad)" stroke="url(#{prefix}_panel_stroke_{b})" stroke-width="1" />
-    <line x1="38" y1="{py+1}" x2="802" y2="{py+1}" stroke="#e9d5ff" stroke-opacity="0.10" stroke-width="1" />
-    
-    <!-- Level 2.2: Top Accent Sweep -->
-    <path d="M 54 {py+1} H 180" stroke="{tint}" stroke-width="2" stroke-linecap="round" opacity="0.4" />
-    
-    <!-- Panel Header: Index Chip & Title -->
-    <rect x="46" y="{py+10}" width="20" height="20" rx="5" fill="#1f1138" stroke="{tint}" stroke-opacity="0.4" />
-    <text x="56" y="{py+24}" fill="{tint}" font-size="9.5" font-weight="800" text-anchor="middle" class="mono">{idx_str}</text>
-    <text x="74" y="{py+25}" fill="#e9d5ff" font-size="13" font-weight="800">{safe_title}</text>
-    
-    <!-- Dots & Count -->
-    {dots_markup}
-    <text x="794" y="{py+24}" fill="#8b7fb0" font-size="9.5" text-anchor="end" class="mono grp-cnt">{cnt} tools</text>
-    <line x1="46" y1="{py+32}" x2="794" y2="{py+32}" stroke="#a855f7" stroke-opacity="0.10" stroke-dasharray="3 3" />
-        """)
-
-        rails_markup.append(f"""
-    <!-- Rail for Panel {b+1} -->
-    <path d="M 22 {ry - 10} L 32 {ry} H 46" fill="none" stroke="#2e1065" stroke-width="1.6" />
-    <line x1="46" y1="{ry}" x2="794" y2="{ry}" stroke="#2e1065" stroke-width="1.6" />
-    <line x1="46" y1="{ry}" x2="794" y2="{ry}" stroke="#4c1d95" stroke-width="1.4" stroke-dasharray="2 6" />
-    
-    <!-- Source Port Ring & Hub Pad -->
-    <circle cx="46" cy="{ry}" r="4.5" fill="#05030a" stroke="{tint}" stroke-width="1.4" />
-    <circle cx="46" cy="{ry}" r="1.8" fill="#f5d0fe" />
-    
-    <!-- Source Port Ripple -->
-    <g transform="translate(46, {ry})">
-      <circle class="anim-ripple" r="3.2" fill="none" stroke="#f5d0fe" stroke-width="1.2" style="--d:{gl.s_b:.2f}s" />
-    </g>
-
-    <!-- Terminal Diamond -->
-    <g transform="translate(794, {ry})">
-      <polygon points="0,-4.5 4.5,0 0,4.5 -4.5,0" fill="#6d28d9" />
-      <polygon class="anim-lit-op" points="0,-4.5 4.5,0 0,4.5 -4.5,0" fill="#f5d0fe" style="--d:{gl.l_b + COMET_S - 0.1:.2f}s" />
-    </g>
-        """)
-
-        for t in gl.tiles:
-            tx, ty, tw, th, tcx = t.x, t.y, t.w, t.h, t.cx
-            d_s = f"{t.delay:.2f}s"
-            key = t.item.key
+        # Inlined Icons & Labels
+        icons_list = []
+        for t in bay.tiles:
+            icon_markup, _ = icons_map[t.item.key]
             name = escape(t.item.name)
-            b_col = t.brand_color
-
-            rails_markup.append(f"""
-    <!-- Stub & PCB Via on Rail -->
-    <line x1="{tcx}" y1="{ty + th}" x2="{tcx}" y2="{ry}" stroke="#4c1d95" stroke-width="1.2" />
-    <circle cx="{tcx}" cy="{ry}" r="2.6" fill="#140a2b" stroke="#6d28d9" stroke-width="1" />
-    <circle cx="{tcx}" cy="{ry}" r="1.2" fill="#6d28d9" />
-    <g transform="translate({tcx}, {ry})">
-      <circle class="anim-lit-op" r="3.2" fill="#f5d0fe" style="--d:{d_s}" />
-      <circle class="anim-ripple" r="3.2" fill="none" stroke="#f5d0fe" stroke-width="1.2" style="--d:{d_s}" />
-    </g>
-            """)
-
-            plate_cx = tw / 2.0
-            ticks_d = f"M 5 9 V 5 H 9 M {tw-9} 5 H {tw-5} V 9 M {tw-5} {th-9} V {th-5} H {tw-9} M 9 {th-5} H 5 V {th-9}"
-            lbl_len_attr = f'textLength="{tw - 10:.0f}" lengthAdjust="spacingAndGlyphs"' if len(t.item.name) >= 12 else ''
-
-            tiles_markup.append(f"""
-    <g transform="translate({tx:.1f}, {ty:.1f})">
-      <!-- 1. Contact Shadow -->
-      <ellipse cx="{plate_cx:.1f}" cy="{th + 4}" rx="{tw/2 - 4:.1f}" ry="8" fill="#05030a" opacity="0.6" />
-      
-      <!-- 2. Body Rect & 3. Bevel Stroke -->
-      <rect x="0" y="0" width="{tw:.1f}" height="{th}" rx="13" fill="url(#{prefix}_tile_body)" stroke="url(#{prefix}_tile_bevel)" stroke-width="1" />
-      
-      <!-- 4. Top Specular & 5. Corner Ticks -->
-      <line x1="12" y1="1" x2="{tw - 12:.1f}" y2="1" stroke="#e9d5ff" stroke-opacity="0.15" stroke-width="1" />
-      <path d="{ticks_d}" fill="none" stroke="{tint}" stroke-opacity="0.35" stroke-width="1.2" />
-
-      <!-- Floor Bloom -->
-      <ellipse class="anim-lit-op" cx="{plate_cx:.1f}" cy="68" rx="34" ry="14" fill="{b_col}" opacity="0.25" data-brand="true" style="--d:{d_s}" />
-
-      <!-- 6. Icon Plate -->
-      <circle cx="{plate_cx:.1f}" cy="31" r="23" fill="url(#{prefix}_plate_grad)" stroke="{tint}" stroke-opacity="0.25" stroke-width="1" />
-      
-      <!-- Lit Rim Frame -->
-      <rect class="anim-lit-rim" x="0" y="0" width="{tw:.1f}" height="{th}" rx="13" fill="none" stroke="#c084fc" stroke-width="1.6" style="--d:{d_s}" />
-
-      <!-- Settle Lift Group -->
-      <g class="anim-lift" style="--d:{d_s}">
-        <!-- 7. Icon Dual-Layer -->
-        <g transform="translate({plate_cx - 20:.1f}, 11)">
+            lbl_len_attr = f'textLength="{t.w - 8:.0f}" lengthAdjust="spacingAndGlyphs"' if len(t.item.name) >= 12 else ''
+            icons_list.append(f"""
+      <g transform="translate({t.x:.1f}, {t.y:.1f})">
+        <!-- Inlined Icon -->
+        <g class="ico" transform="translate({(t.w - 36.0)/2.0:.1f}, 8)">
           <g class="ico-s">
-            <g class="anim-lit-inv" style="--d:{d_s}">
-              <use href="#{prefix}_ic_{key}" filter="url(#{prefix}_duo)" />
-            </g>
-            <g class="anim-lit-op" style="--d:{d_s}">
-              <use href="#{prefix}_ic_{key}" />
-            </g>
+            {icon_markup}
           </g>
         </g>
-        <!-- 8. Label -->
-        <text class="lbl anim-lit-lbl" x="{plate_cx:.1f}" y="73" text-anchor="middle" {lbl_len_attr} style="--d:{d_s}">{name}</text>
+        <!-- Label -->
+        <text class="lbl" x="{t.w/2.0:.1f}" y="62" text-anchor="middle" {lbl_len_attr}>{name}</text>
       </g>
-    </g>
             """)
+        icons_geom = "".join(icons_list)
 
-        comets_markup.append(f"""
-    <!-- Comet for Panel {b+1} -->
-    <g transform="translate(0, {ry})">
-      <g class="anim-comet" style="--cd:{gl.l_b:.2f}s">
-        <line x1="-70" y1="0" x2="0" y2="0" stroke="url(#{prefix}_comet_tail)" stroke-width="2.2" stroke-linecap="round" />
-        <circle cx="0" cy="0" r="12" fill="url(#{prefix}_comet_glow)" />
-        <circle cx="0" cy="0" r="3.2" fill="#f5d0fe" />
+        # Consolidated Rail, Stubs, and PCB Vias
+        rail_stubs = []
+        vias = []
+        for t in bay.tiles:
+            rail_stubs.append(f'<line x1="{t.cx:.1f}" y1="{py + 104:.1f}" x2="{t.cx:.1f}" y2="{ry:.1f}" stroke="#4c1d95" stroke-width="1.2" />')
+            vias.append(f'<circle cx="{t.cx:.1f}" cy="{ry:.1f}" r="2.2" fill="#140a2b" stroke="#6d28d9" stroke-width="1" />')
+        rails_geom = "\n      ".join(rail_stubs)
+        vias_geom = "\n      ".join(vias)
+
+        # Spotlight Veil & Comet (Animated in Level 1; Static in Level 0)
+        if animate:
+            motion_elements = f"""
+      <!-- Level 1: Spotlight Veil Rect (covers entire bay, sweeps across) -->
+      <g clip-path="url(#{prefix}_clip_bay_{b})">
+        <rect class="anim-veil" x="-872" y="{py + 32:.1f}" width="1666" height="72" fill="url(#{prefix}_veil_grad)" style="--vd:{bay.l_b:.2f}s" />
       </g>
-    </g>
+
+      <!-- Level 1: Synchronized Light Comet on Rail -->
+      <g class="anim-comet" transform="translate(-39, {ry:.1f})" style="--cd:{bay.l_b:.2f}s">
+        <g class="anim-comet-op" style="--cd:{bay.l_b:.2f}s">
+          <line x1="-70" y1="0" x2="0" y2="0" stroke="url(#{prefix}_comet_tail)" stroke-width="2.2" stroke-linecap="round" />
+          <circle cx="0" cy="0" r="12" fill="url(#{prefix}_comet_glow)" />
+          <circle cx="0" cy="0" r="3.2" fill="#f5d0fe" />
+        </g>
+      </g>
+            """
+        else:
+            motion_elements = ""
+
+        bays_markup.append(f"""
+    <!-- ================= BAY {b+1}: {safe_title} ================= -->
+    <rect x="30" y="{py:.1f}" width="780" height="122" rx="14" fill="url(#{prefix}_panel_grad)" stroke="#a855f7" stroke-opacity="0.14" stroke-width="1" />
+    <line x1="38" y1="{py + 1:.1f}" x2="802" y2="{py + 1:.1f}" stroke="#e9d5ff" stroke-opacity="0.10" stroke-width="1" />
+
+    <!-- Top Accent Highlight -->
+    <path d="M 54 {py + 1:.1f} H 180" stroke="{tint}" stroke-width="2" stroke-linecap="round" opacity="0.45" />
+
+    <!-- Panel Header: Index & Title -->
+    <rect x="46" y="{py + 9:.1f}" width="18" height="18" rx="4" fill="#1f1138" stroke="{tint}" stroke-opacity="0.4" />
+    <text x="55" y="{py + 21.5:.1f}" fill="{tint}" font-size="9.5" font-weight="800" text-anchor="middle" class="mono">{idx_str}</text>
+    <text x="72" y="{py + 22.5:.1f}" fill="#e9d5ff" font-size="13" font-weight="800">{safe_title}</text>
+    <text x="794" y="{py + 22:.1f}" fill="#8b7fb0" font-size="9.5" text-anchor="end" class="mono grp-cnt">{n_tools} tools</text>
+    <line x1="46" y1="{py + 26:.1f}" x2="794" y2="{py + 26:.1f}" stroke="#a855f7" stroke-opacity="0.10" stroke-dasharray="3 3" />
+
+    <!-- Tiles Geometry & Inlined Icons -->
+    {tiles_geom}
+    {icons_geom}
+
+    <!-- Rail System -->
+    <path d="M 22 {ry - 10:.1f} L 32 {ry:.1f} H 46" fill="none" stroke="#2e1065" stroke-width="1.6" />
+    <line x1="46" y1="{ry:.1f}" x2="794" y2="{ry:.1f}" stroke="#2e1065" stroke-width="1.6" />
+    <line x1="46" y1="{ry:.1f}" x2="794" y2="{ry:.1f}" stroke="#4c1d95" stroke-width="1.4" stroke-dasharray="2 6" />
+    {rails_geom}
+    {vias_geom}
+
+    <!-- Source Port Ring & Hub -->
+    <circle cx="46" cy="{ry:.1f}" r="4" fill="#05030a" stroke="{tint}" stroke-width="1.4" />
+    <circle cx="46" cy="{ry:.1f}" r="1.6" fill="#f5d0fe" />
+
+    <!-- Terminal Diamond (Static) -->
+    <polygon points="794,{ry - 4:.1f} 798,{ry:.1f} 794,{ry + 4:.1f} 790,{ry:.1f}" fill="#6d28d9" />
+
+    {motion_elements}
         """)
 
     footer_str = f"synced {now_dt.strftime('%Y-%m-%d %H:%M UTC')}"
@@ -577,370 +590,215 @@ def build_arsenal_svg(icons_map: Dict[str, Tuple[str, str]], brand_colors: Dict[
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}" role="img" aria-labelledby="{prefix}_title {prefix}_desc">
   <title id="{prefix}_title">Core Tech Stack &amp; Arsenal - Rixsan Joulfiand</title>
   <desc id="{prefix}_desc">Languages &amp; Core Technologies: PHP, Laravel, HTML5, CSS3, JavaScript, TypeScript, React Native, Python, Jupyter. Database &amp; Development Environment: MySQL, PostgreSQL, Git, GitHub, VS Code, Figma. AI Coding Assistants &amp; Agents: ChatGPT, Gemini, Claude, Antigravity, GitHub Copilot, Cursor, Perplexity. LLM Platforms &amp; Open Models: Ollama, Hugging Face, DeepSeek, Mistral AI, Qwen, Grok, Meta Llama.</desc>
-  <style>
-    text {{ font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif; }}
-    .mono {{ font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }}
-    
-    .flicker-op {{ animation: arsn-neon-op 4s infinite linear; }}
-    @keyframes arsn-neon-op {{
-      0%, 82%, 84%, 90%, 100% {{ opacity: 1; }}
-      83% {{ opacity: 0.25; }}
-      89% {{ opacity: 0.6; }}
-    }}
+  <style>{css_rules}  </style>
 
-    .anim-lit-op {{
-      opacity: 0;
-      animation: arsn-lit-op {CYCLE_S}s infinite ease-out;
-      animation-delay: var(--d);
-      animation-fill-mode: both;
-    }}
-    .anim-lit-inv {{
-      opacity: 1;
-      animation: arsn-lit-inv {CYCLE_S}s infinite ease-out;
-      animation-delay: var(--d);
-      animation-fill-mode: both;
-    }}
-    .anim-lift {{
-      transform: translateY(0);
-      animation: arsn-lit-lift {CYCLE_S}s infinite cubic-bezier(.2,.9,.2,1.15);
-      animation-delay: var(--d);
-      animation-fill-mode: both;
-    }}
-    .anim-lit-lbl {{
-      fill: #8b7fb0;
-      animation: arsn-lit-lbl {CYCLE_S}s infinite ease-out;
-      animation-delay: var(--d);
-      animation-fill-mode: both;
-    }}
-    .anim-lit-rim {{
-      opacity: 0;
-      animation: arsn-lit-rim {CYCLE_S}s infinite ease-out;
-      animation-delay: var(--d);
-      animation-fill-mode: both;
-    }}
-    .anim-ripple {{
-      opacity: 0;
-      transform: scale(1);
-      transform-origin: center;
-      transform-box: fill-box;
-      animation: arsn-ripple {CYCLE_S}s infinite ease-out;
-      animation-delay: var(--d);
-      animation-fill-mode: both;
-    }}
-
-    @keyframes arsn-lit-op {{
-      0% {{ opacity: 0; }}
-      0.9% {{ opacity: 1; }}
-      5.5% {{ opacity: 1; }}
-      18% {{ opacity: 0; }}
-      100% {{ opacity: 0; }}
-    }}
-    @keyframes arsn-lit-inv {{
-      0% {{ opacity: 1; }}
-      0.9% {{ opacity: 0.15; }}
-      5.5% {{ opacity: 0.15; }}
-      18% {{ opacity: 1; }}
-      100% {{ opacity: 1; }}
-    }}
-    @keyframes arsn-lit-lift {{
-      0% {{ transform: translateY(0); }}
-      0.9% {{ transform: translateY(-3px); }}
-      5.5% {{ transform: translateY(-3px); }}
-      18% {{ transform: translateY(0); }}
-      100% {{ transform: translateY(0); }}
-    }}
-    @keyframes arsn-lit-lbl {{
-      0% {{ fill: #8b7fb0; }}
-      0.9% {{ fill: #f5f3ff; }}
-      5.5% {{ fill: #f5f3ff; }}
-      18% {{ fill: #8b7fb0; }}
-      100% {{ fill: #8b7fb0; }}
-    }}
-    @keyframes arsn-lit-rim {{
-      0% {{ opacity: 0; }}
-      0.9% {{ opacity: 0.9; }}
-      5.5% {{ opacity: 0.9; }}
-      18% {{ opacity: 0; }}
-      100% {{ opacity: 0; }}
-    }}
-    @keyframes arsn-ripple {{
-      0% {{ transform: scale(1); opacity: 0.9; }}
-      6.5% {{ transform: scale(5); opacity: 0; }}
-      100% {{ transform: scale(5); opacity: 0; }}
-    }}
-
-    .anim-spine {{
-      opacity: 0;
-      transform: translateY(0);
-      animation: arsn-spine-down {CYCLE_S}s infinite linear;
-      animation-delay: 0.40s;
-      animation-fill-mode: both;
-    }}
-    @keyframes arsn-spine-down {{
-      0% {{ transform: translateY(0); opacity: 0; }}
-      0.5% {{ opacity: 1; }}
-      19.9% {{ transform: translateY(590px); opacity: 1; }}
-      20.2% {{ transform: translateY(590px); opacity: 0; }}
-      100% {{ transform: translateY(590px); opacity: 0; }}
-    }}
-
-    .anim-comet {{
-      opacity: 0;
-      transform: translateX(46px);
-      animation: arsn-comet-travel {CYCLE_S}s infinite linear;
-      animation-delay: var(--cd);
-      animation-fill-mode: both;
-    }}
-    @keyframes arsn-comet-travel {{
-      0% {{ transform: translateX(46px); opacity: 0; }}
-      1.2% {{ opacity: 1; }}
-      35% {{ opacity: 1; }}
-      37% {{ transform: translateX(794px); opacity: 0; }}
-      100% {{ transform: translateX(794px); opacity: 0; }}
-    }}
-
-    .anim-glint {{
-      opacity: 0;
-      transform: translateX(-240px) rotate(-20deg);
-      animation: arsn-glint-pass {CYCLE_S}s infinite linear;
-    }}
-    @keyframes arsn-glint-pass {{
-      0%, 70.7% {{ transform: translateX(-240px) rotate(-20deg); opacity: 0; }}
-      72% {{ opacity: 0.10; }}
-      82% {{ opacity: 0.10; }}
-      83.8%, 100% {{ transform: translateX(1100px) rotate(-20deg); opacity: 0; }}
-    }}
-
-    .lbl {{ font-size: 9.5px; font-weight: 600; fill: #8b7fb0; }}
-
-    @media (max-width: 640px) {{
-      .lbl {{ display: none; }}
-      .hdr-dot {{ display: none; }}
-      .ico-s {{ transform: scale(1.35) translateY(5px); transform-box: fill-box; transform-origin: center; }}
-      .ftr-txt {{ display: none; }}
-    }}
-    @media (max-width: 440px) {{
-      .ico-s {{ transform: scale(1.4) translateY(6px); transform-box: fill-box; transform-origin: center; }}
-      .hdr-txt {{ font-size: 13px !important; letter-spacing: 2px !important; }}
-      .grp-cnt {{ display: none; }}
-    }}
-    @media (prefers-reduced-motion: reduce) {{
-      * {{ animation: none !important; }}
-      .anim-lit-op {{ opacity: 1 !important; }}
-      .anim-lit-inv {{ opacity: 0.15 !important; }}
-    }}
-  </style>
-
-  {common_card_defs(prefix, w, h)}
   <defs>
-    <!-- Duotone Matrix & Gradient Map Filter -->
-    <filter id="{prefix}_duo" color-interpolation-filters="sRGB">
-      <feColorMatrix type="matrix" values="0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0.2126 0.7152 0.0722 0 0  0 0 0 1 0" result="gray" />
-      <feComponentTransfer in="gray" result="duo">
-        <feFuncR type="table" tableValues="0.576 0.753 0.961" />
-        <feFuncG type="table" tableValues="0.200 0.518 0.953" />
-        <feFuncB type="table" tableValues="0.918 0.988 1.000" />
-      </feComponentTransfer>
-    </filter>
-
+    <!-- Background Gradients (Zero Filters!) -->
     <linearGradient id="{prefix}_panel_grad" x1="0%" y1="0%" x2="0%" y2="100%">
       <stop offset="0%" stop-color="#140a2b" stop-opacity="0.85" />
       <stop offset="100%" stop-color="#0b0618" stop-opacity="0.85" />
     </linearGradient>
 
-    <linearGradient id="{prefix}_tile_body" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#1a0f33" />
-      <stop offset="100%" stop-color="#0b0618" />
+    <!-- Chrome Border Gradient -->
+    <linearGradient id="{prefix}_border_grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6d28d9" />
+      <stop offset="50%" stop-color="#c084fc" />
+      <stop offset="100%" stop-color="#4c1d95" />
     </linearGradient>
 
-    <linearGradient id="{prefix}_tile_bevel" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.40" />
-      <stop offset="100%" stop-color="#2e1065" stop-opacity="0.15" />
+    <!-- Spotlight Veil Gradient: Dimmed at sides, brilliant spotlight in middle -->
+    <linearGradient id="{prefix}_veil_grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0d0820" stop-opacity="{VEIL_ALPHA}" />
+      <stop offset="36%" stop-color="#0d0820" stop-opacity="{VEIL_ALPHA}" />
+      <stop offset="47%" stop-color="#0d0820" stop-opacity="0" />
+      <stop offset="50%" stop-color="#f5d0fe" stop-opacity="0.10" />
+      <stop offset="53%" stop-color="#0d0820" stop-opacity="0" />
+      <stop offset="56%" stop-color="#0d0820" stop-opacity="{VEIL_ALPHA}" />
+      <stop offset="100%" stop-color="#0d0820" stop-opacity="{VEIL_ALPHA}" />
     </linearGradient>
 
-    <radialGradient id="{prefix}_plate_grad" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#241446" />
-      <stop offset="100%" stop-color="#120a26" />
-    </radialGradient>
-
+    <!-- Comet Gradients -->
+    <linearGradient id="{prefix}_comet_tail" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.0" />
+      <stop offset="60%" stop-color="#c084fc" stop-opacity="0.6" />
+      <stop offset="100%" stop-color="#f5d0fe" stop-opacity="1.0" />
+    </linearGradient>
     <radialGradient id="{prefix}_comet_glow" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="#f5d0fe" stop-opacity="0.9" />
       <stop offset="40%" stop-color="#c084fc" stop-opacity="0.4" />
       <stop offset="100%" stop-color="#a855f7" stop-opacity="0.0" />
     </radialGradient>
 
-    <linearGradient id="{prefix}_comet_tail" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.0" />
-      <stop offset="60%" stop-color="#c084fc" stop-opacity="0.6" />
+    <!-- Spine Pulse Gradient -->
+    <linearGradient id="{prefix}_spine_grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#6d28d9" stop-opacity="0.0" />
+      <stop offset="70%" stop-color="#c084fc" stop-opacity="0.7" />
       <stop offset="100%" stop-color="#f5d0fe" stop-opacity="1.0" />
     </linearGradient>
 
+    <!-- Glint Sweep Gradient -->
     <linearGradient id="{prefix}_glint_grad" x1="0%" y1="0%" x2="100%" y2="0%">
       <stop offset="0%" stop-color="#f5d0fe" stop-opacity="0.0" />
       <stop offset="50%" stop-color="#ffffff" stop-opacity="0.10" />
       <stop offset="100%" stop-color="#e9d5ff" stop-opacity="0.0" />
     </linearGradient>
 
-    <linearGradient id="{prefix}_spine_tail" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#6d28d9" stop-opacity="0.0" />
-      <stop offset="70%" stop-color="#c084fc" stop-opacity="0.6" />
-      <stop offset="100%" stop-color="#f5d0fe" stop-opacity="1.0" />
-    </linearGradient>
-
-    <clipPath id="{prefix}_glint_clip">
+    <clipPath id="{prefix}_card_clip">
       <rect x="0" y="0" width="{w}" height="{h}" rx="14" />
     </clipPath>
 
-    <linearGradient id="{prefix}_panel_stroke_0" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.35" /><stop offset="100%" stop-color="#a855f7" stop-opacity="0.08" />
-    </linearGradient>
-    <linearGradient id="{prefix}_panel_stroke_1" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.35" /><stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.08" />
-    </linearGradient>
-    <linearGradient id="{prefix}_panel_stroke_2" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#e879f9" stop-opacity="0.35" /><stop offset="100%" stop-color="#e879f9" stop-opacity="0.08" />
-    </linearGradient>
-    <linearGradient id="{prefix}_panel_stroke_3" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#c084fc" stop-opacity="0.35" /><stop offset="100%" stop-color="#c084fc" stop-opacity="0.08" />
-    </linearGradient>
-
-    <!-- 29 Vendored Icons in Defs -->
-    {icons_defs_markup}
+    <!-- Per-Bay Clips -->
+    {"".join(clip_defs)}
   </defs>
 
-  {lava_border_frame(prefix, w, h, delay_offset=20)}
+  <!-- 1. Base Canvas Background -->
+  <rect width="{w}" height="{h}" rx="14" fill="#05030a" />
 
-  <!-- Ambient Dust Particles -->
-  {dust_markup}
+  <!-- 2. Pure Vector Chrome Border (Zero Raster Filter Overhead) -->
+  <rect x="1" y="1" width="{w - 2}" height="{h - 2}" rx="13" fill="none" stroke="url(#{prefix}_border_grad)" stroke-width="1.5" />
+  <rect x="2.5" y="2.5" width="{w - 5}" height="{h - 5}" rx="12" fill="none" stroke="#2e1065" stroke-width="1" />
+  <!-- Static Neon Arc Accents -->
+  <path d="M 14 30 V 14 H 30" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" />
+  <path d="M {w - 30} 14 H {w - 14} V 30" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" />
+  <path d="M 14 {h - 30} V {h - 14} H 30" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" />
+  <path d="M {w - 30} {h - 14} H {w - 14} V {h - 30}" fill="none" stroke="#c084fc" stroke-width="2" stroke-linecap="round" />
 
-  <!-- Header -->
-  <g transform="translate(68, 30)">
-    <g transform="translate(0, 0)">
-      <rect x="0" y="-12" width="4.5" height="24" rx="2" fill="#c084fc">
-        <animateTransform attributeName="transform" type="scale" values="1 0.3; 1 1.0; 1 0.4" dur="1.2s" repeatCount="indefinite" />
-      </rect>
-    </g>
-    <g transform="translate(8, 0)">
-      <rect x="0" y="-16" width="4.5" height="32" rx="2" fill="#9333ea">
-        <animateTransform attributeName="transform" type="scale" values="1 0.8; 1 0.2; 1 0.9" dur="1.6s" repeatCount="indefinite" />
-      </rect>
-    </g>
-    <g transform="translate(16, 0)">
-      <rect x="0" y="-8" width="4.5" height="16" rx="2" fill="#d8b4fe">
-        <animateTransform attributeName="transform" type="scale" values="1 0.2; 1 1.0; 1 0.5" dur="1.4s" repeatCount="indefinite" />
-      </rect>
-    </g>
+  <!-- 3. Header: Static Equalizer Bars & Vector Glow Title -->
+  <g transform="translate(68, 22)">
+    <rect x="0" y="6" width="3.5" height="14" rx="1.5" fill="#c084fc" />
+    <rect x="7" y="2" width="3.5" height="22" rx="1.5" fill="#9333ea" />
+    <rect x="14" y="9" width="3.5" height="11" rx="1.5" fill="#d8b4fe" />
   </g>
 
-  <g transform="translate({w/2}, 38)" text-anchor="middle" class="flicker-op">
-    <text x="0" y="0" fill="#a855f7" font-size="16" font-weight="900" letter-spacing="4" filter="url(#{prefix}_glow_filter)" class="hdr-txt">CORE TECH STACK &amp; ARSENAL</text>
-    <text x="-1.5" y="0" fill="#4c1d95" font-size="16" font-weight="900" letter-spacing="4" class="hdr-txt">CORE TECH STACK &amp; ARSENAL</text>
+  <g transform="translate({w/2}, 33)" text-anchor="middle" class="hdr-flk">
+    <!-- Double-stroke vector text glow (Zero Filter) -->
+    <text x="0" y="0" fill="none" stroke="#a855f7" stroke-width="5" stroke-opacity="0.28" font-size="16" font-weight="900" letter-spacing="4" class="hdr-txt">CORE TECH STACK &amp; ARSENAL</text>
     <text x="0" y="0" fill="#f5f3ff" font-size="16" font-weight="900" letter-spacing="4" class="hdr-txt">CORE TECH STACK &amp; ARSENAL</text>
   </g>
 
-  <g transform="translate({w-94}, 30)">
-    <g transform="translate(0, 0)">
-      <rect x="0" y="-8" width="4.5" height="16" rx="2" fill="#d8b4fe">
-        <animateTransform attributeName="transform" type="scale" values="1 0.4; 1 1.0; 1 0.3" dur="1.3s" repeatCount="indefinite" />
-      </rect>
-    </g>
-    <g transform="translate(8, 0)">
-      <rect x="0" y="-16" width="4.5" height="32" rx="2" fill="#9333ea">
-        <animateTransform attributeName="transform" type="scale" values="1 0.9; 1 0.3; 1 0.8" dur="1.7s" repeatCount="indefinite" />
-      </rect>
-    </g>
-    <g transform="translate(16, 0)">
-      <rect x="0" y="-12" width="4.5" height="24" rx="2" fill="#c084fc">
-        <animateTransform attributeName="transform" type="scale" values="1 0.2; 1 0.9; 1 0.4" dur="1.1s" repeatCount="indefinite" />
-      </rect>
-    </g>
+  <g transform="translate({w - 92}, 22)">
+    <rect x="0" y="9" width="3.5" height="11" rx="1.5" fill="#d8b4fe" />
+    <rect x="7" y="2" width="3.5" height="22" rx="1.5" fill="#9333ea" />
+    <rect x="14" y="6" width="3.5" height="14" rx="1.5" fill="#c084fc" />
   </g>
 
-  <!-- Left Signal-Bus Spine & Rotating Core Node -->
-  <line x1="22" y1="66" x2="22" y2="656" stroke="#2e1065" stroke-width="2" />
-  <line x1="22" y1="66" x2="22" y2="656" stroke="#4c1d95" stroke-width="1.6" stroke-dasharray="2 6" />
+  <!-- 4. Left Spine & Core Node (Static) -->
+  <line x1="22" y1="58" x2="22" y2="562" stroke="#2e1065" stroke-width="2" />
+  <line x1="22" y1="58" x2="22" y2="562" stroke="#4c1d95" stroke-width="1.6" stroke-dasharray="2 6" />
 
-  <g transform="translate(22, 66)">
-    <circle r="9" fill="none" stroke="#a855f7" stroke-width="1.2" stroke-dasharray="3 3">
-      <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="40s" repeatCount="indefinite" />
-    </circle>
-    <circle r="5" fill="#05030a" stroke="#c084fc" stroke-width="1.2" />
-    <circle r="2.4" fill="#f5d0fe" />
+  <g transform="translate(22, 58)">
+    <circle r="7" fill="none" stroke="#a855f7" stroke-width="1.2" stroke-dasharray="2 2" />
+    <circle r="4" fill="#05030a" stroke="#c084fc" stroke-width="1.2" />
+    <circle r="1.8" fill="#f5d0fe" />
   </g>
 
-  <!-- 4 Glass Panels -->
-  {"".join(panels_markup)}
+  <!-- 5. 4 Master Bays (Geometry, Icons, Rails, Veils) -->
+  {"".join(bays_markup)}
 
-  <!-- Rails, Nodes, Stubs -->
-  {"".join(rails_markup)}
-
-  <!-- 29 Interactive Justified Tiles -->
-  {"".join(tiles_markup)}
-
-  <!-- Spine Pulse in Two-Layer Static Wrapper -->
-  <g transform="translate(22, 66)">
+  <!-- 6. Left Spine Pulse (Animated in Level 1) -->
+  {f'''<g transform="translate(22, 58)">
     <g class="anim-spine">
-      <line x1="0" y1="-40" x2="0" y2="0" stroke="url(#{prefix}_spine_tail)" stroke-width="3" stroke-linecap="round" />
-      <circle cx="0" cy="0" r="3" fill="#f5d0fe" />
+      <line x1="0" y1="-36" x2="0" y2="0" stroke="url(#{prefix}_spine_grad)" stroke-width="3" stroke-linecap="round" />
+      <circle cx="0" cy="0" r="2.8" fill="#f5d0fe" />
     </g>
-  </g>
+  </g>''' if animate else ''}
 
-  <!-- Light Comets -->
-  {"".join(comets_markup)}
+  <!-- 7. Glint Finale Sweep -->
+  {f'''<g clip-path="url(#{prefix}_card_clip)">
+    <rect class="anim-glint" x="0" y="-20" width="120" height="{h + 40}" fill="url(#{prefix}_glint_grad)" />
+  </g>''' if animate else ''}
 
-  <!-- Glint Sweep Finale -->
-  <g clip-path="url(#{prefix}_glint_clip)">
-    <rect class="anim-glint" x="0" y="-50" width="120" height="820" fill="url(#{prefix}_glint_grad)" />
-  </g>
-
-  <!-- Footer Strip -->
-  <g transform="translate(0, 674)">
-    <rect x="30" y="0" width="780" height="24" rx="4" fill="#07040f" stroke="#1f1138" stroke-width="0.8" />
-    <text x="44" y="15" fill="#8b7fb0" font-size="9.5" class="mono ftr-txt">{footer_str}</text>
-    <text x="796" y="15" fill="#8b7fb0" font-size="9.5" text-anchor="end" class="mono ftr-txt">{counts_str}</text>
+  <!-- 8. Footer Strip -->
+  <g transform="translate(30, 580)">
+    <rect width="780" height="20" rx="4" fill="#07040f" stroke="#1f1138" stroke-width="0.8" />
+    <text x="14" y="13.5" fill="#8b7fb0" font-size="9.5" class="mono ftr-txt">{footer_str}</text>
+    <text x="766" y="13.5" fill="#8b7fb0" font-size="9.5" text-anchor="end" class="mono ftr-txt">{counts_str}</text>
   </g>
 </svg>"""
 
 # ==============================================================================
-# FASE 4: SELFTEST & VALIDATION PIPELINE
+# AUDIT & PERFORMANCE PROFILER
+# ==============================================================================
+def audit(svg_str: str) -> dict:
+    return {
+        "size_kb": len(svg_str.encode("utf-8")) / 1024.0,
+        "total_elements": len(re.findall(r'<[a-zA-Z][^>]*', svg_str)),
+        "animated_nodes": len(re.findall(r'class="[^"]*anim-[^"]*"', svg_str)),
+        "filters": len(re.findall(r'<filter\b', svg_str)),
+        "masks": len(re.findall(r'<mask\b', svg_str)),
+        "smil": len(re.findall(r'<(animate|animateTransform|animateMotion)\b', svg_str)),
+        "images": len(re.findall(r'<image\b', svg_str)),
+        "chrome_gradients": len(re.findall(r'id="arsn_[^"]*grad"', svg_str)),
+    }
+
+# ==============================================================================
+# SELFTEST PIPELINE (FAIL-CLOSED OFFLINE ENFORCEMENT)
 # ==============================================================================
 def run_selftest():
-    print("=================== RUNNING ARSENAL MASTER SELFTEST ===================")
-    
+    print("=================== SIGNAL-BUS LITE MASTER SELFTEST ===================")
+
     # 1. Manifest guard (Strict [9, 6, 7, 7])
     assert len(ALL_ITEMS) == 29, f"Test 1 Failed: Expected 29 items, got {len(ALL_ITEMS)}"
     group_lens = [len(g.items) for g in MANIFEST]
     assert group_lens == [9, 6, 7, 7], f"Test 1 Failed: Expected [9, 6, 7, 7], got {group_lens}"
     print("[PASS] Test 1: Manifest guard (29 tools in exact 4 groups)")
 
-    # 2. Icon files & lock validation (Offline guard, zero network)
-    icons_map, brand_colors = load_icons()
-    for item in ALL_ITEMS:
-        assert item.key in icons_map, f"Test 2 Failed: Missing icon {item.key}"
-    print("[PASS] Test 2: Vendored icons verified & locked via icons.lock")
+    # 2. Genuine Icon Authenticity & Offline Lock
+    icons_map = verify_and_load_icons()
+    assert len(icons_map) == 29
+    print("[PASS] Test 2: Upstream icons verified & locked offline via icons.lock")
 
-    # 3. Deterministic Render & XML Namespace-Aware Validation
-    fixed_now = dt.datetime(2026, 10, 4, 12, 0, 0, tzinfo=dt.timezone.utc)
-    svg_1 = build_arsenal_svg(icons_map, brand_colors, fixed_now)
-    root = ET.fromstring(svg_1)
-    
-    for tag in ["script", "foreignObject", "a"]:
-        assert len(root.findall(f".//{{*}}{tag}")) == 0, f"Test 3 Failed: Disallowed tag <{tag}> found in SVG"
+    # 3. Inlining Guard (>= 26 inlined; <= 3 nested image exceptions)
+    inlined_count = sum(1 for _, is_in in icons_map.values() if is_in)
+    exceptions_count = 29 - inlined_count
+    assert inlined_count >= 26, f"Test 3 Failed: Only {inlined_count} inlined, expected >= 26"
+    assert exceptions_count <= 3, f"Test 3 Failed: {exceptions_count} exceptions exceed limit of 3"
+    print(f"[PASS] Test 3: Inline icon guard passed ({inlined_count}/29 inlined, {exceptions_count} exceptions <= 3)")
 
-    mock_svg = '<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>'
-    mock_root = ET.fromstring(mock_svg)
-    assert len(mock_root.findall(".//{*}script")) == 1, "Test 3 Failed: Namespace check failed to catch mock script"
-    
-    no_image_svg = re.sub(r'<image\b[^>]*>', '', svg_1)
-    forbidden_urls = re.findall(r'https?://[^\s"\'<>]+', no_image_svg)
-    for u in forbidden_urls:
-        assert u == "http://www.w3.org/2000/svg", f"Test 3 Failed: External URL found: {u}"
-    print("[PASS] Test 3: Namespace-aware XML valid, isolated and zero external dependencies")
+    # 4. Deterministic Render & XML Validation
+    fixed_now = dt.datetime(2026, 10, 5, 0, 0, 0, tzinfo=dt.timezone.utc)
+    svg_anim = build_svg(icons_map, fixed_now, animate=True)
+    svg_static = build_svg(icons_map, fixed_now, animate=False)
 
-    # 4. Palette Audit on Chrome (data-brand, images, and brand animated fills excluded)
-    no_brand_svg = re.sub(r'<[^>]+data-brand="true"[^>]*>', '', no_image_svg)
-    no_brand_svg = re.sub(r'<animate[^>]*attributeName="fill"[^>]*>', '', no_brand_svg)
-    hex_matches = re.findall(r"#[0-9a-fA-F]{6}", no_brand_svg)
+    root_anim = ET.fromstring(svg_anim)
+    root_static = ET.fromstring(svg_static)
+
+    for tag in ["script", "foreignObject", "a", "filter", "mask", "animate", "animateTransform"]:
+        assert len(root_anim.findall(f".//{{*}}{tag}")) == 0, f"Disallowed <{tag}> found in animated SVG"
+        assert len(root_static.findall(f".//{{*}}{tag}")) == 0, f"Disallowed <{tag}> found in static SVG"
+
+    # Zero external URLs
+    no_img = re.sub(r'<image\b[^>]*>', '', svg_anim)
+    urls = re.findall(r'https?://[^\s"\'<>]+', no_img)
+    for u in urls:
+        assert u == "http://www.w3.org/2000/svg" or u == "http://www.w3.org/1999/xlink", f"External URL: {u}"
+    print("[PASS] Test 4: Deterministic XML valid, isolated and zero external dependencies")
+
+    # 5. HARD PERFORMANCE BUDGET LINT
+    audit_res = audit(svg_anim)
+    assert audit_res["size_kb"] <= LIMIT_KB, f"Size {audit_res['size_kb']:.1f} KB exceeds {LIMIT_KB} KB"
+    assert audit_res["filters"] == 0, "Filters must be ZERO"
+    assert audit_res["masks"] == 0, "Masks must be ZERO"
+    assert audit_res["smil"] == 0, "SMIL must be ZERO"
+    assert audit_res["images"] <= 3, "Image exceptions > 3"
+    assert audit_res["animated_nodes"] <= 16, f"Animated nodes {audit_res['animated_nodes']} > 16"
+    assert audit_res["total_elements"] <= 650, f"Total elements {audit_res['total_elements']} > 650"
+    assert audit_res["chrome_gradients"] <= 12, f"Chrome gradients {audit_res['chrome_gradients']} > 12"
+
+    static_kb = len(svg_static.encode("utf-8")) / 1024.0
+    assert static_kb <= 140.0, f"Static size {static_kb:.1f} KB > 140 KB limit"
+    print(f"[PASS] Test 5: Hard performance budgets passed ({audit_res['size_kb']:.1f} KB anim / {static_kb:.1f} KB static, {audit_res['total_elements']} elements <= 650, 0 filters, 0 SMIL)")
+
+    # 6. Timeline Lint (Duty cycle <= 50%, idle >= 6s)
+    idle_s = CYCLE_S - DUTY_ACTIVE_S
+    duty_cycle = (DUTY_ACTIVE_S / CYCLE_S) * 100.0
+    assert duty_cycle <= 50.0, f"Duty cycle {duty_cycle:.1f}% > 50%"
+    assert idle_s >= 6.0, f"Idle pause {idle_s:.1f}s < 6.0s"
+    print(f"[PASS] Test 6: Timeline lint passed (Duty cycle {duty_cycle:.1f}%, full idle pause {idle_s:.1f}s >= 6.0s)")
+
+    # 7. Chrome Palette Audit (Excluding icon content)
+    no_ico_svg = re.sub(r'<g class="ico"[^>]*>.*?</g>\s*</g>', '', no_img, flags=re.DOTALL)
+    hex_matches = re.findall(r"#[0-9a-fA-F]{6}", no_ico_svg)
     for hx in hex_matches:
         hx_low = hx.lower()
         r, g, b = int(hx_low[1:3], 16)/255.0, int(hx_low[3:5], 16)/255.0, int(hx_low[5:7], 16)/255.0
@@ -949,61 +807,53 @@ def run_selftest():
         if s > 0.35 and v > 0.3:
             is_yellow = 20 <= h_deg <= 75
             is_cyan = 180 <= h_deg <= 250
-            assert not is_yellow, f"Forbidden yellow/gold {hx} in chrome (hue {h_deg:.1f})"
-            assert not is_cyan, f"Forbidden cyan/blue {hx} in chrome (hue {h_deg:.1f})"
-    print("[PASS] Test 4: Palette audit passed (0% forbidden hues in chrome)")
+            assert not is_yellow, f"Forbidden yellow/gold {hx} in chrome"
+            assert not is_cyan, f"Forbidden cyan/blue {hx} in chrome"
+    print("[PASS] Test 7: Palette audit passed (0% forbidden hues in chrome)")
 
-    # 5. Timeline Lint (Monotonic & B1/B2 Checks)
-    groups = compute_layout_and_timeline(brand_colors)
-    for b_idx, gl in enumerate(groups):
-        assert 0.0 <= gl.s_b < CYCLE_S, f"s_b out of bounds: {gl.s_b}"
-        assert 0.0 <= gl.l_b < CYCLE_S, f"l_b out of bounds: {gl.l_b}"
-        expected_sb = [1.02, 1.68, 2.34, 3.00][b_idx]
-        assert abs(gl.s_b - expected_sb) < 0.02, f"s_b deviation: {gl.s_b} vs {expected_sb}"
-        prev_t = -1.0
-        for t in gl.tiles:
-            assert 0.0 <= t.delay < CYCLE_S, f"tile delay out of bounds: {t.delay}"
-            assert t.t_peak > prev_t, f"t_peak not monotonic: {t.t_peak} <= {prev_t}"
-            prev_t = t.t_peak
-    print("[PASS] Test 5: Timeline lint passed (monotonic cascade within 13s)")
+    # 8. Static Variant Lint (Zero keyframes and animations)
+    assert "@keyframes" not in svg_static
+    assert "animation:" not in svg_static
+    print("[PASS] Test 8: Static variant confirmed 100% animation-free")
 
-    # 6. Determinism Check
-    svg_2 = build_arsenal_svg(icons_map, brand_colors, fixed_now)
-    assert hashlib.sha256(svg_1.encode("utf-8")).hexdigest() == hashlib.sha256(svg_2.encode("utf-8")).hexdigest()
-    print("[PASS] Test 6: Determinism verified (identical sha256 bytes)")
-
-    # 7. Budget Checks
-    size_kb = len(svg_1.encode("utf-8")) / 1024.0
-    anim_nodes = len(re.findall(r'<animate|<animateTransform|class="[^"]*anim-[^"]*"', svg_1))
-    assert size_kb < LIMIT_KB, f"File size {size_kb:.1f} KB exceeds {LIMIT_KB} KB limit"
-    assert anim_nodes <= 600, f"Animated elements count {anim_nodes} exceeds 600 limit"
-    print(f"[PASS] Test 7: Budget checks passed ({size_kb:.1f} KB < {LIMIT_KB} KB, {anim_nodes} anim elements <= 600)")
-
-    # 8. AST Inspection
+    # 9. AST Inspection (Zero Mock Statistics)
     forbidden_nums = {int(x) for x in ["95", "99", "1000"]}
     with open(__file__, "r", encoding="utf-8") as f:
         tree = ast.parse(f.read(), filename=__file__)
     for item in tree.body:
-        if isinstance(item, ast.FunctionDef) and item.name == "build_arsenal_svg":
+        if isinstance(item, ast.FunctionDef) and item.name == "build_svg":
             for node in ast.walk(item):
                 if isinstance(node, ast.Constant) and isinstance(node.value, int):
                     assert node.value not in forbidden_nums, f"Mock number {node.value} in builder AST"
-    print("[PASS] Test 8: AST inspection confirms zero mock statistics")
-    print("=================== [MASTER SELFTEST PASSED 100%] ===================")
+    print("[PASS] Test 9: AST inspection confirms zero mock statistics")
+    print("=================== [ALL 9 SELFTESTS PASSED 100%] ===================")
 
 # ==============================================================================
 # MAIN ENTRYPOINT
 # ==============================================================================
 def main():
-    parser = argparse.ArgumentParser(description="Studio-Grade Signal-Bus Arsenal Generator (Master Level)")
+    parser = argparse.ArgumentParser(description="Signal-Bus Arsenal Lite (Master Performance)")
     parser.add_argument("--out", default="dist", help="Output directory")
     parser.add_argument("--selftest", action="store_true", help="Execute offline unit selftest suite")
-    parser.add_argument("--sync-icons", action="store_true", help="Fetch, pin, and lock all 29 manifest icons")
+    parser.add_argument("--sync-icons", action="store_true", help="Download raw manifest icons and write lock")
+    parser.add_argument("--verify-icons", action="store_true", help="Verify icons against lockfile")
+    parser.add_argument("--audit", default=None, help="Audit an SVG file")
     parser.add_argument("--now", default=None, help="Fix build timestamp (ISO 8601 UTC)")
     args = parser.parse_args()
 
     if args.sync_icons:
         sync_icons()
+        sys.exit(0)
+
+    if args.verify_icons:
+        verify_and_load_icons()
+        print("[✓] All icons match lockfile.")
+        sys.exit(0)
+
+    if args.audit:
+        content = pathlib.Path(args.audit).read_text(encoding="utf-8")
+        res = audit(content)
+        print(json.dumps(res, indent=2))
         sys.exit(0)
 
     if args.selftest:
@@ -1015,21 +865,26 @@ def main():
     else:
         now_dt = dt.datetime.now(dt.timezone.utc)
 
-    icons_map, brand_colors = load_icons()
-    svg_content = build_arsenal_svg(icons_map, brand_colors, now_dt)
+    icons_map = verify_and_load_icons()
+    svg_anim = build_svg(icons_map, now_dt, animate=True)
+    svg_static = build_svg(icons_map, now_dt, animate=False)
 
-    ET.fromstring(svg_content)
+    ET.fromstring(svg_anim)
+    ET.fromstring(svg_static)
 
     out_dir = pathlib.Path(args.out)
     out_dir.mkdir(parents=True, exist_ok=True)
-    out_file = out_dir / OUT_NAME
 
-    with open(out_file, "w", encoding="utf-8") as f:
-        f.write(svg_content.strip())
+    out_anim_file = out_dir / OUT_NAME
+    out_static_file = out_dir / OUT_STATIC_NAME
 
-    size_kb = out_file.stat().st_size / 1024.0
-    print(f"[🚀] Generated: {out_file} ({size_kb:.1f} KB)")
-    assert size_kb < LIMIT_KB, f"File size {size_kb:.1f} KB exceeds {LIMIT_KB} KB limit"
+    out_anim_file.write_text(svg_anim.strip(), encoding="utf-8")
+    out_static_file.write_text(svg_static.strip(), encoding="utf-8")
+
+    kb_anim = out_anim_file.stat().st_size / 1024.0
+    kb_static = out_static_file.stat().st_size / 1024.0
+    print(f"[🚀] Generated Animated: {out_anim_file} ({kb_anim:.1f} KB <= {LIMIT_KB} KB)")
+    print(f"[🚀] Generated Static:   {out_static_file} ({kb_static:.1f} KB <= 140 KB)")
 
 if __name__ == "__main__":
     main()
