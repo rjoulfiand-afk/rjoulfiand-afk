@@ -73,8 +73,8 @@ jobs:
               "activity-graph.svg": 60 * KB,
               "github-stats.svg": 60 * KB,
               "top-langs.svg": 60 * KB,
-              "arsenal-stack.svg": 160 * KB,
-              "arsenal-stack-static.svg": 140 * KB,
+              "arsenal-stack.svg": 250 * KB,
+              "arsenal-stack-static.svg": 220 * KB,
               "pacman-contribution-graph.svg": 500 * KB,
               "pacman-contribution-graph-dark.svg": 500 * KB,
           }
