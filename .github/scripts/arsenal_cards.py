@@ -3,9 +3,9 @@
 """
 Studio-Grade Free-Floating Precision Signal-Bus Arsenal Stack
 Pure Native Python Standard Library - Zero External Dependencies
-- Thin Edge Rim Light Engine (SourceGraphic 100% Untouched, Zero Blur on Details)
-- Mathematical Harmonic Wave Levitation (Period: 3.6s, Amp: -5px, Spatial Delay)
-- Zero Box / Zero Floor Puddle Architecture (100% Pure Floating Icons)
+- Zero Box Frame (100% Borderless Seamless Floating Presentation)
+- Synchronous Subtle Anti-Gravity Float (All 29 Icons Hover Together, Amp: -3px)
+- Enhanced Radiant Rim Light (Bright Neon Edge Bloom, SourceGraphic 100% Untouched)
 - Strict Manifest: Exactly 29 Tools across 4 Groups [9, 6, 7, 7]
 """
 import argparse
@@ -62,7 +62,7 @@ MANIFEST = [
     ]),
 ]
 
-# Kalibrasi warna pendaran tepi (Thin Rim Light) persis sesuai identitas brand resmi
+# Kalibrasi warna pendaran tepi (Luminous Rim Light)
 BRAND_RIM_COLORS = {
     # 01 Languages & Core Technologies
     "php": "#777BB4",
@@ -224,7 +224,7 @@ def build_card_svg(icons_data: Dict[str, dict], animated: bool = True, now_ts: O
     h = 668
     row_tops = [78, 216, 354, 492]
 
-    # 1. Defs: Rail linear gradient (userSpaceOnUse)
+    # 1. Defs: Rail linear gradient
     rail_defs = []
     for r_idx in range(1, 5):
         rail_defs.append(f"""    <linearGradient id="railGrad_{r_idx}" gradientUnits="userSpaceOnUse" x1="42" y1="0" x2="798" y2="0">
@@ -234,39 +234,30 @@ def build_card_svg(icons_data: Dict[str, dict], animated: bool = True, now_ts: O
     </linearGradient>""")
     rail_defs_str = "\n".join(rail_defs)
 
-    # 2. Defs: Thin Precision Rim Light Filters (SourceAlpha Blur + Pure SourceGraphic on Top)
+    # 2. Defs: Enhanced Radiant Rim Light (Diterangkan & Bersinar Lebih Terang, SourceGraphic 100% Utuh)
     rim_filters = []
     for key, color in BRAND_RIM_COLORS.items():
-        rim_filters.append(f"""    <filter id="rim_{key}" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur in="SourceAlpha" stdDeviation="2.2" result="blur"/>
-      <feFlood flood-color="{color}" flood-opacity="0.65" result="col"/>
+        rim_filters.append(f"""    <filter id="rim_{key}" x="-35%" y="-35%" width="170%" height="170%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="2.6" result="blur"/>
+      <feFlood flood-color="{color}" flood-opacity="0.95" result="col"/>
       <feComposite in="col" in2="blur" operator="in" result="rim"/>
       <feMerge>
+        <feMergeNode in="rim"/>
         <feMergeNode in="rim"/>
         <feMergeNode in="SourceGraphic"/>
       </feMerge>
     </filter>""")
     rim_filters_str = "\n".join(rim_filters)
 
-    # 3. CSS: Mathematical Harmonic Wave Levitation (Period: 3.6s, Amplitude: -5px)
+    # 3. CSS: Synchronous Float (Semua naik-turun bersamaan, gerak tipis -3px)
     motion_css = ""
-    delay_rules = []
     if animated:
         motion_css = """
-      @keyframes harmonicWave {
+      @keyframes syncFloat {
         0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-5px); }
+        50% { transform: translateY(-3px); }
       }
-      .float-item { animation: harmonicWave 3.6s ease-in-out infinite; will-change: transform; }"""
-
-        for g_idx, (_, _, tools) in enumerate(MANIFEST):
-            tool_count = len(tools)
-            for t_idx, (key, _, _, _, _) in enumerate(tools):
-                # Precise Phase Delay calculation
-                delay = round((t_idx / (tool_count - 1)) * 1.40 + (g_idx * 0.22), 3)
-                delay_rules.append(f"      .wave-{key} {{ animation-delay: {delay}s; }}")
-
-    delays_css_str = "\n".join(delay_rules)
+      .float-item { animation: syncFloat 3.5s ease-in-out infinite; will-change: transform; }"""
 
     svg = f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}" role="img" aria-labelledby="arsenal-title arsenal-desc">
   <title id="arsenal-title">Core Tech Stack &amp; Arsenal</title>
@@ -287,7 +278,8 @@ def build_card_svg(icons_data: Dict[str, dict], animated: bool = True, now_ts: O
   </defs>
 
   <style>
-    .bg {{ fill: url(#bgGrad); stroke: #2E1065; stroke-width: 1.5; }}
+    /* ZERO BOX / BORDERLESS: Tidak ada garis tepi stroke ungu */
+    .bg {{ fill: url(#bgGrad); stroke: none; }}
     .title {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 800; font-size: 19px; fill: url(#headerGrad); letter-spacing: 3.5px; text-anchor: middle; }}
     .group-num {{ font-family: ui-monospace, monospace; font-size: 12px; font-weight: 700; fill: #C084FC; }}
     .group-title {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; fill: #F3E8FF; letter-spacing: 0.5px; }}
@@ -295,7 +287,6 @@ def build_card_svg(icons_data: Dict[str, dict], animated: bool = True, now_ts: O
     .lbl {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 11px; font-weight: 600; fill: #E2E8F0; text-anchor: middle; }}
     .footer-text {{ font-family: ui-monospace, monospace; font-size: 10.5px; fill: #6B7280; }}
 {motion_css}
-{delays_css_str}
     @media (max-width: 640px) {{
       .lbl, .group-count {{ display: none; }}
       .ico-s {{ transform: scale(1.3); transform-box: fill-box; transform-origin: center; }}
@@ -310,8 +301,8 @@ def build_card_svg(icons_data: Dict[str, dict], animated: bool = True, now_ts: O
     }}
   </style>
 
-  <!-- Card Background Frame -->
-  <rect width="{w}" height="{h}" rx="18" class="bg"/>
+  <!-- Seamless Borderless Canvas (Garis stroke ungu box dihapus total) -->
+  <rect width="{w}" height="{h}" class="bg"/>
 
   <!-- Card Header -->
   <circle cx="230" cy="39" r="4" fill="#A855F7"/>
@@ -325,7 +316,7 @@ def build_card_svg(icons_data: Dict[str, dict], animated: bool = True, now_ts: O
         tool_count = len(tools)
         escaped_title = html.escape(title)
 
-        # Clean Typography Section Header (ZERO BOX, Murni Teks Minimalis)
+        # Section Header (Murni teks, zero box)
         svg += f"""
   <!-- Section {num}: {escaped_title} -->
   <text x="42" y="{top + 14}" class="group-num">{num}</text>
@@ -333,13 +324,13 @@ def build_card_svg(icons_data: Dict[str, dict], animated: bool = True, now_ts: O
   <text x="798" y="{top + 14}" class="group-count">{tool_count} tools</text>
 """
 
-        # Clean Signal Rail Line (Zero Puddle Ellipses)
+        # Clean Signal Rail
         rail_y = top + 120
         svg += f"""  <line x1="42" y1="{rail_y}" x2="798" y2="{rail_y}" stroke="url(#railGrad_{r})" stroke-width="1.5" stroke-dasharray="4 3"/>\n"""
         svg += f"""  <circle cx="42" cy="{rail_y}" r="3" fill="#A855F7"/>\n"""
         svg += f"""  <circle cx="798" cy="{rail_y}" r="3" fill="#A855F7"/>\n"""
 
-        # Free-Floating Icons with Harmonic Wave Levitation & Thin Rim Light
+        # Free-Floating Icons with Synchronous Float & Luminous Rim
         for t_idx, (key, label, _, _, _) in enumerate(tools):
             cx = round(420 + (t_idx - (tool_count - 1) / 2) * 86, 1)
             escaped_label = html.escape(label)
@@ -353,14 +344,14 @@ def build_card_svg(icons_data: Dict[str, dict], animated: bool = True, now_ts: O
             img_y = round(40 + (44 - box) / 2, 2)
 
             tlen_attr = ' textLength="84" lengthAdjust="spacingAndGlyphs"' if len(label) >= 13 else ""
-            anim_class = f"float-item wave-{key}" if animated else ""
+            anim_class = "float-item" if animated else ""
 
             svg += f"""  <!-- Tool: {label} -->\n"""
-            # Outer Group: Statis murni pada (cx, top) - ANTI BUG (0,0)
+            # Outer Group: Statis murni pada (cx, top)
             svg += f"""  <g transform="translate({cx}, {top})">\n"""
-            # Signal Node Point di Rel Sirkuit
-            svg += f"""    <circle cx="0" cy="120" r="2.2" fill="{rim_col}" opacity="0.85"/>\n"""
-            # Inner Group: Mengambang Naik-Turun (Harmonic Wave)
+            # Signal Node Point di Rel
+            svg += f"""    <circle cx="0" cy="120" r="2.2" fill="{rim_col}" opacity="0.9"/>\n"""
+            # Inner Group: Mengambang serentak bersamaan (Amp: -3px)
             svg += f"""    <g class="{anim_class}">\n"""
             svg += f"""      <g class="ico"><g class="ico-s">\n"""
             svg += f"""        <image href="{uri}" x="{img_x}" y="{img_y}" width="{box}" height="{box}" preserveAspectRatio="xMidYMid meet" filter="url(#rim_{key})"/>\n"""
@@ -374,7 +365,7 @@ def build_card_svg(icons_data: Dict[str, dict], animated: bool = True, now_ts: O
     svg += f"""
   <!-- Footer -->
   <text x="42" y="650" class="footer-text">synced {ts_str} UTC</text>
-  <text x="798" y="650" text-anchor="end" class="footer-text">29 tools / 4 groups &#8226; Precision Harmonic Levitation</text>
+  <text x="798" y="650" text-anchor="end" class="footer-text">29 tools / 4 groups &#8226; Synchronous Floating Arsenal</text>
 </svg>"""
     return svg
 
@@ -400,7 +391,6 @@ def run_selftest(icons_data: Dict[str, dict]):
     root_anim = ET.fromstring(anim_svg)
     root_static = ET.fromstring(static_svg)
 
-    # Transform-safety check: animated class must NEVER have a transform attribute on the same element
     for elem in root_anim.iter():
         c = elem.attrib.get("class", "")
         if "float-item" in c:
