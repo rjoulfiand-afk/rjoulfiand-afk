@@ -32,7 +32,6 @@
   <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/streak-stats.svg?v=8" alt="GitHub Streak" width="94%" style="max-width: 740px;" />
 </p>
 
-<!-- ================= VELOCITY TIMELINE (ACTIVITY GRAPH) ================= -->
 <p align="center">
   <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/activity-graph.svg?v=8" alt="Activity Graph" width="94%" style="max-width: 740px;" />
 </p>
