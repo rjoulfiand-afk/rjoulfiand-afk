@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
 """
 Studio-Grade Free-Floating Precision Signal-Bus Arsenal Stack
 Pure Native Python Standard Library - Zero External Dependencies
@@ -62,7 +61,6 @@ MANIFEST = [
     ]),
 ]
 
-# Kalibrasi warna pendaran tepi (Luminous Rim Light)
 BRAND_RIM_COLORS = {
     # 01 Languages & Core Technologies
     "php": "#777BB4",
