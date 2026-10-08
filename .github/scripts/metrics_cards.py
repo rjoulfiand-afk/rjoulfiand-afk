@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
 """
 Studio-Grade Cyberpunk Developer Metrics Suite
 Pure Native Python Standard Library - Zero External Dependencies
@@ -27,11 +26,9 @@ from collections import defaultdict
 
 USERNAME = "rjoulfiand-afk"
 DEFAULT_OUT = "dist"
-LANG_COLOR_MODE = "accent"  # "accent": atmospheric glow & dots use API color; "full": body uses API color
+LANG_COLOR_MODE = "accent"  
 
-# ==============================================================================
-# 1. DATA TELEMETRY & AUDIT ENGINE
-# ==============================================================================
+
 def get_today_utc():
     return dt.datetime.now(dt.timezone.utc).date()
 
@@ -130,7 +127,6 @@ def fetch_graphql_calendar(token, user, today):
 
     cal_dict = clip_future(cal_dict, today)
 
-    # Paginasi repositori sampai habis
     repos_query = """
     query($user: String!, $cursor: String) {
       user(login: $user) {
