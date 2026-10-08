@@ -36,7 +36,7 @@
   <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/activity-graph.svg?v=8" alt="Activity Graph" width="94%" style="max-width: 740px;" />
 </p>
 
-<!-- ================= STATS & MOST USED LANGUAGES ================= -->
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/github-stats.svg?v=8" alt="GitHub Stats" width="46%" style="max-width: 362px; vertical-align: top;" />
   &nbsp;&nbsp;
