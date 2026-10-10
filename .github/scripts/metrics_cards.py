@@ -245,7 +245,6 @@ def process_telemetry(raw_data, today):
     earliest_date = sorted_dates[0]
     total_all_time = sum(cal_dict.values())
 
-    # Jendela bergulir 365 hari [today - 364, today]
     start_365 = today - dt.timedelta(days=364)
     rolling_365_days = []
     curr = start_365
