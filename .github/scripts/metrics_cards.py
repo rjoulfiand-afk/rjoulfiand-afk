@@ -283,7 +283,6 @@ def process_telemetry(raw_data, today):
         cur_streak_start = None
         cur_streak_end = None
 
-    # Longest Streak All-time
     longest_streak = 0
     longest_start = None
     longest_end = None
