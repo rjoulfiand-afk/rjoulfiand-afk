@@ -256,7 +256,6 @@ def process_telemetry(raw_data, today):
     active_days = sum(1 for _, cnt in rolling_365_days if cnt > 0)
     active_pct = round((active_days / 365.0) * 100.0)
 
-    # Current Streak dengan Grace Period hari ini
     today_cnt = cal_dict.get(today, 0)
     yesterday = today - dt.timedelta(days=1)
     yesterday_cnt = cal_dict.get(yesterday, 0)
