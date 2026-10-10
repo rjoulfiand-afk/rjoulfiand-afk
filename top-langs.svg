@@ -1,0 +1,325 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 405 248" width="100%" height="248">
+  <style>
+    text { font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif; }
+    .mono { font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }
+  </style>
+  
+  <defs>
+    <radialGradient id="langs_aurora" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#4c1d95" stop-opacity="0.22" />
+      <stop offset="60%" stop-color="#2e1065" stop-opacity="0.08" />
+      <stop offset="100%" stop-color="#05030a" stop-opacity="0.0" />
+    </radialGradient>
+
+    <radialGradient id="langs_magma_blob" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f5d0fe" stop-opacity="0.85" />
+      <stop offset="40%" stop-color="#a855f7" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#4c1d95" stop-opacity="0.0" />
+    </radialGradient>
+
+    <clipPath id="langs_clip_card">
+      <rect width="405" height="248" rx="14" />
+    </clipPath>
+
+    <filter id="langs_bleed_filter" x="0" y="0" width="405" height="248" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="4.0" />
+    </filter>
+
+    <filter id="langs_lava_fusion" x="-20" y="-20" width="445" height="288" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="2.4" result="blur" />
+      <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8" result="goo" />
+      <feGaussianBlur in="goo" stdDeviation="5.0" result="lava_glow" />
+      <feMerge>
+        <feMergeNode in="lava_glow" />
+        <feMergeNode in="goo" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <filter id="langs_glow_filter" x="-20" y="-20" width="445" height="288" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="3.0" />
+    </filter>
+  </defs>
+
+  <defs>
+    <linearGradient id="langs_bar_grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#5b21b6" />
+      <stop offset="100%" stop-color="#c084fc" />
+    </linearGradient>
+  </defs>
+
+  
+    <rect width="405" height="248" rx="14" fill="#05030a" />
+    <rect width="405" height="248" rx="14" fill="url(#langs_aurora)" />
+
+    <g clip-path="url(#langs_clip_card)">
+      <path d="M 14.0 1.5 L 391.0 1.5 A 12.5 12.5 0 0 1 403.5 14.0 L 403.5 234.0 A 12.5 12.5 0 0 1 391.0 246.5 L 14.0 246.5 A 12.5 12.5 0 0 1 1.5 234.0 L 1.5 14.0 A 12.5 12.5 0 0 1 14.0 1.5 Z" fill="none" stroke="#6d28d9" stroke-width="6" opacity="0.3" filter="url(#langs_bleed_filter)" />
+    </g>
+
+    <path d="M 14.0 1.5 L 391.0 1.5 A 12.5 12.5 0 0 1 403.5 14.0 L 403.5 234.0 A 12.5 12.5 0 0 1 391.0 246.5 L 14.0 246.5 A 12.5 12.5 0 0 1 1.5 234.0 L 1.5 14.0 A 12.5 12.5 0 0 1 14.0 1.5 Z" fill="none" stroke="#2e1065" stroke-width="1.2" opacity="0.7" />
+
+    <g filter="url(#langs_lava_fusion)">
+      <path d="M 14.0 1.5 L 391.0 1.5 A 12.5 12.5 0 0 1 403.5 14.0 L 403.5 234.0 A 12.5 12.5 0 0 1 391.0 246.5 L 14.0 246.5 A 12.5 12.5 0 0 1 1.5 234.0 L 1.5 14.0 A 12.5 12.5 0 0 1 14.0 1.5 Z" fill="none" stroke="#6d28d9" stroke-width="5" stroke-linecap="round"
+            stroke-dasharray="22 9 8 14 30 17" pathLength="100">
+        <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="26s" repeatCount="indefinite"
+                 begin="-16s" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" values="0;-38;-100" />
+      </path>
+
+      <path d="M 14.0 1.5 L 391.0 1.5 A 12.5 12.5 0 0 1 403.5 14.0 L 403.5 234.0 A 12.5 12.5 0 0 1 391.0 246.5 L 14.0 246.5 A 12.5 12.5 0 0 1 1.5 234.0 L 1.5 14.0 A 12.5 12.5 0 0 1 14.0 1.5 Z" fill="none" stroke="#c084fc" stroke-width="3" stroke-linecap="round"
+            stroke-dasharray="10 12 5 20 14 39" pathLength="100">
+        <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="17s" repeatCount="indefinite"
+                 begin="-20s" />
+      </path>
+
+      <path d="M 14.0 1.5 L 391.0 1.5 A 12.5 12.5 0 0 1 403.5 14.0 L 403.5 234.0 A 12.5 12.5 0 0 1 391.0 246.5 L 14.0 246.5 A 12.5 12.5 0 0 1 1.5 234.0 L 1.5 14.0 A 12.5 12.5 0 0 1 14.0 1.5 Z" fill="none" stroke="#f5d0fe" stroke-width="1.4" stroke-linecap="round"
+            stroke-dasharray="3 22 2 31 4 38" pathLength="100">
+        <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="11s" repeatCount="indefinite"
+                 begin="-18s" />
+      </path>
+    </g>
+
+    <circle r="14" fill="url(#langs_magma_blob)">
+      <animateMotion path="M 14.0 1.5 L 391.0 1.5 A 12.5 12.5 0 0 1 403.5 14.0 L 403.5 234.0 A 12.5 12.5 0 0 1 391.0 246.5 L 14.0 246.5 A 12.5 12.5 0 0 1 1.5 234.0 L 1.5 14.0 A 12.5 12.5 0 0 1 14.0 1.5 Z" dur="40s" repeatCount="indefinite" begin="-24s" />
+    </circle>
+    <circle r="10" fill="url(#langs_magma_blob)">
+      <animateMotion path="M 14.0 1.5 L 391.0 1.5 A 12.5 12.5 0 0 1 403.5 14.0 L 403.5 234.0 A 12.5 12.5 0 0 1 391.0 246.5 L 14.0 246.5 A 12.5 12.5 0 0 1 1.5 234.0 L 1.5 14.0 A 12.5 12.5 0 0 1 14.0 1.5 Z" dur="63s" repeatCount="indefinite" begin="-40s" />
+    </circle>
+    
+
+  <text x="24" y="34" fill="#a855f7" font-size="14.5" font-weight="800">Most Used Languages</text>
+
+  <rect x="24.0" y="48" width="306.4" height="6" rx="2" fill="#a855f7" />
+  <rect x="332.4" y="48" width="17.4" height="6" rx="2" fill="#a855f7" />
+  <rect x="351.8" y="48" width="8.5" height="6" rx="2" fill="#a855f7" />
+  <rect x="362.3" y="48" width="6.7" height="6" rx="2" fill="#a855f7" />
+  <rect x="371.0" y="48" width="3.3" height="6" rx="2" fill="#a855f7" />
+  <rect x="376.3" y="48" width="4.7" height="6" rx="2" fill="#a855f7" />
+
+  <g>
+    <circle cx="92.0" cy="152.0" r="14" fill="#4c1d95" filter="url(#langs_glow_filter)">
+      <animate attributeName="r" values="13; 14.5; 13" dur="3s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="92.0" cy="152.0" r="9.5" fill="#1e0b3d" />
+    <text x="92.0" y="155.5" fill="#f5f3ff" font-size="8.5" font-weight="900" text-anchor="middle" class="mono">&lt;/&gt;</text>
+
+    
+        <!-- Orbit 1 Ring -->
+        <circle cx="92.0" cy="152.0" r="20.0" fill="none" stroke="#2e1065" stroke-width="0.9" stroke-dasharray="2 3" opacity="0.75" />
+        <g transform="translate(92.0, 152.0)">
+          <g>
+            <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="7.0s" repeatCount="indefinite" />
+            <path d="M 20.0 0 A 20.0 20.0 0 0 0 16.4 -11.4" fill="none" stroke="#e9d5ff" stroke-width="1.4" opacity="0.35" stroke-linecap="round" />
+            <circle cx="20.0" cy="0" r="9.5" fill="#e9d5ff">
+              <animateTransform attributeName="transform" type="rotate" from="0 20.0 0" to="-360 20.0 0" dur="7.0s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="20.0" cy="0" r="10.7" fill="none" stroke="#DA5B0B" stroke-width="1.2" opacity="0.85" />
+          </g>
+        </g>
+        
+        <!-- Orbit 2 Ring -->
+        <circle cx="92.0" cy="152.0" r="29.5" fill="none" stroke="#2e1065" stroke-width="0.9" stroke-dasharray="2 3" opacity="0.75" />
+        <g transform="translate(92.0, 152.0)">
+          <g>
+            <animateTransform attributeName="transform" type="rotate" from="64 0 0" to="424 0 0" dur="11.0s" repeatCount="indefinite" />
+            <path d="M 29.5 0 A 29.5 29.5 0 0 0 24.2 -16.8" fill="none" stroke="#c084fc" stroke-width="1.4" opacity="0.35" stroke-linecap="round" />
+            <circle cx="29.5" cy="0" r="4.8" fill="#c084fc">
+              <animateTransform attributeName="transform" type="rotate" from="0 29.5 0" to="-360 29.5 0" dur="11.0s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="29.5" cy="0" r="6.0" fill="none" stroke="#e34c26" stroke-width="1.2" opacity="0.85" />
+          </g>
+        </g>
+        
+        <!-- Orbit 3 Ring -->
+        <circle cx="92.0" cy="152.0" r="39.0" fill="none" stroke="#2e1065" stroke-width="0.9" stroke-dasharray="2 3" opacity="0.75" />
+        <g transform="translate(92.0, 152.0)">
+          <g>
+            <animateTransform attributeName="transform" type="rotate" from="128 0 0" to="488 0 0" dur="15.0s" repeatCount="indefinite" />
+            <path d="M 39.0 0 A 39.0 39.0 0 0 0 32.0 -22.2" fill="none" stroke="#a855f7" stroke-width="1.4" opacity="0.35" stroke-linecap="round" />
+            <circle cx="39.0" cy="0" r="4.3" fill="#a855f7">
+              <animateTransform attributeName="transform" type="rotate" from="0 39.0 0" to="-360 39.0 0" dur="15.0s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="39.0" cy="0" r="5.5" fill="none" stroke="#4F5D95" stroke-width="1.2" opacity="0.85" />
+          </g>
+        </g>
+        
+        <!-- Orbit 4 Ring -->
+        <circle cx="92.0" cy="152.0" r="48.5" fill="none" stroke="#2e1065" stroke-width="0.9" stroke-dasharray="2 3" opacity="0.75" />
+        <g transform="translate(92.0, 152.0)">
+          <g>
+            <animateTransform attributeName="transform" type="rotate" from="192 0 0" to="552 0 0" dur="19.0s" repeatCount="indefinite" />
+            <path d="M 48.5 0 A 48.5 48.5 0 0 0 39.8 -27.6" fill="none" stroke="#9333ea" stroke-width="1.4" opacity="0.35" stroke-linecap="round" />
+            <circle cx="48.5" cy="0" r="4.2" fill="#9333ea">
+              <animateTransform attributeName="transform" type="rotate" from="0 48.5 0" to="-360 48.5 0" dur="19.0s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="48.5" cy="0" r="5.4" fill="none" stroke="#f7523f" stroke-width="1.2" opacity="0.85" />
+          </g>
+        </g>
+        
+        <!-- Orbit 5 Ring -->
+        <circle cx="92.0" cy="152.0" r="58.0" fill="none" stroke="#2e1065" stroke-width="0.9" stroke-dasharray="2 3" opacity="0.75" />
+        <g transform="translate(92.0, 152.0)">
+          <g>
+            <animateTransform attributeName="transform" type="rotate" from="256 0 0" to="616 0 0" dur="23.0s" repeatCount="indefinite" />
+            <path d="M 58.0 0 A 58.0 58.0 0 0 0 47.6 -33.1" fill="none" stroke="#6d28d9" stroke-width="1.4" opacity="0.35" stroke-linecap="round" />
+            <circle cx="58.0" cy="0" r="3.9" fill="#6d28d9">
+              <animateTransform attributeName="transform" type="rotate" from="0 58.0 0" to="-360 58.0 0" dur="23.0s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="58.0" cy="0" r="5.1" fill="none" stroke="#3178c6" stroke-width="1.2" opacity="0.85" />
+          </g>
+        </g>
+        
+        <!-- Orbit 6 Ring -->
+        <circle cx="92.0" cy="152.0" r="67.5" fill="none" stroke="#2e1065" stroke-width="0.9" stroke-dasharray="2 3" opacity="0.75" />
+        <g transform="translate(92.0, 152.0)">
+          <g>
+            <animateTransform attributeName="transform" type="rotate" from="320 0 0" to="680 0 0" dur="27.0s" repeatCount="indefinite" />
+            <path d="M 67.5 0 A 67.5 67.5 0 0 0 55.3 -38.5" fill="none" stroke="#5b21b6" stroke-width="1.4" opacity="0.35" stroke-linecap="round" />
+            <circle cx="67.5" cy="0" r="4.0" fill="#5b21b6">
+              <animateTransform attributeName="transform" type="rotate" from="0 67.5 0" to="-360 67.5 0" dur="27.0s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="67.5" cy="0" r="5.2" fill="none" stroke="#6d28d9" stroke-width="1.2" opacity="0.85" />
+          </g>
+        </g>
+        
+  </g>
+
+  
+        <rect x="188" y="75.0" width="193" height="22" rx="4" fill="#a855f7" opacity="0.08" />
+        <g transform="translate(190, 88.0)">
+          <text x="0" y="0" fill="#6d28d9" font-size="9.5" font-weight="700" class="mono">01</text>
+          <circle cx="18" cy="-3.5" r="3.2" fill="#DA5B0B" />
+          <text x="26" y="0" fill="#f5f3ff" font-size="11.5" font-weight="600">Jupyter Notebook</text>
+          <text x="185" y="0" fill="#8b7fb0" font-size="10" class="mono" text-anchor="end">88.3%</text>
+
+          <rect x="26" y="5" width="115" height="4" rx="2" fill="#180d2b" />
+
+          <clipPath id="langs_shimmer_clip_0">
+            <rect x="26" y="5" width="101.5" height="4" rx="2" />
+          </clipPath>
+
+          <g clip-path="url(#langs_shimmer_clip_0)">
+            <rect x="26" y="5" width="101.5" height="4" fill="url(#langs_bar_grad)" />
+            <rect x="-30" y="5" width="24" height="4" fill="#ffffff" opacity="0.4">
+              <animate attributeName="x" from="26" to="157.5" dur="3.0s" repeatCount="indefinite" begin="0.0s" />
+            </rect>
+          </g>
+
+          <circle cx="127.5" cy="7" r="1.8" fill="#f5d0fe" />
+        </g>
+        
+        
+        <g transform="translate(190, 113.0)">
+          <text x="0" y="0" fill="#6d28d9" font-size="9.5" font-weight="700" class="mono">02</text>
+          <circle cx="18" cy="-3.5" r="3.2" fill="#e34c26" />
+          <text x="26" y="0" fill="#f5f3ff" font-size="11.5" font-weight="600">HTML</text>
+          <text x="185" y="0" fill="#8b7fb0" font-size="10" class="mono" text-anchor="end">5.0%</text>
+
+          <rect x="26" y="5" width="115" height="4" rx="2" fill="#180d2b" />
+
+          <clipPath id="langs_shimmer_clip_1">
+            <rect x="26" y="5" width="5.8" height="4" rx="2" />
+          </clipPath>
+
+          <g clip-path="url(#langs_shimmer_clip_1)">
+            <rect x="26" y="5" width="5.8" height="4" fill="url(#langs_bar_grad)" />
+            <rect x="-30" y="5" width="24" height="4" fill="#ffffff" opacity="0.4">
+              <animate attributeName="x" from="26" to="61.8" dur="3.0s" repeatCount="indefinite" begin="0.4s" />
+            </rect>
+          </g>
+
+          <circle cx="31.8" cy="7" r="1.8" fill="#f5d0fe" />
+        </g>
+        
+        
+        <g transform="translate(190, 138.0)">
+          <text x="0" y="0" fill="#6d28d9" font-size="9.5" font-weight="700" class="mono">03</text>
+          <circle cx="18" cy="-3.5" r="3.2" fill="#4F5D95" />
+          <text x="26" y="0" fill="#f5f3ff" font-size="11.5" font-weight="600">PHP</text>
+          <text x="185" y="0" fill="#8b7fb0" font-size="10" class="mono" text-anchor="end">2.5%</text>
+
+          <rect x="26" y="5" width="115" height="4" rx="2" fill="#180d2b" />
+
+          <clipPath id="langs_shimmer_clip_2">
+            <rect x="26" y="5" width="3.0" height="4" rx="2" />
+          </clipPath>
+
+          <g clip-path="url(#langs_shimmer_clip_2)">
+            <rect x="26" y="5" width="3.0" height="4" fill="url(#langs_bar_grad)" />
+            <rect x="-30" y="5" width="24" height="4" fill="#ffffff" opacity="0.4">
+              <animate attributeName="x" from="26" to="59.0" dur="3.0s" repeatCount="indefinite" begin="0.8s" />
+            </rect>
+          </g>
+
+          <circle cx="29.0" cy="7" r="1.8" fill="#f5d0fe" />
+        </g>
+        
+        
+        <g transform="translate(190, 163.0)">
+          <text x="0" y="0" fill="#6d28d9" font-size="9.5" font-weight="700" class="mono">04</text>
+          <circle cx="18" cy="-3.5" r="3.2" fill="#f7523f" />
+          <text x="26" y="0" fill="#f5f3ff" font-size="11.5" font-weight="600">Blade</text>
+          <text x="185" y="0" fill="#8b7fb0" font-size="10" class="mono" text-anchor="end">1.9%</text>
+
+          <rect x="26" y="5" width="115" height="4" rx="2" fill="#180d2b" />
+
+          <clipPath id="langs_shimmer_clip_3">
+            <rect x="26" y="5" width="3.0" height="4" rx="2" />
+          </clipPath>
+
+          <g clip-path="url(#langs_shimmer_clip_3)">
+            <rect x="26" y="5" width="3.0" height="4" fill="url(#langs_bar_grad)" />
+            <rect x="-30" y="5" width="24" height="4" fill="#ffffff" opacity="0.4">
+              <animate attributeName="x" from="26" to="59.0" dur="3.0s" repeatCount="indefinite" begin="1.2000000000000002s" />
+            </rect>
+          </g>
+
+          <circle cx="29.0" cy="7" r="1.8" fill="#f5d0fe" />
+        </g>
+        
+        
+        <g transform="translate(190, 188.0)">
+          <text x="0" y="0" fill="#6d28d9" font-size="9.5" font-weight="700" class="mono">05</text>
+          <circle cx="18" cy="-3.5" r="3.2" fill="#3178c6" />
+          <text x="26" y="0" fill="#f5f3ff" font-size="11.5" font-weight="600">TypeScript</text>
+          <text x="185" y="0" fill="#8b7fb0" font-size="10" class="mono" text-anchor="end">1.0%</text>
+
+          <rect x="26" y="5" width="115" height="4" rx="2" fill="#180d2b" />
+
+          <clipPath id="langs_shimmer_clip_4">
+            <rect x="26" y="5" width="3.0" height="4" rx="2" />
+          </clipPath>
+
+          <g clip-path="url(#langs_shimmer_clip_4)">
+            <rect x="26" y="5" width="3.0" height="4" fill="url(#langs_bar_grad)" />
+            <rect x="-30" y="5" width="24" height="4" fill="#ffffff" opacity="0.4">
+              <animate attributeName="x" from="26" to="59.0" dur="3.0s" repeatCount="indefinite" begin="1.6s" />
+            </rect>
+          </g>
+
+          <circle cx="29.0" cy="7" r="1.8" fill="#f5d0fe" />
+        </g>
+        
+        
+        <g transform="translate(190, 213.0)">
+          <text x="0" y="0" fill="#6d28d9" font-size="9.5" font-weight="700" class="mono">06</text>
+          <circle cx="18" cy="-3.5" r="3.2" fill="#6d28d9" />
+          <text x="26" y="0" fill="#f5f3ff" font-size="11.5" font-weight="600">Other</text>
+          <text x="185" y="0" fill="#8b7fb0" font-size="10" class="mono" text-anchor="end">1.4%</text>
+
+          <rect x="26" y="5" width="115" height="4" rx="2" fill="#180d2b" />
+
+          <clipPath id="langs_shimmer_clip_5">
+            <rect x="26" y="5" width="3.0" height="4" rx="2" />
+          </clipPath>
+
+          <g clip-path="url(#langs_shimmer_clip_5)">
+            <rect x="26" y="5" width="3.0" height="4" fill="url(#langs_bar_grad)" />
+            <rect x="-30" y="5" width="24" height="4" fill="#ffffff" opacity="0.4">
+              <animate attributeName="x" from="26" to="59.0" dur="3.0s" repeatCount="indefinite" begin="2.0s" />
+            </rect>
+          </g>
+
+          <circle cx="29.0" cy="7" r="1.8" fill="#f5d0fe" />
+        </g>
+        
+</svg>
