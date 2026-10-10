@@ -454,9 +454,7 @@ def monotone_cubic_spline(pts, y_top, y_bottom):
 
     return " ".join(path_tokens)
 
-# ==============================================================================
-# 3. LAVA BORDER & COMMON DEFS
-# ==============================================================================
+
 def rounded_rect_path(w, h, r, inset=1.5):
     x0 = inset
     y0 = inset
