@@ -303,8 +303,7 @@ def process_telemetry(raw_data, today):
             temp_len = 0
             temp_s = None
 
-    # T3a: 52 Bucket Mingguan Presisi dijangkarkan dari HARI INI mundur
-    # Bucket k (k=0..51): [today - 6 - 7*k, today - 7*k]
+
     weekly_buckets = []
     weekly_date_ranges = []
     for k in range(52):
