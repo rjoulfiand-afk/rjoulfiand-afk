@@ -715,9 +715,7 @@ def build_streak_svg(data):
   </g>
 </svg>"""
 
-# ==============================================================================
-# 6. CARD 3: ACTIVITY GRAPH (activity-graph.svg)
-# ==============================================================================
+
 def build_activity_graph_svg(data):
     w, h = 840, 260
     prefix = "act"
