@@ -467,7 +467,7 @@ def main():
     days = load_days(args.user)
     os.makedirs(args.out, exist_ok=True)
 
-    # Generate Pac-Man SVGs
+
     pacman_svg = build_svg(days, args.user, args.title)
     for fn in ("pacman-contribution-graph-dark.svg", "pacman-contribution-graph.svg"):
         with open(os.path.join(args.out, fn), "w", encoding="utf-8") as f:
