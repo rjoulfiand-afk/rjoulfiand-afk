@@ -397,7 +397,6 @@ def build_svg(days, user, title):
 
         A.append(f'<g transform="translate({num(cxp(c))} {num(cyp(r))})"><g>{scale_anim}{opacity_anim}<use href="#cell{d.level}"/></g></g>')
 
-    # Pergerakan Pac-Man
     pad_arr = lambda arr: [arr[0]]*K_READY + list(arr) + [arr[-1]]*K_END
     px_pos = pad_arr([(cxp(c), cyp(r)) for c, r in sim["pac_pos"]])
     pos_str = ";".join(f"{num(x,1)} {num(y,1)}" for x, y in px_pos)
