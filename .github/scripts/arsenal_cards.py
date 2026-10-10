@@ -84,7 +84,6 @@ BRAND_RIM_COLORS = {
     "copilot": "#FFFFFF",
     "cursor": "#FFFFFF",
     "perplexity": "#22B8CD",
-    # 04 LLM Platforms & Open Models
     "ollama": "#FFFFFF",
     "huggingface": "#FFD21E",
     "deepseek": "#1E88E5",
