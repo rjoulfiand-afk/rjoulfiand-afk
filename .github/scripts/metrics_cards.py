@@ -405,9 +405,6 @@ def process_telemetry(raw_data, today):
         "source": raw_data["source"]
     }
 
-# ==============================================================================
-# 2. FRITSCH-CARLSON MONOTONE CUBIC SPLINE
-# ==============================================================================
 def monotone_cubic_spline(pts, y_top, y_bottom):
     n = len(pts)
     if n < 2:
