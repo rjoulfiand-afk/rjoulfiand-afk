@@ -313,16 +313,15 @@ def process_telemetry(raw_data, today):
         weekly_buckets.append(w_sum)
         weekly_date_ranges.append((w_start, w_end))
 
-    # Balikkan urutan agar indeks 0 = tertua, indeks 51 = minggu ini
+
     weekly_buckets.reverse()
     weekly_date_ranges.reverse()
 
-    # Definisi Tunggal: Best Week = max(weekly)
     best_week = max(weekly_buckets)
     best_week_idx = weekly_buckets.index(best_week)
     best_week_start, best_week_end = weekly_date_ranges[best_week_idx]
 
-    # Invarian T3a: weekly[-1] == jumlah 7 hari terakhir
+
     last_7_days_sum = sum(cal_dict.get(today - dt.timedelta(days=i), 0) for i in range(7))
     assert weekly_buckets[-1] == last_7_days_sum, f"Invarian gagal: {weekly_buckets[-1]} != {last_7_days_sum}"
 
