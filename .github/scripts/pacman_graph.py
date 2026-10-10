@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+
 """
 Pac-Man Cyberpunk Matrix Arcade & Elegant Real-Time Activity Graph Generator
 Clean, Authentic Developer Credentials, Zero AI Slop
@@ -21,7 +20,7 @@ from html import escape
 
 PALETTES = {
     "purple": dict(
-        card_a="#0d1117", card_b="#06080d", tile="#131722", tile_edge="#2a1b40",  # Ganti tile_edge ke ungu gelap
+        card_a="#0d1117", card_b="#06080d", tile="#131722", tile_edge="#2a1b40",  
         levels=["#4c1d95", "#7e22ce", "#a855f7", "#e9d5ff"],
         accent="#a855f7", wall="#a855f7", glow="#c084fc", text="#f5f3ff", muted="#94a3b8"
     )
