@@ -62,7 +62,6 @@ MANIFEST = [
 ]
 
 BRAND_RIM_COLORS = {
-    # 01 Languages & Core Technologies
     "php": "#777BB4",
     "laravel": "#FF2D20",
     "html5": "#E34F26",
@@ -72,14 +71,12 @@ BRAND_RIM_COLORS = {
     "react": "#61DAFB",
     "python": "#3776AB",
     "jupyter": "#F37626",
-    # 02 Database & Development Environment
     "mysql": "#00758F",
     "postgresql": "#4169E1",
     "git": "#F05032",
     "github": "#FFFFFF",
     "vscode": "#007ACC",
     "figma": "#F24E1E",
-    # 03 AI Coding Assistants & Agents
     "chatgpt": "#10A37F",
     "gemini": "#8A5CF6",
     "claude": "#D97706",
