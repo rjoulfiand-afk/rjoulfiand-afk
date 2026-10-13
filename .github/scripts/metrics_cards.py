@@ -1,15 +1,4 @@
 
-"""
-Studio-Grade Cyberpunk Developer Metrics Suite
-Pure Native Python Standard Library - Zero External Dependencies
-Palette: Strictly Monochromatic Violet & Lilac Spectrum
-Generates 5 Validated, XML-Compliant SVGs (< 60 KB each):
-  1. metrics-header.svg
-  2. streak-stats.svg
-  3. activity-graph.svg
-  4. github-stats.svg
-  5. top-langs.svg
-"""
 import argparse
 import ast
 import colorsys
