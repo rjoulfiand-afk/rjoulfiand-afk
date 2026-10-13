@@ -377,7 +377,6 @@ def build_svg(days, user, title):
     wp = maze.wall_path(lambda X: x0 + X * P - G / 2, lambda Y: y0 + Y * P - G / 2)
     A.append(f'<g fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="{wp}" stroke="{PALETTES["purple"]["glow"]}" stroke-opacity=".65" stroke-width="4.2" filter="url(#glow)"/><path d="{wp}" stroke="{PALETTES["purple"]["wall"]}" stroke-width="1.8"/></g>')
 
-    # Sel Kontribusi
     eat_time = {cell: tm(t_eat, 0.5) for t_eat, cell, _ in sim["eaten"]}
     for cell, d in sorted(pellets.items()):
         c, r = cell
