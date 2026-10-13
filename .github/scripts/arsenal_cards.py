@@ -1,12 +1,4 @@
 
-"""
-Studio-Grade Free-Floating Precision Signal-Bus Arsenal Stack
-Pure Native Python Standard Library - Zero External Dependencies
-- Zero Box Frame (100% Borderless Seamless Floating Presentation)
-- Synchronous Subtle Anti-Gravity Float (All 29 Icons Hover Together, Amp: -3px)
-- Enhanced Radiant Rim Light (Bright Neon Edge Bloom, SourceGraphic 100% Untouched)
-- Strict Manifest: Exactly 29 Tools across 4 Groups [9, 6, 7, 7]
-"""
 import argparse
 import base64
 import datetime as dt
