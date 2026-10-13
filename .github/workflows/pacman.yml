@@ -36,7 +36,6 @@ jobs:
         run: |
           python3 .github/scripts/arsenal_cards.py --selftest
 
-      # 3. Generate Pac-Man Arcade
       - name: Generate Pac-Man Arcade
         run: |
           python3 .github/scripts/pacman_graph.py \
