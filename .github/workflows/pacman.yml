@@ -43,7 +43,6 @@ jobs:
             --title "Chomping XP" \
             --out dist
 
-      # 4. Generate Developer Metrics Suite
       - name: Generate Developer Metrics Suite
         run: |
           python3 .github/scripts/metrics_cards.py --out dist
