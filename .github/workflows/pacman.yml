@@ -27,7 +27,6 @@ jobs:
         with:
           python-version: "3.12"
 
-      # 1. Fail-closed: Selftest Developer Metrics
       - name: Run Telemetry Selftest
         run: |
           python3 .github/scripts/metrics_cards.py --selftest
