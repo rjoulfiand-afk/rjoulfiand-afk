@@ -26,7 +26,7 @@ PALETTES = {
 GHOSTS = [
     ("blinky", "#ff2a2a", "#ff8080"),
     ("pinky", "#ff5ecb", "#ffa8e8"),
-    ("inky", "#a78bfa", "#c4b5fd"),  # Inky jadi lilac/ungu lembut (bukan cyan lagi)
+    ("inky", "#a78bfa", "#c4b5fd"),  
     ("clyde", "#ff9100", "#ffc266"),
 ]
 
