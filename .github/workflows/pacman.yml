@@ -49,7 +49,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 5. Generate Signal-Bus Arsenal Stack (offline vendored)
       - name: Generate Arsenal Stack
         run: |
           python3 .github/scripts/arsenal_cards.py --out dist
