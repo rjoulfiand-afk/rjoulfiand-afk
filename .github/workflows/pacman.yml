@@ -100,7 +100,6 @@ jobs:
           print("All SVGs valid.")
           PY
 
-      # 7. Publish ke branch output
       - name: Push SVGs to output branch
         uses: crazy-max/ghaction-github-pages@v3.1.0
         with:
