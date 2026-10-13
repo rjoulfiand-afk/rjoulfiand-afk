@@ -1,8 +1,5 @@
 
-"""
-Pac-Man Cyberpunk Matrix Arcade & Elegant Real-Time Activity Graph Generator
-Clean, Authentic Developer Credentials, Zero AI Slop
-"""
+
 import argparse
 import datetime as dt
 import heapq
