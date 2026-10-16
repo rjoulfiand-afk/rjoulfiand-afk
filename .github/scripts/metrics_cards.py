@@ -530,9 +530,6 @@ def lava_border_frame(prefix, w, h, delay_offset=0):
     </circle>
     """
 
-# ==============================================================================
-# 4. CARD 1: METRICS HEADER (metrics-header.svg)
-# ==============================================================================
 def build_header_svg():
     w, h = 840, 64
     prefix = "hdr"
