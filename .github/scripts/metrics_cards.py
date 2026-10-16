@@ -914,9 +914,6 @@ def build_activity_graph_svg(data):
   </g>
 </svg>"""
 
-# ==============================================================================
-# 7. CARD 4: GITHUB STATS (github-stats.svg)
-# ==============================================================================
 def build_github_stats_svg(data):
     w, h = 405, 248
     prefix = "stats"
