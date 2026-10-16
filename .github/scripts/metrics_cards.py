@@ -1013,9 +1013,6 @@ def build_github_stats_svg(data):
   </g>
 </svg>"""
 
-# ==============================================================================
-# 8. CARD 5: MOST USED LANGUAGES (top-langs.svg)
-# ==============================================================================
 def build_top_langs_svg(data):
     w, h = 405, 248
     prefix = "langs"
