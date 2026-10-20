@@ -27,10 +27,17 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Cache Arsenal SVG Icons
+        uses: actions/cache@v4
+        with:
+          path: .github/assets/icons
+          key: arsenal-icons-v2-${{ hashFiles('.github/scripts/arsenal_cards.py') }}
+          restore-keys: |
+            arsenal-icons-v2-
+
       - name: Run Telemetry Selftest
         run: |
           python3 .github/scripts/metrics_cards.py --selftest
-
 
       - name: Run Arsenal Selftest
         run: |
@@ -42,6 +49,8 @@ jobs:
             --user "${{ github.repository_owner }}" \
             --title "Chomping XP" \
             --out dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate Developer Metrics Suite
         run: |
@@ -77,7 +86,7 @@ jobs:
           for name, limit in LIMITS.items():
               path = os.path.join("dist", name)
               if not os.path.isfile(path):
-                  errors.append("MISSING     " + path)
+                  errors.append("MISSING      " + path)
                   print("MISSING  " + name)
                   continue
               size = os.path.getsize(path)
