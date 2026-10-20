@@ -34,7 +34,7 @@ def http_json(url, headers=None, post_data=None):
     req = urllib.request.Request(
         url,
         headers=headers or {"User-Agent": "CyberTelemetry/Studio"},
-        data=post_data,
+        data=post_data
     )
     with urllib.request.urlopen(req, timeout=15) as resp:
         return json.loads(resp.read().decode("utf-8"))
@@ -43,7 +43,7 @@ def http_json(url, headers=None, post_data=None):
 def fetch_graphql_calendar(token, user, today):
     headers = {
         "User-Agent": "CyberTelemetry/Studio",
-        "Authorization": f"bearer {token}",
+        "Authorization": f"bearer {token}"
     }
 
     init_query = """
@@ -104,7 +104,7 @@ def fetch_graphql_calendar(token, user, today):
 
         q_data = json.dumps({
             "query": cal_query,
-            "variables": {"user": user, "from": from_iso, "to": to_iso},
+            "variables": {"user": user, "from": from_iso, "to": to_iso}
         }).encode("utf-8")
 
         c_res = http_json("https://api.github.com/graphql", headers, q_data)
@@ -152,7 +152,7 @@ def fetch_graphql_calendar(token, user, today):
     while True:
         r_data = json.dumps({
             "query": repos_query,
-            "variables": {"user": user, "cursor": cursor},
+            "variables": {"user": user, "cursor": cursor}
         }).encode("utf-8")
         r_res = http_json("https://api.github.com/graphql", headers, r_data)
         rep_data = r_res["data"]["user"]["repositories"]
@@ -183,7 +183,7 @@ def fetch_graphql_calendar(token, user, today):
         "lang_bytes": lang_bytes,
         "lang_colors": lang_colors,
         "repo_count": repo_count,
-        "source": "GraphQL",
+        "source": "GraphQL"
     }
 
 
@@ -203,9 +203,6 @@ def fetch_jogruber_fallback(user, today):
     cal_dict = clip_future(cal_dict, today)
     created_date = min(cal_dict.keys()) if cal_dict else today
 
-    start_365 = today - dt.timedelta(days=364)
-    rolling_commits = sum(cnt for d_k, cnt in cal_dict.items() if d_k >= start_365)
-
     repos_url = f"https://api.github.com/users/{user}/repos?per_page=100&type=owner"
     repos = http_json(repos_url)
     total_stars = sum(r.get("stargazers_count", 0) for r in repos if not r.get("fork"))
@@ -221,7 +218,7 @@ def fetch_jogruber_fallback(user, today):
     return {
         "calendar": cal_dict,
         "created_date": created_date,
-        "total_commits": rolling_commits,
+        "total_commits": sum(cal_dict.values()),
         "total_prs": 0,
         "total_issues": 0,
         "total_stars": total_stars,
@@ -229,7 +226,7 @@ def fetch_jogruber_fallback(user, today):
         "lang_bytes": lang_bytes,
         "lang_colors": lang_colors,
         "repo_count": repo_count,
-        "source": "jogruber",
+        "source": "jogruber"
     }
 
 
@@ -275,6 +272,10 @@ def process_telemetry(raw_data, today):
             cur_streak += 1
             cur_streak_start = chk
             chk -= dt.timedelta(days=1)
+    else:
+        cur_streak = 0
+        cur_streak_start = None
+        cur_streak_end = None
 
     longest_streak = 0
     longest_start = None
@@ -315,6 +316,7 @@ def process_telemetry(raw_data, today):
     last_7_days_sum = sum(cal_dict.get(today - dt.timedelta(days=i), 0) for i in range(7))
     assert weekly_buckets[-1] == last_7_days_sum, f"Invarian gagal: {weekly_buckets[-1]} != {last_7_days_sum}"
 
+    # Peak Day (Harian)
     peak_day_cnt = 0
     peak_day_date = today
     for d, cnt in rolling_365_days:
@@ -322,11 +324,13 @@ def process_telemetry(raw_data, today):
             peak_day_cnt = cnt
             peak_day_date = d
 
+    # 4-Week Moving Average
     moving_avg_4w = []
     for i in range(len(weekly_buckets)):
-        chunk = weekly_buckets[max(0, i - 3) : i + 1]
+        chunk = weekly_buckets[max(0, i - 3):i + 1]
         moving_avg_4w.append(sum(chunk) / len(chunk))
 
+    # Bahasa
     exclude_env = os.environ.get("EXCLUDE_LANGS", "")
     excluded = {x.strip().lower() for x in exclude_env.split(",") if x.strip()}
 
@@ -346,7 +350,7 @@ def process_telemetry(raw_data, today):
             langs_list.append({
                 "name": name,
                 "pct": pct,
-                "color": lang_colors.get(name, "#a78bfa"),
+                "color": lang_colors.get(name, "#a78bfa")
             })
 
         if len(sorted_l) > 5:
@@ -355,7 +359,7 @@ def process_telemetry(raw_data, today):
                 langs_list.append({
                     "name": "Other",
                     "pct": other_pct,
-                    "color": "#6d28d9",
+                    "color": "#6d28d9"
                 })
 
     return {
@@ -389,7 +393,7 @@ def process_telemetry(raw_data, today):
         "languages": langs_list,
         "repo_count": raw_data["repo_count"],
         "total_lang_bytes": total_l_bytes,
-        "source": raw_data["source"],
+        "source": raw_data["source"]
     }
 
 
@@ -400,42 +404,42 @@ def monotone_cubic_spline(pts, y_top, y_bottom):
     x = [p[0] for p in pts]
     y = [p[1] for p in pts]
 
-    d_x = [x[i + 1] - x[i] for i in range(n - 1)]
-    m = [(y[i + 1] - y[i]) / d_x[i] if d_x[i] != 0 else 0 for i in range(n - 1)]
+    d_x = [x[i+1] - x[i] for i in range(n - 1)]
+    m = [(y[i+1] - y[i]) / d_x[i] if d_x[i] != 0 else 0 for i in range(n - 1)]
 
     d = [0.0] * n
     d[0] = m[0]
     d[-1] = m[-1]
     for i in range(1, n - 1):
-        if m[i - 1] * m[i] <= 0:
+        if m[i-1] * m[i] <= 0:
             d[i] = 0.0
         else:
-            d[i] = (m[i - 1] + m[i]) / 2.0
+            d[i] = (m[i-1] + m[i]) / 2.0
 
     for i in range(n - 1):
         if m[i] == 0:
             d[i] = 0.0
-            d[i + 1] = 0.0
+            d[i+1] = 0.0
         else:
             alpha = d[i] / m[i]
-            beta = d[i + 1] / m[i]
+            beta = d[i+1] / m[i]
             dist_sq = alpha * alpha + beta * beta
             if dist_sq > 9.0:
                 tau = 3.0 / math.sqrt(dist_sq)
                 d[i] = tau * alpha * m[i]
-                d[i + 1] = tau * beta * m[i]
+                d[i+1] = tau * beta * m[i]
 
     path_tokens = [f"M {x[0]:.2f} {y[0]:.2f}"]
     for i in range(n - 1):
         h = d_x[i]
         cp1x = x[i] + h / 3.0
         cp1y = y[i] + d[i] * h / 3.0
-        cp2x = x[i + 1] - h / 3.0
-        cp2y = y[i + 1] - d[i + 1] * h / 3.0
+        cp2x = x[i+1] - h / 3.0
+        cp2y = y[i+1] - d[i+1] * h / 3.0
 
         cp1y = max(y_top, min(y_bottom, cp1y))
         cp2y = max(y_top, min(y_bottom, cp2y))
-        path_tokens.append(f"C {cp1x:.2f} {cp1y:.2f}, {cp2x:.2f} {cp2y:.2f}, {x[i + 1]:.2f} {y[i + 1]:.2f}")
+        path_tokens.append(f"C {cp1x:.2f} {cp1y:.2f}, {cp2x:.2f} {cp2y:.2f}, {x[i+1]:.2f} {y[i+1]:.2f}")
 
     return " ".join(path_tokens)
 
@@ -446,21 +450,16 @@ def rounded_rect_path(w, h, r, inset=1.5):
     x1 = w - inset
     y1 = h - inset
     rad = r - inset
-    return (
-        f"M {x0 + rad} {y0} L {x1 - rad} {y0} "
-        f"A {rad} {rad} 0 0 1 {x1} {y0 + rad} L {x1} {y1 - rad} "
-        f"A {rad} {rad} 0 0 1 {x1 - rad} {y1} L {x0 + rad} {y1} "
-        f"A {rad} {rad} 0 0 1 {x0} {y1 - rad} L {x0} {y0 + rad} "
-        f"A {rad} {rad} 0 0 1 {x0 + rad} {y0} Z"
-    )
+    return f"M {x0 + rad} {y0} L {x1 - rad} {y0} A {rad} {rad} 0 0 1 {x1} {y0 + rad} L {x1} {y1 - rad} A {rad} {rad} 0 0 1 {x1 - rad} {y1} L {x0 + rad} {y1} A {rad} {rad} 0 0 1 {x0} {y1 - rad} L {x0} {y0 + rad} A {rad} {rad} 0 0 1 {x0 + rad} {y0} Z"
 
 
 def common_card_defs(prefix, w, h):
+    rr_d = rounded_rect_path(w, h, 14, inset=1.5)
     return f"""
   <defs>
     <radialGradient id="{prefix}_aurora" cx="50%" cy="40%" r="65%">
-      <stop offset="0%" stop-color="#4c1d95" stop-opacity="0.24" />
-      <stop offset="60%" stop-color="#2e1065" stop-opacity="0.09" />
+      <stop offset="0%" stop-color="#4c1d95" stop-opacity="0.22" />
+      <stop offset="60%" stop-color="#2e1065" stop-opacity="0.08" />
       <stop offset="100%" stop-color="#05030a" stop-opacity="0.0" />
     </radialGradient>
 
@@ -469,12 +468,6 @@ def common_card_defs(prefix, w, h):
       <stop offset="40%" stop-color="#a855f7" stop-opacity="0.4" />
       <stop offset="100%" stop-color="#4c1d95" stop-opacity="0.0" />
     </radialGradient>
-
-    <linearGradient id="{prefix}_vdiv" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#2e1065" stop-opacity="0.0" />
-      <stop offset="50%" stop-color="#6d28d9" stop-opacity="0.55" />
-      <stop offset="100%" stop-color="#2e1065" stop-opacity="0.0" />
-    </linearGradient>
 
     <clipPath id="{prefix}_clip_card">
       <rect width="{w}" height="{h}" rx="14" />
@@ -512,7 +505,7 @@ def lava_border_frame(prefix, w, h, delay_offset=0):
       <path d="{rr_d}" fill="none" stroke="#6d28d9" stroke-width="6" opacity="0.3" filter="url(#{prefix}_bleed_filter)" />
     </g>
 
-    <path d="{rr_d}" fill="none" stroke="#2e1065" stroke-width="1.2" opacity="0.75" />
+    <path d="{rr_d}" fill="none" stroke="#2e1065" stroke-width="1.2" opacity="0.7" />
 
     <g filter="url(#{prefix}_lava_fusion)">
       <path d="{rr_d}" fill="none" stroke="#6d28d9" stroke-width="5" stroke-linecap="round"
@@ -550,11 +543,12 @@ def build_header_svg():
   <style>
     text {{ font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif; }}
     .flicker-op {{
-      animation: neon-op 5s infinite ease-in-out;
+      animation: neon-op 4s infinite linear;
     }}
     @keyframes neon-op {{
-      0%, 84%, 88%, 100% {{ opacity: 1; }}
-      86% {{ opacity: 0.55; }}
+      0%, 82%, 84%, 90%, 100% {{ opacity: 1; }}
+      83% {{ opacity: 0.25; }}
+      89% {{ opacity: 0.6; }}
     }}
   </style>
   {common_card_defs(prefix, w, h)}
@@ -578,13 +572,13 @@ def build_header_svg():
     </g>
   </g>
 
-  <g transform="translate({w / 2}, 40)" text-anchor="middle" class="flicker-op">
+  <g transform="translate({w/2}, 41)" text-anchor="middle" class="flicker-op">
     <text x="0" y="0" fill="#a855f7" font-size="16" font-weight="900" letter-spacing="4" filter="url(#{prefix}_glow_filter)">DEVELOPER METRICS &amp; ACTIVITY</text>
     <text x="-1.5" y="0" fill="#4c1d95" font-size="16" font-weight="900" letter-spacing="4">DEVELOPER METRICS &amp; ACTIVITY</text>
     <text x="0" y="0" fill="#f5f3ff" font-size="16" font-weight="900" letter-spacing="4">DEVELOPER METRICS &amp; ACTIVITY</text>
   </g>
 
-  <g transform="translate({w - 94}, 32)">
+  <g transform="translate({w-94}, 32)">
     <g transform="translate(0, 0)">
       <rect x="0" y="-10" width="4.5" height="20" rx="2" fill="#d8b4fe">
         <animateTransform attributeName="transform" type="scale" values="1 0.4; 1 1.0; 1 0.3" dur="1.3s" repeatCount="indefinite" />
@@ -633,7 +627,7 @@ def build_streak_svg(data):
     if cur_s > 0:
         flame_markup = """
         <g>
-          <path d="M 0 -16 C 5 -10, 10 -4, 7 5 C 4 12, -4 12, -7 5 C -10 -4, -5 -10, 0 -16 Z" fill="#4c1d95" opacity="0.85">
+          <path d="M 0 -16 C 5 -10, 10 -4, 7 5 C 4 12, -4 12, -7 5 C -10 -4, -5 -10, 0 -16 Z" fill="#4c1d95" opacity="0.8">
             <animateTransform attributeName="transform" type="scale" values="1 1; 1.08 1.15; 1 1" dur="1.1s" repeatCount="indefinite" />
           </path>
           <path d="M 0 -12 C 4 -7, 7 -2, 5 5 C 3 10, -3 10, -5 5 C -7 -2, -4 -7, 0 -12 Z" fill="#a855f7">
@@ -649,7 +643,7 @@ def build_streak_svg(data):
         <path d="M 0 -6 C 3 -3, 5 0, 4 4 C 2 8, -2 8, -4 4 C -5 0, -3 -3, 0 -6 Z" fill="#4c1d95" opacity="0.35" />
         """
 
-    end_angle = 135.0 + 270.0 * min(1.0, max(0.0, active_ratio))
+    end_angle = 135.0 + 270.0 * active_ratio
     rad = math.radians(end_angle)
     dx = r * math.cos(rad)
     dy = r * math.sin(rad)
@@ -670,10 +664,7 @@ def build_streak_svg(data):
 
   {lava_border_frame(prefix, w, h, delay_offset=4)}
 
-  <line x1="295" y1="28" x2="295" y2="172" stroke="url(#{prefix}_vdiv)" stroke-width="1.2" />
-  <line x1="545" y1="28" x2="545" y2="172" stroke="url(#{prefix}_vdiv)" stroke-width="1.2" />
-
-  <g transform="translate(160, 96)" text-anchor="middle">
+  <g transform="translate(170, 96)" text-anchor="middle">
     <text x="0" y="0" fill="#f5f3ff" font-size="38" font-weight="900" class="mono">{tot_contrib}</text>
     <text x="0" y="24" fill="#cbd5e1" font-size="13" font-weight="600">Total Contributions</text>
     <text x="0" y="44" fill="#8b7fb0" font-size="11" class="mono">{earliest_str}</text>
@@ -706,7 +697,7 @@ def build_streak_svg(data):
     <text x="0" y="18" fill="#8b7fb0" font-size="11" class="mono">{cur_range}</text>
   </g>
 
-  <g transform="translate(680, 96)" text-anchor="middle">
+  <g transform="translate(670, 96)" text-anchor="middle">
     <text x="0" y="0" fill="#f5f3ff" font-size="38" font-weight="900" class="mono">{long_s}</text>
     <text x="0" y="24" fill="#cbd5e1" font-size="13" font-weight="600">Longest Streak</text>
     <text x="0" y="44" fill="#8b7fb0" font-size="11" class="mono">{long_range}</text>
@@ -722,16 +713,14 @@ def build_activity_graph_svg(data):
     rolling_dates = data["rolling_dates"]
     mavg = data["moving_avg_4w"]
 
-    gx_start, gx_end = 368, 774
+    gx_start, gx_end = 368, 776
     gy_bottom, gy_top = 192, 72
     span_x = gx_end - gx_start
     span_y = gy_bottom - gy_top
 
-    # Beri ruang 22% di atas agar puncak & ripple tidak menabrak judul grafik
     max_raw = max(max(weekly), 1)
-    target_max = max(max_raw * 1.22, 10.0)
-    mag = 10 ** math.floor(math.log10(target_max)) if target_max > 0 else 1
-    frac = target_max / mag
+    mag = 10 ** math.floor(math.log10(max_raw)) if max_raw > 0 else 1
+    frac = max_raw / mag
     if frac <= 1.0:
         nice_max = 1 * mag
     elif frac <= 2.0:
@@ -741,7 +730,7 @@ def build_activity_graph_svg(data):
     else:
         nice_max = 10 * mag
 
-    nice_max = max(int(nice_max), 10)
+    nice_max = max(nice_max, 10)
     nice_mid = nice_max // 2
 
     step_w = span_x / (len(weekly) - 1)
@@ -766,6 +755,7 @@ def build_activity_graph_svg(data):
     micro_bars = []
     step_d = span_x / (len(daily) - 1)
     max_d_raw = max(max(daily), 1)
+    peak_d_cnt = data["peak_day_cnt"]
     peak_d_date = data["peak_day_date"]
 
     for i, cnt in enumerate(daily):
@@ -774,13 +764,9 @@ def build_activity_graph_svg(data):
             bh = min(span_y * 0.45, (cnt / max_d_raw) * span_y * 0.45)
             by = gy_bottom - bh
             if rolling_dates[i] == peak_d_date:
-                micro_bars.append(
-                    f'<rect x="{bx - 1:.1f}" y="{by:.1f}" width="2.4" height="{bh:.1f}" rx="1.2" fill="#f5d0fe" opacity="0.9" />'
-                )
+                micro_bars.append(f'<rect x="{bx - 1:.1f}" y="{by:.1f}" width="2.4" height="{bh:.1f}" rx="1.2" fill="#f5d0fe" opacity="0.9" />')
             else:
-                micro_bars.append(
-                    f'<rect x="{bx - 0.9:.1f}" y="{by:.1f}" width="1.8" height="{bh:.1f}" rx="0.9" fill="#a78bfa" opacity="0.35" />'
-                )
+                micro_bars.append(f'<rect x="{bx - 0.9:.1f}" y="{by:.1f}" width="1.8" height="{bh:.1f}" rx="0.9" fill="#a78bfa" opacity="0.35" />')
     micro_bars_markup = "\n  ".join(micro_bars)
 
     month_spans = defaultdict(list)
@@ -791,14 +777,9 @@ def build_activity_graph_svg(data):
     x_labels = []
     for (yr, mo), x_coords in month_spans.items():
         mid_x = (x_coords[0] + x_coords[-1]) / 2.0
-        if gx_start + 10 <= mid_x <= gx_end - 10:
-            m_name = dt.date(yr, mo, 1).strftime("%b")
-            x_labels.append(
-                f'<text x="{mid_x:.1f}" y="{gy_bottom + 18}" fill="#8b7fb0" font-size="10" text-anchor="middle" class="mono">{m_name}</text>'
-            )
-        x_labels.append(
-            f'<line x1="{x_coords[-1]:.1f}" y1="{gy_top}" x2="{x_coords[-1]:.1f}" y2="{gy_bottom}" stroke="#a855f7" stroke-width="0.8" opacity="0.08" />'
-        )
+        m_name = dt.date(yr, mo, 1).strftime("%b")
+        x_labels.append(f'<text x="{mid_x:.1f}" y="{gy_bottom + 18}" fill="#8b7fb0" font-size="10" text-anchor="middle" class="mono">{m_name}</text>')
+        x_labels.append(f'<line x1="{x_coords[-1]:.1f}" y1="{gy_top}" x2="{x_coords[-1]:.1f}" y2="{gy_bottom}" stroke="#a855f7" stroke-width="0.8" opacity="0.08" />')
     x_labels_markup = "\n  ".join(x_labels)
 
     best_w_idx = data["best_week_idx"]
@@ -806,22 +787,14 @@ def build_activity_graph_svg(data):
     best_w_val = data["best_week"]
     best_w_range = f"{data['best_week_start'].strftime('%b %d')} - {data['best_week_end'].strftime('%b %d')}"
 
-    # Kunci koordinat X kotak label agar tidak pernah menabrak angka sumbu Y di kanan
-    badge_x = max(gx_start + 64.0, min(gx_end - 64.0, peak_x))
-    badge_y = max(gy_top - 4.0, peak_y - 16.0)
-
     this_week_x0 = gx_start + (len(daily) - 7) * step_d
     this_week_x1 = gx_end
     this_week_w = this_week_x1 - this_week_x0
 
-    ticker_text = (
-        f"★ RECORD {data['longest_streak']}D   ·   "
-        f"◆ {data['total_all_time']} ALL-TIME CONTRIBS   ·   "
-        f"● {data['active_days']}/365 ACTIVE DAYS ({data['active_pct']}%)   ·   "
-        f"⚡ PEAK DAY {data['peak_day_cnt']} ON {data['peak_day_date'].strftime('%b %d').upper()}   ·   "
-    )
-    single_copy_w = max(680, int(len(ticker_text) * 6.2))
-    ticker_dur = max(20.0, single_copy_w / 38.0)
+    ticker_text = f"★ RECORD {data['longest_streak']}D · ◆ {data['total_all_time']} ALL-TIME CONTRIBS · ● {data['active_days']}/365 ACTIVE DAYS · ⚡ PEAK DAY {data['peak_day_cnt']} ON {data['peak_day_date'].strftime('%b %d')} · "
+    char_len = len(ticker_text)
+    single_copy_w = max(820, int(char_len * 6.8))
+    ticker_dur = max(20.0, single_copy_w / 40.0)
 
     return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}">
   <style>
@@ -877,17 +850,17 @@ def build_activity_graph_svg(data):
     </g>
   </g>
 
-  <rect x="{gx_start - 12}" y="36" width="{span_x + 28}" height="{gy_bottom - 36 + 28}" rx="12" fill="#0d0820" stroke="#a855f7" stroke-opacity="0.18" stroke-width="1" />
+  <rect x="{gx_start - 12}" y="36" width="{span_x + 24}" height="{gy_bottom - 36 + 28}" rx="12" fill="#0d0820" stroke="#a855f7" stroke-opacity="0.18" stroke-width="1" />
   <line x1="{gx_start - 8}" y1="37" x2="{gx_end + 8}" y2="37" stroke="#e9d5ff" stroke-opacity="0.12" stroke-width="1" />
 
   <text x="{gx_end}" y="52" fill="#a855f7" font-size="10" font-weight="700" text-anchor="end" class="mono" letter-spacing="1">WEEKLY VELOCITY RIDGE</text>
 
   <line x1="{gx_start}" y1="{gy_top}" x2="{gx_end}" y2="{gy_top}" stroke="#2e1065" stroke-width="0.8" stroke-dasharray="3 4" />
-  <line x1="{gx_start}" y1="{(gy_top + gy_bottom) / 2}" x2="{gx_end}" y2="{(gy_top + gy_bottom) / 2}" stroke="#2e1065" stroke-width="0.8" stroke-dasharray="3 4" />
+  <line x1="{gx_start}" y1="{(gy_top + gy_bottom)/2}" x2="{gx_end}" y2="{(gy_top + gy_bottom)/2}" stroke="#2e1065" stroke-width="0.8" stroke-dasharray="3 4" />
   <line x1="{gx_start}" y1="{gy_bottom}" x2="{gx_end}" y2="{gy_bottom}" stroke="#2e1065" stroke-width="1" />
 
   <text x="{gx_end + 14}" y="{gy_top + 4}" fill="#8b7fb0" font-size="10" class="mono">{nice_max}</text>
-  <text x="{gx_end + 14}" y="{(gy_top + gy_bottom) / 2 + 4}" fill="#8b7fb0" font-size="10" class="mono">{nice_mid}</text>
+  <text x="{gx_end + 14}" y="{(gy_top + gy_bottom)/2 + 4}" fill="#8b7fb0" font-size="10" class="mono">{nice_mid}</text>
   <text x="{gx_end + 14}" y="{gy_bottom + 4}" fill="#8b7fb0" font-size="10" class="mono">0</text>
 
   <ellipse cx="{peak_x:.1f}" cy="{gy_bottom}" rx="60" ry="24" fill="url(#{prefix}_floor_glow)" />
@@ -909,8 +882,6 @@ def build_activity_graph_svg(data):
 
   {x_labels_markup}
 
-  <line x1="{peak_x:.2f}" y1="{peak_y:.2f}" x2="{peak_x:.2f}" y2="{gy_bottom}" stroke="#c084fc" stroke-width="0.9" stroke-dasharray="2 3" opacity="0.45" />
-
   <circle cx="{peak_x:.2f}" cy="{peak_y:.2f}" r="4" fill="none" stroke="#c084fc" stroke-width="1.6">
     <animate attributeName="r" from="3" to="22" dur="2.4s" repeatCount="indefinite" />
     <animate attributeName="opacity" from="1" to="0" dur="2.4s" repeatCount="indefinite" />
@@ -921,7 +892,7 @@ def build_activity_graph_svg(data):
   </circle>
   <circle cx="{peak_x:.2f}" cy="{peak_y:.2f}" r="4.5" fill="#f5d0fe" filter="url(#{prefix}_glow_filter)" />
 
-  <g transform="translate({badge_x:.2f}, {badge_y:.2f})">
+  <g transform="translate({peak_x:.2f}, {peak_y - 14:.2f})">
     <rect x="-62" y="-12" width="124" height="16" rx="4" fill="#2e1065" stroke="#a855f7" stroke-width="1" />
     <text x="0" y="-0.5" fill="#e9d5ff" font-size="8.5" font-weight="900" text-anchor="middle" class="mono">{best_w_val} · {best_w_range}</text>
   </g>
@@ -930,13 +901,17 @@ def build_activity_graph_svg(data):
     <animate attributeName="r" values="3;6;3" dur="2s" repeatCount="indefinite" />
   </circle>
 
-  <g transform="translate(0, {h - 24})">
-    <rect x="8" y="0" width="{w - 16}" height="20" rx="4" fill="#07040f" stroke="#1f1138" stroke-width="0.8" />
-    <svg x="14" y="0" width="{w - 28}" height="20" style="overflow: hidden;">
+  <g transform="translate(0, {h-24})">
+    <rect x="8" y="0" width="{w-16}" height="20" rx="4" fill="#07040f" stroke="#1f1138" stroke-width="0.8" />
+    <svg x="14" y="0" width="{w-28}" height="20" style="overflow: hidden;">
       <g>
         <animateTransform attributeName="transform" type="translate" from="0 0" to="-{single_copy_w} 0" dur="{ticker_dur:.1f}s" repeatCount="indefinite" />
-        <text x="0" y="13" fill="#cbd5e1" font-size="9.5" font-weight="600" class="mono">{ticker_text}</text>
-        <text x="{single_copy_w}" y="13" fill="#cbd5e1" font-size="9.5" font-weight="600" class="mono">{ticker_text}</text>
+        <text x="0" y="13" fill="#cbd5e1" font-size="9.5" font-weight="600" class="mono" textLength="{single_copy_w}" lengthAdjust="spacing">
+          {ticker_text}
+        </text>
+        <text x="{single_copy_w}" y="13" fill="#cbd5e1" font-size="9.5" font-weight="600" class="mono" textLength="{single_copy_w}" lengthAdjust="spacing">
+          {ticker_text}
+        </text>
       </g>
     </svg>
   </g>
@@ -1048,33 +1023,30 @@ def build_top_langs_svg(data):
     prefix = "langs"
     langs = data["languages"]
 
-    rank_shades = ["#f5d0fe", "#d8b4fe", "#c084fc", "#a855f7", "#9333ea", "#6d28d9"]
-
     spec_w = 357.0
     spec_segments = []
     seg_x = 24.0
     for idx, l in enumerate(langs):
-        sw = max(2.5, (l["pct"] / 100.0) * (spec_w - max(0, len(langs) - 1) * 2))
-        shade = rank_shades[min(idx, len(rank_shades) - 1)]
-        color = l["color"] if LANG_COLOR_MODE == "full" else shade
+        sw = max(2.0, (l["pct"] / 100.0) * (spec_w - (len(langs) - 1) * 2))
+        color = l["color"] if LANG_COLOR_MODE == "full" else "#a855f7"
         spec_segments.append(f'<rect x="{seg_x:.1f}" y="48" width="{sw:.1f}" height="6" rx="2" fill="{color}" />')
         seg_x += sw + 2.0
     spec_markup = "\n  ".join(spec_segments)
 
     cx_orb, cy_orb = 92.0, 152.0
+    rank_shades = ["#e9d5ff", "#c084fc", "#a855f7", "#9333ea", "#6d28d9", "#5b21b6"]
 
     planets_markup = []
     for idx, l in enumerate(langs[:6]):
         r_orbit = 20.0 + 9.5 * idx
-        r_planet = min(9.5, max(3.0, 3.2 + math.sqrt(l["pct"]) * 0.72))
+        r_planet = min(9.5, max(3.0, 3.2 + math.sqrt(l['pct']) * 0.72))
         period = 7.0 + 4.0 * idx
         init_phase = (idx * 64) % 360
-        shade = rank_shades[min(idx, len(rank_shades) - 1)]
-        body_color = l["color"] if LANG_COLOR_MODE == "full" else shade
-        atmos_color = l["color"] if LANG_COLOR_MODE == "full" else "#e9d5ff"
+        body_color = l["color"] if LANG_COLOR_MODE == "full" else rank_shades[min(idx, len(rank_shades)-1)]
+        atmos_color = l["color"]
 
         planets_markup.append(f"""
-        <!-- Orbit {idx + 1} Ring -->
+        <!-- Orbit {idx+1} Ring -->
         <circle cx="{cx_orb:.1f}" cy="{cy_orb:.1f}" r="{r_orbit:.1f}" fill="none" stroke="#2e1065" stroke-width="0.9" stroke-dasharray="2 3" opacity="0.75" />
         <g transform="translate({cx_orb:.1f}, {cy_orb:.1f})">
           <g>
@@ -1083,30 +1055,24 @@ def build_top_langs_svg(data):
             <circle cx="{r_orbit:.1f}" cy="0" r="{r_planet:.1f}" fill="{body_color}">
               <animateTransform attributeName="transform" type="rotate" from="0 {r_orbit:.1f} 0" to="-360 {r_orbit:.1f} 0" dur="{period:.1f}s" repeatCount="indefinite" />
             </circle>
-            <circle cx="{r_orbit:.1f}" cy="0" r="{r_planet + 1.2:.1f}" fill="none" stroke="{atmos_color}" stroke-width="1.0" opacity="0.65" />
+            <circle cx="{r_orbit:.1f}" cy="0" r="{r_planet + 1.2:.1f}" fill="none" stroke="{atmos_color}" stroke-width="1.2" opacity="0.85" />
           </g>
         </g>
         """)
 
-    track_w = 158.0
+    track_w = 115.0
     rows_markup = []
     y_pos = 88.0
     for idx, l in enumerate(langs[:6]):
-        bar_len = max(3.5, (l["pct"] / 100.0) * track_w)
-        rank_no = f"0{idx + 1}"
-        shade = rank_shades[min(idx, len(rank_shades) - 1)]
-        dot_color = l["color"] if LANG_COLOR_MODE == "full" else shade
-        rank_bg = (
-            f'<rect x="188" y="{y_pos - 13:.1f}" width="193" height="22" rx="4" fill="#a855f7" opacity="0.08" />'
-            if idx == 0
-            else ""
-        )
+        bar_len = max(3.0, (l["pct"] / 100.0) * track_w)
+        rank_no = f"0{idx+1}"
+        rank_bg = f'<rect x="188" y="{y_pos - 13:.1f}" width="193" height="22" rx="4" fill="#a855f7" opacity="0.08" />' if idx == 0 else ""
 
         row = f"""
         {rank_bg}
         <g transform="translate(190, {y_pos:.1f})">
           <text x="0" y="0" fill="#6d28d9" font-size="9.5" font-weight="700" class="mono">{rank_no}</text>
-          <circle cx="18" cy="-3.5" r="3.2" fill="{dot_color}" />
+          <circle cx="18" cy="-3.5" r="3.2" fill="{l['color']}" />
           <text x="26" y="0" fill="#f5f3ff" font-size="11.5" font-weight="600">{l['name']}</text>
           <text x="185" y="0" fill="#8b7fb0" font-size="10" class="mono" text-anchor="end">{l['pct']:.1f}%</text>
 
@@ -1119,7 +1085,7 @@ def build_top_langs_svg(data):
           <g clip-path="url(#{prefix}_shimmer_clip_{idx})">
             <rect x="26" y="5" width="{bar_len:.1f}" height="4" fill="url(#{prefix}_bar_grad)" />
             <rect x="-30" y="5" width="24" height="4" fill="#ffffff" opacity="0.4">
-              <animate attributeName="x" from="26" to="{26 + bar_len + 30:.1f}" dur="3.0s" repeatCount="indefinite" begin="{idx * 0.4:.1f}s" />
+              <animate attributeName="x" from="26" to="{26 + bar_len + 30:.1f}" dur="3.0s" repeatCount="indefinite" begin="{idx * 0.4}s" />
             </rect>
           </g>
 
@@ -1186,7 +1152,7 @@ def run_selftest():
         "lang_bytes": {"Python": 5000, "PHP": 2000},
         "lang_colors": {"Python": "#3572a5", "PHP": "#4f5b93"},
         "repo_count": 2,
-        "source": "selftest",
+        "source": "selftest"
     }
     t1 = process_telemetry(synth_raw, today)
     assert t1["current_streak"] == 7, f"Test 1 Failed: streak expected 7, got {t1['current_streak']}"
@@ -1226,7 +1192,7 @@ def run_selftest():
         "strk": build_streak_svg(t1),
         "act": build_activity_graph_svg(t1),
         "stats": build_github_stats_svg(t1),
-        "langs": build_top_langs_svg(t1),
+        "langs": build_top_langs_svg(t1)
     }
 
     allowed_lang_hexes = {"#3572a5", "#4f5b93"}
@@ -1237,7 +1203,7 @@ def run_selftest():
             hx_low = hx.lower()
             if hx_low in allowed_lang_hexes:
                 continue
-            r, g, b = int(hx_low[1:3], 16) / 255.0, int(hx_low[3:5], 16) / 255.0, int(hx_low[5:7], 16) / 255.0
+            r, g, b = int(hx_low[1:3], 16)/255.0, int(hx_low[3:5], 16)/255.0, int(hx_low[5:7], 16)/255.0
             h_deg, s, v = colorsys.rgb_to_hsv(r, g, b)
             h_deg *= 360.0
             if s > 0.35 and v > 0.3:
@@ -1283,7 +1249,7 @@ def main():
 
     telemetry = process_telemetry(raw_data, today)
 
-    lang_summary_items = [f"{l['name']} ({l['pct']:.1f}%)" for l in telemetry["languages"]]
+    lang_summary_items = [f"{l['name']} ({l['pct']:.1f}%)" for l in telemetry['languages']]
     lang_summary_str = ", ".join(lang_summary_items)
 
     print("\n================== TELEMETRY AUDIT LOG ==================")
@@ -1312,7 +1278,7 @@ def main():
         "streak-stats.svg": build_streak_svg(telemetry),
         "activity-graph.svg": build_activity_graph_svg(telemetry),
         "github-stats.svg": build_github_stats_svg(telemetry),
-        "top-langs.svg": build_top_langs_svg(telemetry),
+        "top-langs.svg": build_top_langs_svg(telemetry)
     }
 
     for fname, svg_content in cards.items():
