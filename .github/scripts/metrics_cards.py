@@ -14,17 +14,7 @@ from collections import defaultdict
 
 USERNAME = "rjoulfiand-afk"
 DEFAULT_OUT = "dist"
-LANG_COLOR_MODE = "full"
-
-# Palet Fallback Harmonis jika API GitHub tidak mengembalikan warna bahasa
-FALLBACK_LANG_PALETTE = [
-    "#06b6d4",  # Electric Cyan
-    "#8b5cf6",  # Indigo Violet
-    "#10b981",  # Emerald Mint
-    "#f59e0b",  # Amber Gold
-    "#3b82f6",  # Royal Blue
-    "#ec4899",  # Rose Pink
-]
+LANG_COLOR_MODE = "accent"
 
 
 def get_today_utc():
@@ -172,7 +162,7 @@ def fetch_graphql_calendar(token, user, today):
             total_stars += repo["stargazerCount"]
             for edge in repo["languages"]["edges"]:
                 lname = edge["node"]["name"]
-                lcolor = edge["node"].get("color") or "#06b6d4"
+                lcolor = edge["node"].get("color") or "#a78bfa"
                 lsize = edge["size"]
                 lang_bytes[lname] += lsize
                 lang_colors[lname] = lcolor
@@ -213,9 +203,8 @@ def fetch_jogruber_fallback(user, today):
     cal_dict = clip_future(cal_dict, today)
     created_date = min(cal_dict.keys()) if cal_dict else today
 
-    # Hitung kontribusi 365 hari terakhir agar konsisten dengan label "(last year)"
     start_365 = today - dt.timedelta(days=364)
-    rolling_commits = sum(cnt for dt_k, cnt in cal_dict.items() if dt_k >= start_365)
+    rolling_commits = sum(cnt for d_k, cnt in cal_dict.items() if d_k >= start_365)
 
     repos_url = f"https://api.github.com/users/{user}/repos?per_page=100&type=owner"
     repos = http_json(repos_url)
@@ -224,12 +213,10 @@ def fetch_jogruber_fallback(user, today):
     lang_colors = {}
     repo_count = len([r for r in repos if not r.get("fork")])
 
-    for idx, r in enumerate(repos):
+    for r in repos:
         if not r.get("fork") and r.get("language"):
-            lname = r["language"]
-            lang_bytes[lname] += 1000
-            if lname not in lang_colors:
-                lang_colors[lname] = FALLBACK_LANG_PALETTE[len(lang_colors) % len(FALLBACK_LANG_PALETTE)]
+            lang_bytes[r["language"]] += 1000
+            lang_colors[r["language"]] = "#a78bfa"
 
     return {
         "calendar": cal_dict,
@@ -337,7 +324,7 @@ def process_telemetry(raw_data, today):
 
     moving_avg_4w = []
     for i in range(len(weekly_buckets)):
-        chunk = weekly_buckets[max(0, i - 3):i + 1]
+        chunk = weekly_buckets[max(0, i - 3) : i + 1]
         moving_avg_4w.append(sum(chunk) / len(chunk))
 
     exclude_env = os.environ.get("EXCLUDE_LANGS", "")
@@ -354,13 +341,12 @@ def process_telemetry(raw_data, today):
         top5 = sorted_l[:5]
         top5_sum = sum(v for _, v in top5)
 
-        for idx, (name, b_cnt) in enumerate(top5):
+        for name, b_cnt in top5:
             pct = (b_cnt / total_l_bytes) * 100.0
-            default_col = FALLBACK_LANG_PALETTE[idx % len(FALLBACK_LANG_PALETTE)]
             langs_list.append({
                 "name": name,
                 "pct": pct,
-                "color": lang_colors.get(name, default_col),
+                "color": lang_colors.get(name, "#a78bfa"),
             })
 
         if len(sorted_l) > 5:
@@ -369,7 +355,7 @@ def process_telemetry(raw_data, today):
                 langs_list.append({
                     "name": "Other",
                     "pct": other_pct,
-                    "color": "#64748b",
+                    "color": "#6d28d9",
                 })
 
     return {
@@ -459,7 +445,7 @@ def rounded_rect_path(w, h, r, inset=1.5):
     y0 = inset
     x1 = w - inset
     y1 = h - inset
-    rad = max(1.0, r - inset)
+    rad = r - inset
     return (
         f"M {x0 + rad} {y0} L {x1 - rad} {y0} "
         f"A {rad} {rad} 0 0 1 {x1} {y0 + rad} L {x1} {y1 - rad} "
@@ -472,154 +458,148 @@ def rounded_rect_path(w, h, r, inset=1.5):
 def common_card_defs(prefix, w, h):
     return f"""
   <defs>
-    <linearGradient id="{prefix}_bg_surface" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#090d16" />
-      <stop offset="52%" stop-color="#0d1322" />
-      <stop offset="100%" stop-color="#070a12" />
-    </linearGradient>
-
-    <radialGradient id="{prefix}_ambient_cyan" cx="18%" cy="15%" r="65%">
-      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.12" />
-      <stop offset="60%" stop-color="#0f172a" stop-opacity="0.03" />
-      <stop offset="100%" stop-color="#090d16" stop-opacity="0.0" />
+    <radialGradient id="{prefix}_aurora" cx="50%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#4c1d95" stop-opacity="0.24" />
+      <stop offset="60%" stop-color="#2e1065" stop-opacity="0.09" />
+      <stop offset="100%" stop-color="#05030a" stop-opacity="0.0" />
     </radialGradient>
 
-    <radialGradient id="{prefix}_ambient_violet" cx="85%" cy="85%" r="60%">
-      <stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.12" />
-      <stop offset="65%" stop-color="#1e1b4b" stop-opacity="0.03" />
-      <stop offset="100%" stop-color="#070a12" stop-opacity="0.0" />
+    <radialGradient id="{prefix}_magma_blob" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#f5d0fe" stop-opacity="0.85" />
+      <stop offset="40%" stop-color="#a855f7" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#4c1d95" stop-opacity="0.0" />
     </radialGradient>
 
-    <linearGradient id="{prefix}_inner_bezel" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.38" />
-      <stop offset="45%" stop-color="#1e293b" stop-opacity="0.22" />
-      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.35" />
+    <linearGradient id="{prefix}_vdiv" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2e1065" stop-opacity="0.0" />
+      <stop offset="50%" stop-color="#6d28d9" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#2e1065" stop-opacity="0.0" />
     </linearGradient>
-
-    <pattern id="{prefix}_dot_grid" width="20" height="20" patternUnits="userSpaceOnUse">
-      <circle cx="2" cy="2" r="0.75" fill="#334155" opacity="0.32" />
-    </pattern>
 
     <clipPath id="{prefix}_clip_card">
       <rect width="{w}" height="{h}" rx="14" />
     </clipPath>
 
-    <filter id="{prefix}_glow_filter" x="-20%" y="-20%" width="140%" height="140%">
+    <filter id="{prefix}_bleed_filter" x="0" y="0" width="{w}" height="{h}" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="4.0" />
+    </filter>
+
+    <filter id="{prefix}_lava_fusion" x="-20" y="-20" width="{w + 40}" height="{h + 40}" filterUnits="userSpaceOnUse">
       <feGaussianBlur stdDeviation="2.4" result="blur" />
+      <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -8" result="goo" />
+      <feGaussianBlur in="goo" stdDeviation="5.0" result="lava_glow" />
       <feMerge>
-        <feMergeNode in="blur" />
+        <feMergeNode in="lava_glow" />
+        <feMergeNode in="goo" />
         <feMergeNode in="SourceGraphic" />
       </feMerge>
+    </filter>
+
+    <filter id="{prefix}_glow_filter" x="-20" y="-20" width="{w + 40}" height="{h + 40}" filterUnits="userSpaceOnUse">
+      <feGaussianBlur stdDeviation="3.0" />
     </filter>
   </defs>
 """
 
 
-def precision_border_frame(prefix, w, h, delay_offset=0, hero=False):
-    rr_outer = rounded_rect_path(w, h, 14, inset=0.75)
-    rr_inner = rounded_rect_path(w, h, 14, inset=1.75)
-    beam_op = "0.85" if hero else "0.55"
-    sec_beam = ""
-    if hero:
-        sec_beam = f"""
-      <path d="{rr_inner}" fill="none" stroke="#f59e0b" stroke-width="1.6" stroke-linecap="round"
-            stroke-dasharray="6 94" pathLength="100" opacity="0.75">
-        <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="18s" repeatCount="indefinite"
-                 begin="-{delay_offset + 9}s" />
-      </path>"""
-
+def lava_border_frame(prefix, w, h, delay_offset=0):
+    rr_d = rounded_rect_path(w, h, 14, inset=1.5)
     return f"""
-    <!-- Base Obsidian Surface & Ambient Lighting -->
-    <rect width="{w}" height="{h}" rx="14" fill="url(#{prefix}_bg_surface)" />
-    <rect width="{w}" height="{h}" rx="14" fill="url(#{prefix}_ambient_cyan)" />
-    <rect width="{w}" height="{h}" rx="14" fill="url(#{prefix}_ambient_violet)" />
-    <rect width="{w}" height="{h}" rx="14" fill="url(#{prefix}_dot_grid)" />
+    <rect width="{w}" height="{h}" rx="14" fill="#05030a" />
+    <rect width="{w}" height="{h}" rx="14" fill="url(#{prefix}_aurora)" />
 
-    <!-- Top Specular Glass Reflection -->
-    <line x1="24" y1="1.8" x2="{w - 24}" y2="1.8" stroke="#e2e8f0" stroke-opacity="0.16" stroke-width="1" />
-
-    <!-- Dual-Bezel Frame (Safe for both GitHub Light Mode & Dark Mode) -->
-    <path d="{rr_outer}" fill="none" stroke="#1e293b" stroke-width="1.5" />
-    <path d="{rr_inner}" fill="none" stroke="url(#{prefix}_inner_bezel)" stroke-width="1.1" />
-
-    <!-- Precision Telemetry Laser Beam -->
-    <g>
-      <path d="{rr_inner}" fill="none" stroke="#22d3ee" stroke-width="1.8" stroke-linecap="round"
-            stroke-dasharray="12 88" pathLength="100" opacity="{beam_op}">
-        <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="18s" repeatCount="indefinite"
-                 begin="-{delay_offset}s" />
-      </path>
-      <path d="{rr_inner}" fill="none" stroke="#a78bfa" stroke-width="1.4" stroke-linecap="round"
-            stroke-dasharray="8 92" pathLength="100" opacity="0.55">
-        <animate attributeName="stroke-dashoffset" from="-50" to="-150" dur="18s" repeatCount="indefinite"
-                 begin="-{delay_offset}s" />
-      </path>{sec_beam}
+    <g clip-path="url(#{prefix}_clip_card)">
+      <path d="{rr_d}" fill="none" stroke="#6d28d9" stroke-width="6" opacity="0.3" filter="url(#{prefix}_bleed_filter)" />
     </g>
+
+    <path d="{rr_d}" fill="none" stroke="#2e1065" stroke-width="1.2" opacity="0.75" />
+
+    <g filter="url(#{prefix}_lava_fusion)">
+      <path d="{rr_d}" fill="none" stroke="#6d28d9" stroke-width="5" stroke-linecap="round"
+            stroke-dasharray="22 9 8 14 30 17" pathLength="100">
+        <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="26s" repeatCount="indefinite"
+                 begin="-{delay_offset}s" calcMode="spline" keyTimes="0;0.5;1" keySplines="0.4 0 0.6 1; 0.4 0 0.6 1" values="0;-38;-100" />
+      </path>
+
+      <path d="{rr_d}" fill="none" stroke="#c084fc" stroke-width="3" stroke-linecap="round"
+            stroke-dasharray="10 12 5 20 14 39" pathLength="100">
+        <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="17s" repeatCount="indefinite"
+                 begin="-{delay_offset + 4}s" />
+      </path>
+
+      <path d="{rr_d}" fill="none" stroke="#f5d0fe" stroke-width="1.4" stroke-linecap="round"
+            stroke-dasharray="3 22 2 31 4 38" pathLength="100">
+        <animate attributeName="stroke-dashoffset" from="0" to="-100" dur="11s" repeatCount="indefinite"
+                 begin="-{delay_offset + 2}s" />
+      </path>
+    </g>
+
+    <circle r="14" fill="url(#{prefix}_magma_blob)">
+      <animateMotion path="{rr_d}" dur="40s" repeatCount="indefinite" begin="-{delay_offset + 8}s" />
+    </circle>
+    <circle r="10" fill="url(#{prefix}_magma_blob)">
+      <animateMotion path="{rr_d}" dur="63s" repeatCount="indefinite" begin="-{delay_offset + 24}s" />
+    </circle>
     """
 
 
 def build_header_svg():
     w, h = 840, 64
     prefix = "hdr"
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}" role="img" aria-label="Developer Metrics &amp; Activity">
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}">
   <style>
     text {{ font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif; }}
-    .mono {{ font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }}
+    .flicker-op {{
+      animation: neon-op 5s infinite ease-in-out;
+    }}
+    @keyframes neon-op {{
+      0%, 84%, 88%, 100% {{ opacity: 1; }}
+      86% {{ opacity: 0.55; }}
+    }}
   </style>
   {common_card_defs(prefix, w, h)}
-  <defs>
-    <linearGradient id="{prefix}_title_grad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#f8fafc" />
-      <stop offset="50%" stop-color="#67e8f9" />
-      <stop offset="100%" stop-color="#c4b5fd" />
-    </linearGradient>
-  </defs>
-  {precision_border_frame(prefix, w, h, delay_offset=0, hero=False)}
+  {lava_border_frame(prefix, w, h, delay_offset=0)}
 
-  <!-- Left Telemetry Status Pill -->
-  <g transform="translate(24, 21)">
-    <rect x="0" y="0" width="118" height="22" rx="6" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
-    <circle cx="13" cy="11" r="3.5" fill="#10b981">
-      <animate attributeName="opacity" values="1;0.35;1" dur="2s" repeatCount="indefinite" />
-    </circle>
-    <text x="24" y="14.5" fill="#94a3b8" font-size="9.5" font-weight="700" letter-spacing="1" class="mono">TELEMETRY.OS</text>
+  <g transform="translate(68, 32)">
+    <g transform="translate(0, 0)">
+      <rect x="0" y="-14" width="4.5" height="28" rx="2" fill="#c084fc">
+        <animateTransform attributeName="transform" type="scale" values="1 0.3; 1 1.0; 1 0.4" dur="1.2s" repeatCount="indefinite" />
+      </rect>
+    </g>
+    <g transform="translate(8, 0)">
+      <rect x="0" y="-18" width="4.5" height="36" rx="2" fill="#9333ea">
+        <animateTransform attributeName="transform" type="scale" values="1 0.8; 1 0.2; 1 0.9" dur="1.6s" repeatCount="indefinite" />
+      </rect>
+    </g>
+    <g transform="translate(16, 0)">
+      <rect x="0" y="-10" width="4.5" height="20" rx="2" fill="#d8b4fe">
+        <animateTransform attributeName="transform" type="scale" values="1 0.2; 1 1.0; 1 0.5" dur="1.4s" repeatCount="indefinite" />
+      </rect>
+    </g>
   </g>
 
-  <!-- Left Spectrum Bars -->
-  <g transform="translate(162, 32)">
-    <rect x="0" y="-10" width="3.5" height="20" rx="1.75" fill="#06b6d4">
-      <animateTransform attributeName="transform" type="scale" values="1 0.35; 1 1.0; 1 0.35" dur="1.2s" repeatCount="indefinite" />
-    </rect>
-    <rect x="7" y="-14" width="3.5" height="28" rx="1.75" fill="#8b5cf6">
-      <animateTransform attributeName="transform" type="scale" values="1 0.85; 1 0.3; 1 0.85" dur="1.5s" repeatCount="indefinite" />
-    </rect>
-    <rect x="14" y="-8" width="3.5" height="16" rx="1.75" fill="#10b981">
-      <animateTransform attributeName="transform" type="scale" values="1 0.4; 1 0.95; 1 0.4" dur="1.1s" repeatCount="indefinite" />
-    </rect>
+  <g transform="translate({w / 2}, 40)" text-anchor="middle" class="flicker-op">
+    <text x="0" y="0" fill="#a855f7" font-size="16" font-weight="900" letter-spacing="4" filter="url(#{prefix}_glow_filter)">DEVELOPER METRICS &amp; ACTIVITY</text>
+    <text x="-1.5" y="0" fill="#4c1d95" font-size="16" font-weight="900" letter-spacing="4">DEVELOPER METRICS &amp; ACTIVITY</text>
+    <text x="0" y="0" fill="#f5f3ff" font-size="16" font-weight="900" letter-spacing="4">DEVELOPER METRICS &amp; ACTIVITY</text>
   </g>
 
-  <!-- Center Metallic Title -->
-  <g transform="translate({w / 2:.0f}, 38)" text-anchor="middle">
-    <text x="0" y="0" fill="url(#{prefix}_title_grad)" font-size="15.5" font-weight="900" letter-spacing="3.8">DEVELOPER METRICS &amp; ACTIVITY</text>
-  </g>
-
-  <!-- Right Spectrum Bars -->
-  <g transform="translate(660, 32)">
-    <rect x="0" y="-8" width="3.5" height="16" rx="1.75" fill="#10b981">
-      <animateTransform attributeName="transform" type="scale" values="1 0.45; 1 0.95; 1 0.45" dur="1.1s" repeatCount="indefinite" />
-    </rect>
-    <rect x="7" y="-14" width="3.5" height="28" rx="1.75" fill="#8b5cf6">
-      <animateTransform attributeName="transform" type="scale" values="1 0.3; 1 0.9; 1 0.3" dur="1.5s" repeatCount="indefinite" />
-    </rect>
-    <rect x="14" y="-10" width="3.5" height="20" rx="1.75" fill="#06b6d4">
-      <animateTransform attributeName="transform" type="scale" values="1 0.95; 1 0.35; 1 0.95" dur="1.2s" repeatCount="indefinite" />
-    </rect>
-  </g>
-
-  <!-- Right Sync Readout -->
-  <g transform="translate(702, 21)">
-    <rect x="0" y="0" width="114" height="22" rx="6" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
-    <text x="57" y="14.5" fill="#38bdf8" font-size="9.5" font-weight="700" text-anchor="middle" letter-spacing="1" class="mono">LIVE STREAM</text>
+  <g transform="translate({w - 94}, 32)">
+    <g transform="translate(0, 0)">
+      <rect x="0" y="-10" width="4.5" height="20" rx="2" fill="#d8b4fe">
+        <animateTransform attributeName="transform" type="scale" values="1 0.4; 1 1.0; 1 0.3" dur="1.3s" repeatCount="indefinite" />
+      </rect>
+    </g>
+    <g transform="translate(8, 0)">
+      <rect x="0" y="-18" width="4.5" height="36" rx="2" fill="#9333ea">
+        <animateTransform attributeName="transform" type="scale" values="1 0.9; 1 0.3; 1 0.8" dur="1.7s" repeatCount="indefinite" />
+      </rect>
+    </g>
+    <g transform="translate(16, 0)">
+      <rect x="0" y="-14" width="4.5" height="28" rx="2" fill="#c084fc">
+        <animateTransform attributeName="transform" type="scale" values="1 0.2; 1 0.9; 1 0.4" dur="1.1s" repeatCount="indefinite" />
+      </rect>
+    </g>
   </g>
 </svg>"""
 
@@ -653,20 +633,20 @@ def build_streak_svg(data):
     if cur_s > 0:
         flame_markup = """
         <g>
-          <path d="M 0 -17 C 6 -10, 11 -3, 7.5 5.5 C 4.5 12, -4.5 12, -7.5 5.5 C -11 -3, -6 -10, 0 -17 Z" fill="#f97316" opacity="0.88">
-            <animateTransform attributeName="transform" type="scale" values="1 1; 1.08 1.14; 1 1" dur="1.1s" repeatCount="indefinite" />
+          <path d="M 0 -16 C 5 -10, 10 -4, 7 5 C 4 12, -4 12, -7 5 C -10 -4, -5 -10, 0 -16 Z" fill="#4c1d95" opacity="0.85">
+            <animateTransform attributeName="transform" type="scale" values="1 1; 1.08 1.15; 1 1" dur="1.1s" repeatCount="indefinite" />
           </path>
-          <path d="M 0 -12.5 C 4.2 -7, 7.2 -2, 5.2 5 C 3 10, -3 10, -5.2 5 C -7.2 -2, -4.2 -7, 0 -12.5 Z" fill="#fbbf24">
-            <animateTransform attributeName="transform" type="scale" values="1 1; 0.94 1.1; 1 1" dur="1.35s" repeatCount="indefinite" />
+          <path d="M 0 -12 C 4 -7, 7 -2, 5 5 C 3 10, -3 10, -5 5 C -7 -2, -4 -7, 0 -12 Z" fill="#a855f7">
+            <animateTransform attributeName="transform" type="scale" values="1 1; 0.92 1.1; 1 1" dur="1.4s" repeatCount="indefinite" />
           </path>
-          <path d="M 0 -7.5 C 2.2 -4, 4 -1, 3 3.2 C 2 7, -2 7, -3 3.2 C -4 -1, -2.2 -4, 0 -7.5 Z" fill="#fef3c7">
-            <animateTransform attributeName="transform" type="scale" values="1 1; 1.1 1.18; 1 1" dur="0.9s" repeatCount="indefinite" />
+          <path d="M 0 -7 C 2 -4, 4 -1, 3 3 C 2 7, -2 7, -3 3 C -4 -1, -2 -4, 0 -7 Z" fill="#faf5ff">
+            <animateTransform attributeName="transform" type="scale" values="1 1; 1.1 1.2; 1 1" dur="0.9s" repeatCount="indefinite" />
           </path>
         </g>
         """
     else:
         flame_markup = """
-        <path d="M 0 -7 C 3 -3, 5 0, 4 4 C 2 8, -2 8, -4 4 C -5 0, -3 -3, 0 -7 Z" fill="#475569" opacity="0.45" />
+        <path d="M 0 -6 C 3 -3, 5 0, 4 4 C 2 8, -2 8, -4 4 C -5 0, -3 -3, 0 -6 Z" fill="#4c1d95" opacity="0.35" />
         """
 
     end_angle = 135.0 + 270.0 * min(1.0, max(0.0, active_ratio))
@@ -674,82 +654,62 @@ def build_streak_svg(data):
     dx = r * math.cos(rad)
     dy = r * math.sin(rad)
 
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}" role="img" aria-label="GitHub Streak Stats">
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}">
   <style>
     text {{ font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif; font-variant-numeric: tabular-nums; }}
     .mono {{ font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }}
   </style>
   {common_card_defs(prefix, w, h)}
   <defs>
-    <linearGradient id="{prefix}_gauge_arc" x1="0%" y1="100%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#06b6d4" />
-      <stop offset="55%" stop-color="#10b981" />
-      <stop offset="100%" stop-color="#f59e0b" />
-    </linearGradient>
-    <linearGradient id="{prefix}_div_grad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.0" />
-      <stop offset="50%" stop-color="#334155" stop-opacity="0.85" />
-      <stop offset="100%" stop-color="#1e293b" stop-opacity="0.0" />
+    <linearGradient id="{prefix}_gauge_lava" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5b21b6" />
+      <stop offset="50%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#e9d5ff" />
     </linearGradient>
   </defs>
 
-  {precision_border_frame(prefix, w, h, delay_offset=3, hero=True)}
+  {lava_border_frame(prefix, w, h, delay_offset=4)}
 
-  <!-- Vertical Structural Dividers -->
-  <line x1="292" y1="24" x2="292" y2="176" stroke="url(#{prefix}_div_grad)" stroke-width="1.2" />
-  <line x1="548" y1="24" x2="548" y2="176" stroke="url(#{prefix}_div_grad)" stroke-width="1.2" />
+  <line x1="295" y1="28" x2="295" y2="172" stroke="url(#{prefix}_vdiv)" stroke-width="1.2" />
+  <line x1="545" y1="28" x2="545" y2="172" stroke="url(#{prefix}_vdiv)" stroke-width="1.2" />
 
-  <!-- Left Bento Panel: Total Contributions -->
-  <g transform="translate(154, 88)" text-anchor="middle">
-    <rect x="-86" y="-54" width="172" height="20" rx="5" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
-    <text x="0" y="-40.5" fill="#38bdf8" font-size="9.5" font-weight="800" letter-spacing="1.2" class="mono">ALL-TIME VOLUME</text>
-    <text x="0" y="6" fill="#f8fafc" font-size="38" font-weight="900" class="mono">{tot_contrib}</text>
-    <text x="0" y="30" fill="#cbd5e1" font-size="13" font-weight="700">Total Contributions</text>
-    <text x="0" y="50" fill="#64748b" font-size="11" class="mono">{earliest_str}</text>
+  <g transform="translate(160, 96)" text-anchor="middle">
+    <text x="0" y="0" fill="#f5f3ff" font-size="38" font-weight="900" class="mono">{tot_contrib}</text>
+    <text x="0" y="24" fill="#cbd5e1" font-size="13" font-weight="600">Total Contributions</text>
+    <text x="0" y="44" fill="#8b7fb0" font-size="11" class="mono">{earliest_str}</text>
   </g>
 
-  <!-- Center Hero Dial: Current Streak -->
   <g transform="translate({cx}, {cy})">
-    <!-- Outer Subtle Ring -->
-    <circle cx="0" cy="0" r="64" fill="none" stroke="#1e293b" stroke-width="1" stroke-dasharray="3 5" />
-
-    <!-- Gauge Track -->
-    <circle cx="0" cy="0" r="{r}" fill="none" stroke="#1e293b" stroke-width="8.5"
+    <circle cx="0" cy="0" r="{r}" fill="none" stroke="#2e1065" stroke-width="8"
             stroke-dasharray="{total_arc:.2f} {circ:.2f}" stroke-linecap="round"
-            transform="rotate(135)" />
+            transform="rotate(135)" opacity="0.6" />
 
-    <!-- Active Multi-Accent Progress Arc -->
-    <circle cx="0" cy="0" r="{r}" fill="none" stroke="url(#{prefix}_gauge_arc)" stroke-width="8.5"
+    <circle cx="0" cy="0" r="{r}" fill="none" stroke="url(#{prefix}_gauge_lava)" stroke-width="8"
             stroke-dasharray="{active_arc:.2f} {circ:.2f}" stroke-linecap="round"
             transform="rotate(135)" filter="url(#{prefix}_glow_filter)" />
 
-    <!-- Endpoint Pointer Diamond -->
     <g transform="translate({dx:.2f}, {dy:.2f})">
-      <circle cx="0" cy="0" r="5" fill="#fbbf24" filter="url(#{prefix}_glow_filter)" />
-      <circle cx="0" cy="0" r="2.5" fill="#ffffff" />
+      <polygon points="0,-4.5 4.5,0 0,4.5 -4.5,0" fill="#f5d0fe" filter="url(#{prefix}_glow_filter)" />
+      <polygon points="0,-4.5 4.5,0 0,4.5 -4.5,0" fill="#f5d0fe" />
     </g>
 
-    <!-- Animated Flame Icon -->
-    <g transform="translate(0, -31)">
+    <g transform="translate(0, -30)">
       {flame_markup}
     </g>
 
-    <text x="0" y="21" fill="#f8fafc" font-size="35" font-weight="900" text-anchor="middle" class="mono">{cur_s}</text>
-    <text x="0" y="40" fill="#10b981" font-size="9.5" font-weight="800" text-anchor="middle" letter-spacing="1.8" class="mono">STREAK DAYS</text>
+    <text x="0" y="22" fill="#f5f3ff" font-size="36" font-weight="900" text-anchor="middle" class="mono">{cur_s}</text>
+    <text x="0" y="42" fill="#c084fc" font-size="9.5" font-weight="800" text-anchor="middle" letter-spacing="1.5" class="mono">DAYS</text>
   </g>
 
-  <g transform="translate({cx}, 163)" text-anchor="middle">
-    <text x="0" y="0" fill="#f8fafc" font-size="14" font-weight="800">Current Streak</text>
-    <text x="0" y="17" fill="#94a3b8" font-size="11" class="mono">{cur_range}</text>
+  <g transform="translate({cx}, 162)" text-anchor="middle">
+    <text x="0" y="0" fill="#f5f3ff" font-size="14.5" font-weight="800">Current Streak</text>
+    <text x="0" y="18" fill="#8b7fb0" font-size="11" class="mono">{cur_range}</text>
   </g>
 
-  <!-- Right Bento Panel: Longest Streak -->
-  <g transform="translate(686, 88)" text-anchor="middle">
-    <rect x="-86" y="-54" width="172" height="20" rx="5" fill="#0f172a" stroke="#1e293b" stroke-width="1" />
-    <text x="0" y="-40.5" fill="#fbbf24" font-size="9.5" font-weight="800" letter-spacing="1.2" class="mono">PEAK ENDURANCE</text>
-    <text x="0" y="6" fill="#f8fafc" font-size="38" font-weight="900" class="mono">{long_s}</text>
-    <text x="0" y="30" fill="#cbd5e1" font-size="13" font-weight="700">Longest Streak</text>
-    <text x="0" y="50" fill="#64748b" font-size="11" class="mono">{long_range}</text>
+  <g transform="translate(680, 96)" text-anchor="middle">
+    <text x="0" y="0" fill="#f5f3ff" font-size="38" font-weight="900" class="mono">{long_s}</text>
+    <text x="0" y="24" fill="#cbd5e1" font-size="13" font-weight="600">Longest Streak</text>
+    <text x="0" y="44" fill="#8b7fb0" font-size="11" class="mono">{long_range}</text>
   </g>
 </svg>"""
 
@@ -762,31 +722,27 @@ def build_activity_graph_svg(data):
     rolling_dates = data["rolling_dates"]
     mavg = data["moving_avg_4w"]
 
-    gx_start, gx_end = 356, 774
-    gy_bottom, gy_top = 192, 74
+    gx_start, gx_end = 368, 774
+    gy_bottom, gy_top = 192, 72
     span_x = gx_end - gx_start
     span_y = gy_bottom - gy_top
 
-    # Tambahkan headroom 22% agar titik puncak & badge tidak pernah menabrak header grafik
+    # Beri ruang 22% di atas agar puncak & ripple tidak menabrak judul grafik
     max_raw = max(max(weekly), 1)
     target_max = max(max_raw * 1.22, 10.0)
     mag = 10 ** math.floor(math.log10(target_max)) if target_max > 0 else 1
     frac = target_max / mag
-    if frac <= 1.2:
-        nice_max = int(1.2 * mag)
+    if frac <= 1.0:
+        nice_max = 1 * mag
     elif frac <= 2.0:
-        nice_max = int(2 * mag)
-    elif frac <= 3.0:
-        nice_max = int(3 * mag)
+        nice_max = 2 * mag
     elif frac <= 5.0:
-        nice_max = int(5 * mag)
+        nice_max = 5 * mag
     else:
-        nice_max = int(10 * mag)
+        nice_max = 10 * mag
 
-    nice_max = max(nice_max, 10)
+    nice_max = max(int(nice_max), 10)
     nice_mid = nice_max // 2
-    nice_q1 = nice_max // 4
-    nice_q3 = (nice_max * 3) // 4
 
     step_w = span_x / (len(weekly) - 1)
     pts = []
@@ -807,7 +763,6 @@ def build_activity_graph_svg(data):
         pts_mavg.append((px, py))
     spline_mavg = monotone_cubic_spline(pts_mavg, gy_top, gy_bottom)
 
-    # Daily Volume Impulse Bars
     micro_bars = []
     step_d = span_x / (len(daily) - 1)
     max_d_raw = max(max(daily), 1)
@@ -816,28 +771,18 @@ def build_activity_graph_svg(data):
     for i, cnt in enumerate(daily):
         if cnt > 0:
             bx = gx_start + i * step_d
-            bh = min(span_y * 0.42, (cnt / max_d_raw) * span_y * 0.42)
+            bh = min(span_y * 0.45, (cnt / max_d_raw) * span_y * 0.45)
             by = gy_bottom - bh
             if rolling_dates[i] == peak_d_date:
                 micro_bars.append(
-                    f'<rect x="{bx - 1.1:.1f}" y="{by:.1f}" width="2.2" height="{bh:.1f}" rx="1.1" fill="#fbbf24" opacity="0.92" />'
+                    f'<rect x="{bx - 1:.1f}" y="{by:.1f}" width="2.4" height="{bh:.1f}" rx="1.2" fill="#f5d0fe" opacity="0.9" />'
                 )
             else:
                 micro_bars.append(
-                    f'<rect x="{bx - 0.8:.1f}" y="{by:.1f}" width="1.6" height="{bh:.1f}" rx="0.8" fill="#38bdf8" opacity="0.25" />'
+                    f'<rect x="{bx - 0.9:.1f}" y="{by:.1f}" width="1.8" height="{bh:.1f}" rx="0.9" fill="#a78bfa" opacity="0.35" />'
                 )
     micro_bars_markup = "\n  ".join(micro_bars)
 
-    # Node Markers pada titik-titik belok signifikan (setiap 4 minggu + minggu aktif)
-    node_dots = []
-    for i, (px, py) in enumerate(pts):
-        if weekly[i] > 0 and (i % 4 == 0 or i == len(pts) - 1):
-            node_dots.append(
-                f'<circle cx="{px:.1f}" cy="{py:.1f}" r="2.1" fill="#090d16" stroke="#67e8f9" stroke-width="1.4" />'
-            )
-    node_dots_markup = "\n  ".join(node_dots)
-
-    # Label Sumbu X (Bulan) & Garis Grid Vertikal
     month_spans = defaultdict(list)
     for i, d in enumerate(rolling_dates):
         m_key = (d.year, d.month)
@@ -846,13 +791,13 @@ def build_activity_graph_svg(data):
     x_labels = []
     for (yr, mo), x_coords in month_spans.items():
         mid_x = (x_coords[0] + x_coords[-1]) / 2.0
-        if gx_start + 12 <= mid_x <= gx_end - 12:
+        if gx_start + 10 <= mid_x <= gx_end - 10:
             m_name = dt.date(yr, mo, 1).strftime("%b")
             x_labels.append(
-                f'<text x="{mid_x:.1f}" y="{gy_bottom + 17}" fill="#64748b" font-size="9.5" font-weight="600" text-anchor="middle" class="mono">{m_name}</text>'
+                f'<text x="{mid_x:.1f}" y="{gy_bottom + 18}" fill="#8b7fb0" font-size="10" text-anchor="middle" class="mono">{m_name}</text>'
             )
         x_labels.append(
-            f'<line x1="{x_coords[-1]:.1f}" y1="{gy_top}" x2="{x_coords[-1]:.1f}" y2="{gy_bottom}" stroke="#1e293b" stroke-width="0.9" stroke-dasharray="2 3" />'
+            f'<line x1="{x_coords[-1]:.1f}" y1="{gy_top}" x2="{x_coords[-1]:.1f}" y2="{gy_bottom}" stroke="#a855f7" stroke-width="0.8" opacity="0.08" />'
         )
     x_labels_markup = "\n  ".join(x_labels)
 
@@ -861,182 +806,137 @@ def build_activity_graph_svg(data):
     best_w_val = data["best_week"]
     best_w_range = f"{data['best_week_start'].strftime('%b %d')} - {data['best_week_end'].strftime('%b %d')}"
 
-    # Clamping koordinat X & Y untuk Callout Badge agar anti-tabrakan di tepi kanvas
-    badge_x = max(gx_start + 68.0, min(gx_end - 68.0, peak_x))
-    badge_y = max(gy_top - 6.0, peak_y - 22.0)
+    # Kunci koordinat X kotak label agar tidak pernah menabrak angka sumbu Y di kanan
+    badge_x = max(gx_start + 64.0, min(gx_end - 64.0, peak_x))
+    badge_y = max(gy_top - 4.0, peak_y - 16.0)
 
     this_week_x0 = gx_start + (len(daily) - 7) * step_d
-    this_week_w = gx_end - this_week_x0
-
-    y_q1 = gy_bottom - 0.25 * span_y
-    y_mid = (gy_top + gy_bottom) / 2.0
-    y_q3 = gy_bottom - 0.75 * span_y
+    this_week_x1 = gx_end
+    this_week_w = this_week_x1 - this_week_x0
 
     ticker_text = (
-        f"★ STREAK RECORD: {data['longest_streak']} DAYS   ·   "
-        f"◆ ALL-TIME VOLUME: {data['total_all_time']} CONTRIBS   ·   "
-        f"● CONSISTENCY: {data['active_days']}/365 ACTIVE DAYS ({data['active_pct']}%)   ·   "
-        f"⚡ PEAK DAILY BURST: {data['peak_day_cnt']} ON {data['peak_day_date'].strftime('%b %d').upper()}   ·   "
+        f"★ RECORD {data['longest_streak']}D   ·   "
+        f"◆ {data['total_all_time']} ALL-TIME CONTRIBS   ·   "
+        f"● {data['active_days']}/365 ACTIVE DAYS ({data['active_pct']}%)   ·   "
+        f"⚡ PEAK DAY {data['peak_day_cnt']} ON {data['peak_day_date'].strftime('%b %d').upper()}   ·   "
     )
-    single_copy_w = max(820, int(len(ticker_text) * 6.5))
-    ticker_dur = max(22.0, single_copy_w / 38.0)
+    single_copy_w = max(680, int(len(ticker_text) * 6.2))
+    ticker_dur = max(20.0, single_copy_w / 38.0)
 
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}" role="img" aria-label="Weekly Activity Velocity Graph">
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}">
   <style>
-    text {{ font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif; font-variant-numeric: tabular-nums; }}
+    text {{ font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif; }}
     .mono {{ font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }}
   </style>
   {common_card_defs(prefix, w, h)}
   <defs>
     <linearGradient id="{prefix}_chart_area" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.44" />
-      <stop offset="55%" stop-color="#3b82f6" stop-opacity="0.16" />
-      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.0" />
+      <stop offset="0%" stop-color="#a855f7" stop-opacity="0.50" />
+      <stop offset="60%" stop-color="#6d28d9" stop-opacity="0.16" />
+      <stop offset="100%" stop-color="#2e1065" stop-opacity="0.0" />
     </linearGradient>
 
-    <linearGradient id="{prefix}_line_grad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#38bdf8" />
-      <stop offset="50%" stop-color="#22d3ee" />
-      <stop offset="100%" stop-color="#a78bfa" />
-    </linearGradient>
-
-    <radialGradient id="{prefix}_peak_spot" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.28" />
-      <stop offset="100%" stop-color="#f59e0b" stop-opacity="0.0" />
+    <radialGradient id="{prefix}_floor_glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#6d28d9" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#6d28d9" stop-opacity="0.0" />
     </radialGradient>
   </defs>
 
-  {precision_border_frame(prefix, w, h, delay_offset=6, hero=True)}
+  {lava_border_frame(prefix, w, h, delay_offset=8)}
 
-  <!-- Left Telemetry KPI Column -->
-  <g transform="translate(26, 36)">
-    <text x="0" y="0" fill="#f8fafc" font-size="16.5" font-weight="900">Rixsan Joulfiand</text>
-    <text x="0" y="16" fill="#38bdf8" font-size="11.5" font-weight="700" class="mono">@{USERNAME}</text>
+  <g transform="translate(36, 42)">
+    <text x="0" y="0" fill="#f5f3ff" font-size="17" font-weight="900">Rixsan Joulfiand</text>
+    <text x="0" y="16" fill="#a855f7" font-size="12" font-weight="700" class="mono">@{USERNAME}</text>
 
-    <!-- Live Status Badge -->
-    <g transform="translate(232, -12)">
-      <rect x="0" y="0" width="66" height="20" rx="5" fill="#064e3b" fill-opacity="0.45" stroke="#10b981" stroke-opacity="0.5" stroke-width="1" />
-      <circle cx="12" cy="10" r="3" fill="#10b981">
-        <animate attributeName="opacity" values="1;0.3;1" dur="1.6s" repeatCount="indefinite" />
-      </circle>
-      <text x="21" y="13.5" fill="#34d399" font-size="9.5" font-weight="800" letter-spacing="0.8" class="mono">ONLINE</text>
+    <g transform="translate(260, -4)">
+      <rect x="0" y="2" width="3" height="8" rx="1.5" fill="#c084fc" />
+      <rect x="5" y="-1" width="3" height="11" rx="1.5" fill="#a855f7" />
+      <rect x="10" y="3" width="3" height="7" rx="1.5" fill="#e9d5ff" />
+      <text x="18" y="7" fill="#c084fc" font-size="11" font-weight="800" class="mono">LIVE</text>
     </g>
 
-    <!-- KPI 1: Rolling Year Contributions (Cyan) -->
-    <g transform="translate(0, 32)">
-      <rect x="0" y="0" width="298" height="42" rx="8" fill="#0f172a" fill-opacity="0.75" stroke="#1e293b" stroke-width="1" />
-      <rect x="10" y="9" width="24" height="24" rx="6" fill="#083344" stroke="#06b6d4" stroke-opacity="0.4" stroke-width="1" />
-      <path d="M 17 21 L 20 17 L 23 20 L 27 15" fill="none" stroke="#22d3ee" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-      <circle cx="27" cy="15" r="1.5" fill="#67e8f9" />
-      <text x="44" y="18" fill="#f8fafc" font-size="12.5" font-weight="800">{data['total_last_year']} Contributions</text>
-      <text x="44" y="32" fill="#64748b" font-size="10" class="mono">rolling 365-day velocity</text>
+    <g transform="translate(0, 48)">
+      <circle cx="8" cy="-3" r="8" fill="#4c1d95" opacity="0.3" />
+      <path d="M 8 -9 C 4.7 -9 2 -6.3 2 -3 C 2 -0.4 3.7 1.9 6.1 2.7 C 6.4 2.8 6.5 2.6 6.5 2.4 L 6.5 1.4 C 4.8 1.8 4.5 0.6 4.5 0.6 C 4.2 -0.1 3.8 -0.4 3.8 -0.4 C 3.2 -0.8 3.8 -0.8 3.8 -0.8 C 4.5 -0.8 4.8 -0.1 4.8 -0.1 C 5.4 0.9 6.3 0.6 6.7 0.4 C 6.8 -0.1 7 -0.4 7.2 -0.6 C 5.9 -0.7 4.5 -1.2 4.5 -3.5 C 4.5 -4.2 4.7 -4.7 5.1 -5.1 C 5 -5.3 4.8 -5.9 5.2 -6.7 C 5.2 -6.7 5.7 -6.9 6.9 -6.1 C 7.4 -6.2 7.9 -6.3 8.4 -6.3 C 8.9 -6.3 9.4 -6.2 9.9 -6.1 C 11.1 -6.9 11.6 -6.7 11.6 -6.7 C 12 -5.9 11.8 -5.3 11.7 -5.1 C 12.1 -4.7 12.3 -4.2 12.3 -3.5 C 12.3 -1.2 10.9 -0.7 9.6 -0.6 C 9.8 -0.4 10 -0.1 10 0.5 L 10 2.4 C 10 2.6 10.1 2.8 10.4 2.7 C 12.8 1.9 14.5 -0.4 14.5 -3 C 14.5 -6.3 11.8 -9 8.5 -9 Z" fill="#c084fc" />
+      <text x="24" y="0" fill="#f5f3ff" font-size="12.5" font-weight="800">{data['total_last_year']} Contributions</text>
+      <text x="24" y="14" fill="#8b7fb0" font-size="10.5" class="mono">in the last year</text>
     </g>
 
-    <!-- KPI 2: Active Days Consistency (Emerald) -->
-    <g transform="translate(0, 82)">
-      <rect x="0" y="0" width="298" height="42" rx="8" fill="#0f172a" fill-opacity="0.75" stroke="#1e293b" stroke-width="1" />
-      <rect x="10" y="9" width="24" height="24" rx="6" fill="#064e3b" stroke="#10b981" stroke-opacity="0.4" stroke-width="1" />
-      <path d="M 16 21 L 20 25 L 28 17" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-      <text x="44" y="18" fill="#f8fafc" font-size="12.5" font-weight="800">{data['active_days']} Active Days</text>
-      <text x="44" y="32" fill="#64748b" font-size="10" class="mono">{data['active_pct']}% consistency ratio</text>
+    <g transform="translate(0, 84)">
+      <circle cx="8" cy="-3" r="8" fill="#4c1d95" opacity="0.3" />
+      <path d="M 4 -7 H 12 V -5 H 4 Z M 4 -3 H 12 V 1 H 4 Z M 3 -9 H 13 A 1 1 0 0 1 14 -8 V 2 A 1 1 0 0 1 13 3 H 3 A 1 1 0 0 1 2 2 V -8 A 1 1 0 0 1 3 -9 Z" fill="#c084fc" />
+      <text x="24" y="0" fill="#f5f3ff" font-size="12.5" font-weight="800">{data['active_days']} Active Days</text>
+      <text x="24" y="14" fill="#8b7fb0" font-size="10.5" class="mono">{data['active_pct']}% of the last 365 days</text>
     </g>
 
-    <!-- KPI 3: Best Week Burst (Amber Gold) -->
-    <g transform="translate(0, 132)">
-      <rect x="0" y="0" width="298" height="42" rx="8" fill="#0f172a" fill-opacity="0.75" stroke="#1e293b" stroke-width="1" />
-      <rect x="10" y="9" width="24" height="24" rx="6" fill="#451a03" stroke="#f59e0b" stroke-opacity="0.4" stroke-width="1" />
-      <path d="M 23 14 L 18 21 H 22 L 21 28 L 26 21 H 22 Z" fill="#fbbf24" />
-      <text x="44" y="18" fill="#f8fafc" font-size="12.5" font-weight="800">{data['best_week']} Peak Weekly Output</text>
-      <text x="44" y="32" fill="#64748b" font-size="10" class="mono">week of {data['best_week_start'].strftime('%b %d')}</text>
+    <g transform="translate(0, 120)">
+      <circle cx="8" cy="-3" r="8" fill="#4c1d95" opacity="0.3" />
+      <path d="M 9 -9 L 4 -2 H 8 L 7 3 L 12 -4 H 8 Z" fill="#c084fc" />
+      <text x="24" y="0" fill="#f5f3ff" font-size="12.5" font-weight="800">{data['best_week']} Best Week</text>
+      <text x="24" y="14" fill="#8b7fb0" font-size="10.5" class="mono">week of {data['best_week_start'].strftime('%b %d')}</text>
     </g>
   </g>
 
-  <!-- Right Chart Container Frame -->
-  <rect x="{gx_start - 14}" y="24" width="{span_x + 56}" height="{gy_bottom - 24 + 28}" rx="10" fill="#070a12" fill-opacity="0.88" stroke="#1e293b" stroke-width="1.2" />
+  <rect x="{gx_start - 12}" y="36" width="{span_x + 28}" height="{gy_bottom - 36 + 28}" rx="12" fill="#0d0820" stroke="#a855f7" stroke-opacity="0.18" stroke-width="1" />
+  <line x1="{gx_start - 8}" y1="37" x2="{gx_end + 8}" y2="37" stroke="#e9d5ff" stroke-opacity="0.12" stroke-width="1" />
 
-  <!-- Chart Title & Dual Legend Header -->
-  <text x="{gx_start}" y="44" fill="#e2e8f0" font-size="10.5" font-weight="800" letter-spacing="1.2" class="mono">WEEKLY VELOCITY RIDGE</text>
+  <text x="{gx_end}" y="52" fill="#a855f7" font-size="10" font-weight="700" text-anchor="end" class="mono" letter-spacing="1">WEEKLY VELOCITY RIDGE</text>
 
-  <g transform="translate({gx_end - 165}, 36)">
-    <line x1="0" y1="4" x2="14" y2="4" stroke="#22d3ee" stroke-width="2.2" stroke-linecap="round" />
-    <text x="19" y="7.5" fill="#94a3b8" font-size="9" font-weight="600" class="mono">WEEKLY</text>
+  <line x1="{gx_start}" y1="{gy_top}" x2="{gx_end}" y2="{gy_top}" stroke="#2e1065" stroke-width="0.8" stroke-dasharray="3 4" />
+  <line x1="{gx_start}" y1="{(gy_top + gy_bottom) / 2}" x2="{gx_end}" y2="{(gy_top + gy_bottom) / 2}" stroke="#2e1065" stroke-width="0.8" stroke-dasharray="3 4" />
+  <line x1="{gx_start}" y1="{gy_bottom}" x2="{gx_end}" y2="{gy_bottom}" stroke="#2e1065" stroke-width="1" />
 
-    <line x1="72" y1="4" x2="86" y2="4" stroke="#a78bfa" stroke-width="1.5" stroke-dasharray="3 2" />
-    <text x="91" y="7.5" fill="#94a3b8" font-size="9" font-weight="600" class="mono">4W AVG</text>
+  <text x="{gx_end + 14}" y="{gy_top + 4}" fill="#8b7fb0" font-size="10" class="mono">{nice_max}</text>
+  <text x="{gx_end + 14}" y="{(gy_top + gy_bottom) / 2 + 4}" fill="#8b7fb0" font-size="10" class="mono">{nice_mid}</text>
+  <text x="{gx_end + 14}" y="{gy_bottom + 4}" fill="#8b7fb0" font-size="10" class="mono">0</text>
 
-    <rect x="138" y="0" width="3.5" height="8" rx="1" fill="#fbbf24" />
-    <text x="145" y="7.5" fill="#94a3b8" font-size="9" font-weight="600" class="mono">PEAK</text>
-  </g>
+  <ellipse cx="{peak_x:.1f}" cy="{gy_bottom}" rx="60" ry="24" fill="url(#{prefix}_floor_glow)" />
 
-  <!-- Cartesian Horizontal Gridlines & Right Y-Axis Labels -->
-  <line x1="{gx_start}" y1="{gy_top}" x2="{gx_end}" y2="{gy_top}" stroke="#1e293b" stroke-width="0.9" stroke-dasharray="3 3" />
-  <line x1="{gx_start}" y1="{y_q3:.1f}" x2="{gx_end}" y2="{y_q3:.1f}" stroke="#1e293b" stroke-width="0.6" stroke-dasharray="2 4" opacity="0.6" />
-  <line x1="{gx_start}" y1="{y_mid:.1f}" x2="{gx_end}" y2="{y_mid:.1f}" stroke="#1e293b" stroke-width="0.9" stroke-dasharray="3 3" />
-  <line x1="{gx_start}" y1="{y_q1:.1f}" x2="{gx_end}" y2="{y_q1:.1f}" stroke="#1e293b" stroke-width="0.6" stroke-dasharray="2 4" opacity="0.6" />
-  <line x1="{gx_start}" y1="{gy_bottom}" x2="{gx_end}" y2="{gy_bottom}" stroke="#334155" stroke-width="1.1" />
+  <rect x="{this_week_x0:.1f}" y="{gy_top}" width="{this_week_w:.1f}" height="{span_y}" fill="#a855f7" opacity="0.08" />
 
-  <text x="{gx_end + 10}" y="{gy_top + 3.5}" fill="#64748b" font-size="9.5" class="mono">{nice_max}</text>
-  <text x="{gx_end + 10}" y="{y_q3 + 3.5:.1f}" fill="#475569" font-size="8.5" class="mono">{nice_q3}</text>
-  <text x="{gx_end + 10}" y="{y_mid + 3.5:.1f}" fill="#64748b" font-size="9.5" class="mono">{nice_mid}</text>
-  <text x="{gx_end + 10}" y="{y_q1 + 3.5:.1f}" fill="#475569" font-size="8.5" class="mono">{nice_q1}</text>
-  <text x="{gx_end + 10}" y="{gy_bottom + 3.5}" fill="#64748b" font-size="9.5" class="mono">0</text>
-
-  <!-- Active Week Highlight Band & Peak Floor Spotlight -->
-  <rect x="{this_week_x0:.1f}" y="{gy_top}" width="{this_week_w:.1f}" height="{span_y}" fill="#06b6d4" opacity="0.07" />
-  <ellipse cx="{peak_x:.1f}" cy="{gy_bottom}" rx="54" ry="18" fill="url(#{prefix}_peak_spot)" />
-
-  <!-- Monthly Vertical Gridlines & Labels -->
-  {x_labels_markup}
-
-  <!-- Daily Impulse Bars -->
   {micro_bars_markup}
 
-  <!-- Main Spline Area & Curves -->
   <path d="{area_d}" fill="url(#{prefix}_chart_area)" />
-  <path d="{spline_mavg}" fill="none" stroke="#a78bfa" stroke-width="1.4" stroke-dasharray="4 3" opacity="0.85" />
-  <path d="{spline_d}" fill="none" stroke="#06b6d4" stroke-width="4.5" opacity="0.28" filter="url(#{prefix}_glow_filter)" />
-  <path d="{spline_d}" fill="none" stroke="url(#{prefix}_line_grad)" stroke-width="2.3" stroke-linecap="round" />
 
-  <!-- Data Inflection Node Markers -->
-  {node_dots_markup}
+  <path d="{spline_mavg}" fill="none" stroke="#d8b4fe" stroke-width="1.2" stroke-dasharray="3 3" opacity="0.6" />
 
-  <!-- Traveling Telemetry Photon -->
-  <circle r="3.4" fill="#67e8f9" filter="url(#{prefix}_glow_filter)">
-    <animateMotion path="{spline_d}" dur="10s" repeatCount="indefinite" />
+  <path d="{spline_d}" fill="none" stroke="#a855f7" stroke-width="5" opacity="0.4" filter="url(#{prefix}_glow_filter)" />
+  <path d="{spline_d}" fill="none" stroke="#f3e8ff" stroke-width="2.4" stroke-linecap="round" />
+
+  <circle r="3.6" fill="#f5d0fe" filter="url(#{prefix}_glow_filter)">
+    <animateMotion path="{spline_d}" dur="9s" repeatCount="indefinite" />
   </circle>
 
-  <!-- Peak Week Target Reticle & Clamped Callout Badge -->
-  <line x1="{peak_x:.2f}" y1="{peak_y:.2f}" x2="{peak_x:.2f}" y2="{gy_bottom}" stroke="#f59e0b" stroke-width="0.9" stroke-dasharray="2 2" opacity="0.55" />
-  <line x1="{peak_x:.2f}" y1="{peak_y:.2f}" x2="{badge_x:.2f}" y2="{badge_y + 4:.2f}" stroke="#fbbf24" stroke-width="1.1" opacity="0.85" />
+  {x_labels_markup}
 
-  <circle cx="{peak_x:.2f}" cy="{peak_y:.2f}" r="4" fill="none" stroke="#fbbf24" stroke-width="1.5">
-    <animate attributeName="r" from="3.5" to="18" dur="2.2s" repeatCount="indefinite" />
-    <animate attributeName="opacity" from="0.95" to="0" dur="2.2s" repeatCount="indefinite" />
+  <line x1="{peak_x:.2f}" y1="{peak_y:.2f}" x2="{peak_x:.2f}" y2="{gy_bottom}" stroke="#c084fc" stroke-width="0.9" stroke-dasharray="2 3" opacity="0.45" />
+
+  <circle cx="{peak_x:.2f}" cy="{peak_y:.2f}" r="4" fill="none" stroke="#c084fc" stroke-width="1.6">
+    <animate attributeName="r" from="3" to="22" dur="2.4s" repeatCount="indefinite" />
+    <animate attributeName="opacity" from="1" to="0" dur="2.4s" repeatCount="indefinite" />
   </circle>
-  <circle cx="{peak_x:.2f}" cy="{peak_y:.2f}" r="4" fill="#fbbf24" stroke="#090d16" stroke-width="1.4" />
+  <circle cx="{peak_x:.2f}" cy="{peak_y:.2f}" r="4" fill="none" stroke="#e9d5ff" stroke-width="1.2">
+    <animate attributeName="r" from="3" to="14" dur="2.4s" begin="0.8s" repeatCount="indefinite" />
+    <animate attributeName="opacity" from="1" to="0" dur="2.4s" begin="0.8s" repeatCount="indefinite" />
+  </circle>
+  <circle cx="{peak_x:.2f}" cy="{peak_y:.2f}" r="4.5" fill="#f5d0fe" filter="url(#{prefix}_glow_filter)" />
 
   <g transform="translate({badge_x:.2f}, {badge_y:.2f})">
-    <rect x="-66" y="-13" width="132" height="17" rx="4.5" fill="#0f172a" stroke="#f59e0b" stroke-width="1.1" />
-    <text x="0" y="-1.5" fill="#fde68a" font-size="8.5" font-weight="800" text-anchor="middle" class="mono">★ {best_w_val} · {best_w_range}</text>
+    <rect x="-62" y="-12" width="124" height="16" rx="4" fill="#2e1065" stroke="#a855f7" stroke-width="1" />
+    <text x="0" y="-0.5" fill="#e9d5ff" font-size="8.5" font-weight="900" text-anchor="middle" class="mono">{best_w_val} · {best_w_range}</text>
   </g>
 
-  <!-- Current Week Live Node -->
-  <circle cx="{pts[-1][0]:.2f}" cy="{pts[-1][1]:.2f}" r="3.2" fill="#10b981">
-    <animate attributeName="r" values="2.8;5.5;2.8" dur="1.8s" repeatCount="indefinite" />
+  <circle cx="{pts[-1][0]:.2f}" cy="{pts[-1][1]:.2f}" r="3" fill="#c084fc">
+    <animate attributeName="r" values="3;6;3" dur="2s" repeatCount="indefinite" />
   </circle>
 
-  <!-- Bottom Hardware Telemetry Ticker -->
   <g transform="translate(0, {h - 24})">
-    <rect x="12" y="0" width="{w - 24}" height="19" rx="5" fill="#060911" stroke="#1e293b" stroke-width="0.9" />
-    <svg x="20" y="0" width="{w - 40}" height="19" style="overflow: hidden;">
+    <rect x="8" y="0" width="{w - 16}" height="20" rx="4" fill="#07040f" stroke="#1f1138" stroke-width="0.8" />
+    <svg x="14" y="0" width="{w - 28}" height="20" style="overflow: hidden;">
       <g>
         <animateTransform attributeName="transform" type="translate" from="0 0" to="-{single_copy_w} 0" dur="{ticker_dur:.1f}s" repeatCount="indefinite" />
-        <text x="0" y="13" fill="#94a3b8" font-size="9.2" font-weight="600" class="mono" textLength="{single_copy_w}" lengthAdjust="spacing">
-          {ticker_text}
-        </text>
-        <text x="{single_copy_w}" y="13" fill="#94a3b8" font-size="9.2" font-weight="600" class="mono" textLength="{single_copy_w}" lengthAdjust="spacing">
-          {ticker_text}
-        </text>
+        <text x="0" y="13" fill="#cbd5e1" font-size="9.5" font-weight="600" class="mono">{ticker_text}</text>
+        <text x="{single_copy_w}" y="13" fill="#cbd5e1" font-size="9.5" font-weight="600" class="mono">{ticker_text}</text>
       </g>
     </svg>
   </g>
@@ -1052,106 +952,92 @@ def build_github_stats_svg(data):
     stars = data["total_stars"]
     contrib_to = data["contributed_to"]
 
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}" role="img" aria-label="GitHub Core Statistics">
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}">
   <style>
-    text {{ font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif; font-variant-numeric: tabular-nums; }}
+    text {{ font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif; }}
     .mono {{ font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }}
   </style>
   {common_card_defs(prefix, w, h)}
   <defs>
     <linearGradient id="{prefix}_octo_arc" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#06b6d4" />
-      <stop offset="55%" stop-color="#8b5cf6" />
-      <stop offset="100%" stop-color="#10b981" />
+      <stop offset="0%" stop-color="#4c1d95" />
+      <stop offset="60%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#e9d5ff" />
     </linearGradient>
 
     <linearGradient id="{prefix}_tail_fade" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.85" />
-      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.0" />
+      <stop offset="0%" stop-color="#e9d5ff" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#4c1d95" stop-opacity="0.0" />
     </linearGradient>
   </defs>
 
-  {precision_border_frame(prefix, w, h, delay_offset=9, hero=False)}
+  {lava_border_frame(prefix, w, h, delay_offset=12)}
 
-  <!-- Card Header -->
-  <g transform="translate(22, 32)">
-    <rect x="0" y="-11" width="3.5" height="14" rx="1.75" fill="#06b6d4" />
-    <text x="10" y="0" fill="#f8fafc" font-size="14" font-weight="800" letter-spacing="0.4">System Telemetry &amp; Stats</text>
-  </g>
+  <text x="24" y="34" fill="#a855f7" font-size="14.5" font-weight="800">Stats</text>
 
-  <!-- 5 Metric Rows -->
-  <g transform="translate(22, 66)">
-    <!-- Row 1: Stars (Amber Gold) -->
+  <g transform="translate(24, 68)">
     <g transform="translate(0, 0)">
-      <rect x="0" y="-14" width="218" height="24" rx="6" fill="#0f172a" fill-opacity="0.65" stroke="#1e293b" stroke-width="0.9" />
-      <circle cx="14" cy="-2" r="7.5" fill="#451a03" />
-      <path d="M 14 -6.5 L 15.4 -3.2 L 18.8 -3.2 L 16.1 -1.1 L 17.1 2.1 L 14 0.1 L 10.9 2.1 L 11.9 -1.1 L 9.2 -3.2 L 12.6 -3.2 Z" fill="#fbbf24" />
-      <text x="28" y="1.5" fill="#cbd5e1" font-size="11" font-weight="500">Total Stars Earned</text>
-      <text x="208" y="1.5" fill="#f8fafc" font-size="12" font-weight="800" text-anchor="end" class="mono">{stars}</text>
+      <circle cx="9" cy="-3.5" r="8" fill="#6d28d9" opacity="0.28" />
+      <path d="M 9 -8 L 10.5 -4.5 L 14 -4.5 L 11.2 -2.2 L 12.3 1 L 9 -1.2 L 5.7 1 L 6.8 -2.2 L 4 -4.5 L 7.5 -4.5 Z" fill="#c084fc" />
+      <text x="24" y="0" fill="#8b7fb0" font-size="11">Total Stars Earned:</text>
+      <text x="205" y="0" fill="#f5f3ff" font-size="11.5" font-weight="800" text-anchor="end" class="mono">{stars}</text>
+      <line x1="0" y1="10" x2="205" y2="10" stroke="#1f1138" stroke-width="0.8" />
     </g>
 
-    <!-- Row 2: Commits (Electric Cyan) -->
-    <g transform="translate(0, 32)">
-      <rect x="0" y="-14" width="218" height="24" rx="6" fill="#0f172a" fill-opacity="0.65" stroke="#1e293b" stroke-width="0.9" />
-      <circle cx="14" cy="-2" r="7.5" fill="#083344" />
-      <circle cx="14" cy="-2" r="3.2" fill="none" stroke="#22d3ee" stroke-width="1.6" />
-      <line x1="8" y1="-2" x2="10.8" y2="-2" stroke="#22d3ee" stroke-width="1.5" />
-      <line x1="17.2" y1="-2" x2="20" y2="-2" stroke="#22d3ee" stroke-width="1.5" />
-      <text x="28" y="1.5" fill="#cbd5e1" font-size="11" font-weight="500">Commits (last year)</text>
-      <text x="208" y="1.5" fill="#f8fafc" font-size="12" font-weight="800" text-anchor="end" class="mono">{commits}</text>
+    <g transform="translate(0, 28)">
+      <circle cx="9" cy="-3.5" r="8" fill="#6d28d9" opacity="0.28" />
+      <path d="M 9 -6 A 3 3 0 0 1 11.8 -3.5 H 14 V -1.5 H 11.8 A 3 3 0 0 1 6.2 -1.5 H 4 V -3.5 H 6.2 A 3 3 0 0 1 9 -6 M 9 -4.5 A 1.5 1.5 0 0 0 7.5 -2.5 A 1.5 1.5 0 0 0 9 -0.5 A 1.5 1.5 0 0 0 10.5 -2.5 A 1.5 1.5 0 0 0 9 -4.5 Z" fill="#c084fc" />
+      <text x="24" y="0" fill="#8b7fb0" font-size="11">Total Commits (last year):</text>
+      <text x="205" y="0" fill="#f5f3ff" font-size="11.5" font-weight="800" text-anchor="end" class="mono">{commits}</text>
+      <line x1="0" y1="10" x2="205" y2="10" stroke="#1f1138" stroke-width="0.8" />
     </g>
 
-    <!-- Row 3: PRs (Indigo Violet) -->
-    <g transform="translate(0, 64)">
-      <rect x="0" y="-14" width="218" height="24" rx="6" fill="#0f172a" fill-opacity="0.65" stroke="#1e293b" stroke-width="0.9" />
-      <circle cx="14" cy="-2" r="7.5" fill="#2e1065" />
-      <path d="M 11.5 -5.5 A 1.4 1.4 0 1 0 11.5 -2.7 A 1.4 1.4 0 0 0 11.5 -5.5 M 11.5 0.5 A 1.4 1.4 0 1 0 11.5 3.3 A 1.4 1.4 0 0 0 11.5 0.5 M 16.5 -5.5 A 1.4 1.4 0 1 0 16.5 -2.7 A 1.4 1.4 0 0 0 16.5 -5.5 M 12.2 -2.7 V 0.5 M 16.5 -2.7 V -0.5 C 16.5 0.8 15.5 1.8 14.2 1.8 H 12.8" fill="none" stroke="#c084fc" stroke-width="1.2" />
-      <text x="28" y="1.5" fill="#cbd5e1" font-size="11" font-weight="500">Total Pull Requests</text>
-      <text x="208" y="1.5" fill="#f8fafc" font-size="12" font-weight="800" text-anchor="end" class="mono">{prs}</text>
+    <g transform="translate(0, 56)">
+      <circle cx="9" cy="-3.5" r="8" fill="#6d28d9" opacity="0.28" />
+      <path d="M 6 -7 A 1.5 1.5 0 1 0 6 -4 A 1.5 1.5 0 0 0 6 -7 M 6 0 A 1.5 1.5 0 1 0 6 3 A 1.5 1.5 0 0 0 6 0 M 12 -7 A 1.5 1.5 0 1 0 12 -4 A 1.5 1.5 0 0 0 12 -7 M 7 -4 V 0 M 11 -4 V -1 C 11 0.5 10 1.5 8.5 1.5 H 7" fill="none" stroke="#c084fc" stroke-width="1.2" />
+      <text x="24" y="0" fill="#8b7fb0" font-size="11">Total PRs:</text>
+      <text x="205" y="0" fill="#f5f3ff" font-size="11.5" font-weight="800" text-anchor="end" class="mono">{prs}</text>
+      <line x1="0" y1="10" x2="205" y2="10" stroke="#1f1138" stroke-width="0.8" />
     </g>
 
-    <!-- Row 4: Issues (Emerald Mint) -->
-    <g transform="translate(0, 96)">
-      <rect x="0" y="-14" width="218" height="24" rx="6" fill="#0f172a" fill-opacity="0.65" stroke="#1e293b" stroke-width="0.9" />
-      <circle cx="14" cy="-2" r="7.5" fill="#064e3b" />
-      <circle cx="14" cy="-2" r="4.5" fill="none" stroke="#34d399" stroke-width="1.3" />
-      <circle cx="14" cy="-2" r="1.5" fill="#34d399" />
-      <text x="28" y="1.5" fill="#cbd5e1" font-size="11" font-weight="500">Total Issues Reported</text>
-      <text x="208" y="1.5" fill="#f8fafc" font-size="12" font-weight="800" text-anchor="end" class="mono">{issues}</text>
+    <g transform="translate(0, 84)">
+      <circle cx="9" cy="-3.5" r="8" fill="#6d28d9" opacity="0.28" />
+      <circle cx="9" cy="-2.5" r="5" fill="none" stroke="#c084fc" stroke-width="1.2" />
+      <circle cx="9" cy="-2.5" r="1.5" fill="#c084fc" />
+      <text x="24" y="0" fill="#8b7fb0" font-size="11">Total Issues:</text>
+      <text x="205" y="0" fill="#f5f3ff" font-size="11.5" font-weight="800" text-anchor="end" class="mono">{issues}</text>
+      <line x1="0" y1="10" x2="205" y2="10" stroke="#1f1138" stroke-width="0.8" />
     </g>
 
-    <!-- Row 5: Contributed To (Sky Blue) -->
-    <g transform="translate(0, 128)">
-      <rect x="0" y="-14" width="218" height="24" rx="6" fill="#0f172a" fill-opacity="0.65" stroke="#1e293b" stroke-width="0.9" />
-      <circle cx="14" cy="-2" r="7.5" fill="#172554" />
-      <path d="M 10.5 -5.5 H 17.5 V 1.5 H 10.5 Z M 12.5 -3.5 H 15.5 V -0.5 H 12.5 Z" fill="#60a5fa" />
-      <text x="28" y="1.5" fill="#cbd5e1" font-size="11" font-weight="500">Repos Contributed To</text>
-      <text x="208" y="1.5" fill="#f8fafc" font-size="12" font-weight="800" text-anchor="end" class="mono">{contrib_to}</text>
+    <g transform="translate(0, 112)">
+      <circle cx="9" cy="-3.5" r="8" fill="#6d28d9" opacity="0.28" />
+      <path d="M 5 -6 H 13 V 1 H 5 Z M 4 -7 H 14 V 2 H 4 Z M 7 -4 H 11 V -2 H 7 Z" fill="#c084fc" />
+      <text x="24" y="0" fill="#8b7fb0" font-size="11">Contributed to:</text>
+      <text x="205" y="0" fill="#f5f3ff" font-size="11.5" font-weight="800" text-anchor="end" class="mono">{contrib_to}</text>
     </g>
   </g>
 
-  <!-- Right Orbital Octocat Radar -->
-  <g transform="translate(324, 136)">
-    <circle cx="0" cy="0" r="52" fill="none" stroke="#1e293b" stroke-width="0.9" />
-    <circle cx="0" cy="0" r="44" fill="none" stroke="#334155" stroke-width="1.1" stroke-dasharray="4 6">
+  <g transform="translate(325, 140)">
+    <circle cx="0" cy="0" r="30" fill="#0b0714" stroke="#2e1065" stroke-width="1.4" />
+
+    <circle cx="0" cy="0" r="38" fill="none" stroke="url(#{prefix}_octo_arc)" stroke-width="2.8"
+            stroke-dasharray="25 75" pathLength="100" stroke-linecap="round" filter="url(#{prefix}_glow_filter)">
+      <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="14s" repeatCount="indefinite" />
+    </circle>
+
+    <circle cx="0" cy="0" r="44" fill="none" stroke="#4c1d95" stroke-width="1.2"
+            stroke-dasharray="4 6" opacity="0.8">
       <animateTransform attributeName="transform" type="rotate" from="360 0 0" to="0 0 0" dur="22s" repeatCount="indefinite" />
     </circle>
 
-    <circle cx="0" cy="0" r="37" fill="none" stroke="url(#{prefix}_octo_arc)" stroke-width="2.6"
-            stroke-dasharray="28 72" pathLength="100" stroke-linecap="round" filter="url(#{prefix}_glow_filter)">
-      <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="12s" repeatCount="indefinite" />
-    </circle>
-
     <g>
-      <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="9s" repeatCount="indefinite" />
-      <path d="M 44 0 A 44 44 0 0 0 32 -30" fill="none" stroke="url(#{prefix}_tail_fade)" stroke-width="2" stroke-linecap="round" />
-      <circle cx="44" cy="0" r="2.2" fill="#38bdf8" filter="url(#{prefix}_glow_filter)" />
+      <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="10s" repeatCount="indefinite" />
+      <path d="M 44 0 A 44 44 0 0 0 33 -28" fill="none" stroke="url(#{prefix}_tail_fade)" stroke-width="2" stroke-linecap="round" opacity="0.6" />
+      <circle cx="44" cy="0" r="2.2" fill="#e9d5ff" filter="url(#{prefix}_glow_filter)" />
     </g>
 
-    <circle cx="0" cy="0" r="28" fill="#090d16" stroke="#1e293b" stroke-width="1.4" />
-
-    <g transform="scale(1.18) translate(-12, -12)">
-      <path fill="#f8fafc" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+    <g transform="scale(1.2) translate(-12, -12)">
+      <path fill="#f5f3ff" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
     </g>
   </g>
 </svg>"""
@@ -1162,47 +1048,56 @@ def build_top_langs_svg(data):
     prefix = "langs"
     langs = data["languages"]
 
-    spec_w = 361.0
+    rank_shades = ["#f5d0fe", "#d8b4fe", "#c084fc", "#a855f7", "#9333ea", "#6d28d9"]
+
+    spec_w = 357.0
     spec_segments = []
-    seg_x = 22.0
+    seg_x = 24.0
     for idx, l in enumerate(langs):
-        sw = max(3.0, (l["pct"] / 100.0) * (spec_w - max(0, len(langs) - 1) * 2.5))
-        color = l["color"] if LANG_COLOR_MODE == "full" else FALLBACK_LANG_PALETTE[idx % len(FALLBACK_LANG_PALETTE)]
-        spec_segments.append(f'<rect x="{seg_x:.1f}" y="46" width="{sw:.1f}" height="6" rx="2.5" fill="{color}" />')
-        seg_x += sw + 2.5
+        sw = max(2.5, (l["pct"] / 100.0) * (spec_w - max(0, len(langs) - 1) * 2))
+        shade = rank_shades[min(idx, len(rank_shades) - 1)]
+        color = l["color"] if LANG_COLOR_MODE == "full" else shade
+        spec_segments.append(f'<rect x="{seg_x:.1f}" y="48" width="{sw:.1f}" height="6" rx="2" fill="{color}" />')
+        seg_x += sw + 2.0
     spec_markup = "\n  ".join(spec_segments)
 
-    cx_orb, cy_orb = 90.0, 152.0
+    cx_orb, cy_orb = 92.0, 152.0
+
     planets_markup = []
     for idx, l in enumerate(langs[:6]):
-        r_orbit = 20.0 + 9.4 * idx
-        r_planet = min(8.5, max(2.8, 3.0 + math.sqrt(l["pct"]) * 0.65))
-        period = 8.0 + 4.0 * idx
-        init_phase = (idx * 62) % 360
-        body_color = l["color"] if LANG_COLOR_MODE == "full" else FALLBACK_LANG_PALETTE[idx % len(FALLBACK_LANG_PALETTE)]
+        r_orbit = 20.0 + 9.5 * idx
+        r_planet = min(9.5, max(3.0, 3.2 + math.sqrt(l["pct"]) * 0.72))
+        period = 7.0 + 4.0 * idx
+        init_phase = (idx * 64) % 360
+        shade = rank_shades[min(idx, len(rank_shades) - 1)]
+        body_color = l["color"] if LANG_COLOR_MODE == "full" else shade
+        atmos_color = l["color"] if LANG_COLOR_MODE == "full" else "#e9d5ff"
 
         planets_markup.append(f"""
         <!-- Orbit {idx + 1} Ring -->
-        <circle cx="{cx_orb:.1f}" cy="{cy_orb:.1f}" r="{r_orbit:.1f}" fill="none" stroke="#1e293b" stroke-width="0.9" stroke-dasharray="2 3" />
+        <circle cx="{cx_orb:.1f}" cy="{cy_orb:.1f}" r="{r_orbit:.1f}" fill="none" stroke="#2e1065" stroke-width="0.9" stroke-dasharray="2 3" opacity="0.75" />
         <g transform="translate({cx_orb:.1f}, {cy_orb:.1f})">
           <g>
             <animateTransform attributeName="transform" type="rotate" from="{init_phase} 0 0" to="{init_phase + 360} 0 0" dur="{period:.1f}s" repeatCount="indefinite" />
-            <path d="M {r_orbit:.1f} 0 A {r_orbit:.1f} {r_orbit:.1f} 0 0 0 {r_orbit * 0.82:.1f} {-r_orbit * 0.57:.1f}" fill="none" stroke="{body_color}" stroke-width="1.4" opacity="0.45" stroke-linecap="round" />
-            <circle cx="{r_orbit:.1f}" cy="0" r="{r_planet:.1f}" fill="{body_color}" />
-            <circle cx="{r_orbit:.1f}" cy="0" r="{r_planet + 1.3:.1f}" fill="none" stroke="#f8fafc" stroke-width="0.7" opacity="0.45" />
+            <path d="M {r_orbit:.1f} 0 A {r_orbit:.1f} {r_orbit:.1f} 0 0 0 {r_orbit * 0.82:.1f} {-r_orbit * 0.57:.1f}" fill="none" stroke="{body_color}" stroke-width="1.4" opacity="0.35" stroke-linecap="round" />
+            <circle cx="{r_orbit:.1f}" cy="0" r="{r_planet:.1f}" fill="{body_color}">
+              <animateTransform attributeName="transform" type="rotate" from="0 {r_orbit:.1f} 0" to="-360 {r_orbit:.1f} 0" dur="{period:.1f}s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="{r_orbit:.1f}" cy="0" r="{r_planet + 1.2:.1f}" fill="none" stroke="{atmos_color}" stroke-width="1.0" opacity="0.65" />
           </g>
         </g>
         """)
 
     track_w = 158.0
     rows_markup = []
-    y_pos = 84.0
+    y_pos = 88.0
     for idx, l in enumerate(langs[:6]):
-        bar_len = max(4.0, (l["pct"] / 100.0) * track_w)
+        bar_len = max(3.5, (l["pct"] / 100.0) * track_w)
         rank_no = f"0{idx + 1}"
-        l_col = l["color"]
+        shade = rank_shades[min(idx, len(rank_shades) - 1)]
+        dot_color = l["color"] if LANG_COLOR_MODE == "full" else shade
         rank_bg = (
-            f'<rect x="184" y="{y_pos - 13:.1f}" width="199" height="23" rx="5" fill="#0f172a" stroke="#1e293b" stroke-width="0.8" />'
+            f'<rect x="188" y="{y_pos - 13:.1f}" width="193" height="22" rx="4" fill="#a855f7" opacity="0.08" />'
             if idx == 0
             else ""
         )
@@ -1210,58 +1105,59 @@ def build_top_langs_svg(data):
         row = f"""
         {rank_bg}
         <g transform="translate(190, {y_pos:.1f})">
-          <text x="0" y="0" fill="#64748b" font-size="9.5" font-weight="700" class="mono">{rank_no}</text>
-          <circle cx="18" cy="-3.5" r="3.4" fill="{l_col}" />
-          <text x="26" y="0" fill="#f8fafc" font-size="11.5" font-weight="600">{l['name']}</text>
-          <text x="186" y="0" fill="#94a3b8" font-size="10" font-weight="700" class="mono" text-anchor="end">{l['pct']:.1f}%</text>
+          <text x="0" y="0" fill="#6d28d9" font-size="9.5" font-weight="700" class="mono">{rank_no}</text>
+          <circle cx="18" cy="-3.5" r="3.2" fill="{dot_color}" />
+          <text x="26" y="0" fill="#f5f3ff" font-size="11.5" font-weight="600">{l['name']}</text>
+          <text x="185" y="0" fill="#8b7fb0" font-size="10" class="mono" text-anchor="end">{l['pct']:.1f}%</text>
 
-          <rect x="26" y="5" width="{track_w:.0f}" height="4.2" rx="2.1" fill="#0f172a" />
+          <rect x="26" y="5" width="{track_w:.0f}" height="4" rx="2" fill="#180d2b" />
 
           <clipPath id="{prefix}_shimmer_clip_{idx}">
-            <rect x="26" y="5" width="{bar_len:.1f}" height="4.2" rx="2.1" />
+            <rect x="26" y="5" width="{bar_len:.1f}" height="4" rx="2" />
           </clipPath>
 
           <g clip-path="url(#{prefix}_shimmer_clip_{idx})">
-            <rect x="26" y="5" width="{bar_len:.1f}" height="4.2" fill="{l_col}" />
-            <rect x="-30" y="5" width="24" height="4.2" fill="#ffffff" opacity="0.38">
-              <animate attributeName="x" from="26" to="{26 + bar_len + 30:.1f}" dur="3.2s" repeatCount="indefinite" begin="{idx * 0.35:.2f}s" />
+            <rect x="26" y="5" width="{bar_len:.1f}" height="4" fill="url(#{prefix}_bar_grad)" />
+            <rect x="-30" y="5" width="24" height="4" fill="#ffffff" opacity="0.4">
+              <animate attributeName="x" from="26" to="{26 + bar_len + 30:.1f}" dur="3.0s" repeatCount="indefinite" begin="{idx * 0.4:.1f}s" />
             </rect>
           </g>
+
+          <circle cx="{26 + bar_len:.1f}" cy="7" r="1.8" fill="#f5d0fe" />
         </g>
         """
         rows_markup.append(row)
-        y_pos += 25.5
+        y_pos += 25.0
 
-    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}" role="img" aria-label="Most Used Programming Languages">
+    return f"""<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w} {h}" width="100%" height="{h}">
   <style>
-    text {{ font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif; font-variant-numeric: tabular-nums; }}
+    text {{ font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif; }}
     .mono {{ font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace; }}
   </style>
   {common_card_defs(prefix, w, h)}
+  <defs>
+    <linearGradient id="{prefix}_bar_grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#5b21b6" />
+      <stop offset="100%" stop-color="#c084fc" />
+    </linearGradient>
+  </defs>
 
-  {precision_border_frame(prefix, w, h, delay_offset=12, hero=False)}
+  {lava_border_frame(prefix, w, h, delay_offset=16)}
 
-  <!-- Card Header -->
-  <g transform="translate(22, 32)">
-    <rect x="0" y="-11" width="3.5" height="14" rx="1.75" fill="#8b5cf6" />
-    <text x="10" y="0" fill="#f8fafc" font-size="14" font-weight="800" letter-spacing="0.4">Language Distribution</text>
-  </g>
+  <text x="24" y="34" fill="#a855f7" font-size="14.5" font-weight="800">Most Used Languages</text>
 
-  <!-- Multi-Color Proportional Spectrum Bar -->
   {spec_markup}
 
-  <!-- Left Orbital Language Telemetry -->
   <g>
-    <circle cx="{cx_orb:.1f}" cy="{cy_orb:.1f}" r="14" fill="#083344" stroke="#06b6d4" stroke-width="1.2" filter="url(#{prefix}_glow_filter)">
+    <circle cx="{cx_orb:.1f}" cy="{cy_orb:.1f}" r="14" fill="#4c1d95" filter="url(#{prefix}_glow_filter)">
       <animate attributeName="r" values="13; 14.5; 13" dur="3s" repeatCount="indefinite" />
     </circle>
-    <circle cx="{cx_orb:.1f}" cy="{cy_orb:.1f}" r="9.5" fill="#090d16" />
-    <text x="{cx_orb:.1f}" y="{cy_orb + 3.2:.1f}" fill="#38bdf8" font-size="8.5" font-weight="900" text-anchor="middle" class="mono">&lt;/&gt;</text>
+    <circle cx="{cx_orb:.1f}" cy="{cy_orb:.1f}" r="9.5" fill="#1e0b3d" />
+    <text x="{cx_orb:.1f}" y="{cy_orb + 3.5:.1f}" fill="#f5f3ff" font-size="8.5" font-weight="900" text-anchor="middle" class="mono">&lt;/&gt;</text>
 
     {"".join(planets_markup)}
   </g>
 
-  <!-- Right Language Breakdown Rows -->
   {"".join(rows_markup)}
 </svg>"""
 
@@ -1303,7 +1199,7 @@ def run_selftest():
     assert max(t1["weekly_totals"]) == t1["best_week"], "Test 2 Failed: max(weekly) != best_week"
     print("[PASS] Test 2: Weekly bucket invariants verified")
 
-    # Test 3: AST Inspection - Validasi nol konstanta mock di fungsi builder SVG
+    # Test 3: AST Inspection - Validasi hanya pada fungsi builder kartu SVG
     forbidden_nums = {int(x) if "." not in x else float(x) for x in ["326", "262", "125", "81", "88.85"]}
     card_funcs = {
         "build_header_svg",
@@ -1324,7 +1220,7 @@ def run_selftest():
                     )
     print("[PASS] Test 3: AST scan confirms zero mock constants in SVG card builders")
 
-    # Test 4: Validasi XML, Dual-Bezel Contrast Surface & Ukuran di Bawah 60 KB
+    # Test 4: Palet Audit Otomatis (Hex tidak boleh kuning/oranye/cyan di luar bahasa API)
     test_cards = {
         "hdr": build_header_svg(),
         "strk": build_streak_svg(t1),
@@ -1333,19 +1229,29 @@ def run_selftest():
         "langs": build_top_langs_svg(t1),
     }
 
+    allowed_lang_hexes = {"#3572a5", "#4f5b93"}
     for name, svg_code in test_cards.items():
         ET.fromstring(svg_code)
-        size_kb = len(svg_code.encode("utf-8")) / 1024.0
-        assert size_kb < 60.0, f"Card {name} exceeds 60 KB limit ({size_kb:.1f} KB)"
-        assert "#090d16" in svg_code.lower(), f"Card {name} missing Obsidian base surface #090d16"
-        assert "#1e293b" in svg_code.lower(), f"Card {name} missing Light/Dark structural bezel #1e293b"
+        hex_matches = re.findall(r"#[0-9a-fA-F]{6}", svg_code)
+        for hx in hex_matches:
+            hx_low = hx.lower()
+            if hx_low in allowed_lang_hexes:
+                continue
+            r, g, b = int(hx_low[1:3], 16) / 255.0, int(hx_low[3:5], 16) / 255.0, int(hx_low[5:7], 16) / 255.0
+            h_deg, s, v = colorsys.rgb_to_hsv(r, g, b)
+            h_deg *= 360.0
+            if s > 0.35 and v > 0.3:
+                is_yellow = 20 <= h_deg <= 75
+                is_cyan = 180 <= h_deg <= 250
+                assert not is_yellow, f"Forbidden yellow/gold hex {hx} found in {name} card (hue {h_deg:.1f})"
+                assert not is_cyan, f"Forbidden cyan/blue hex {hx} found in {name} card (hue {h_deg:.1f})"
 
-    print("[PASS] Test 4: Multi-Accent Telemetry & Dual-Bezel Surface audit passed 100%")
+    print("[PASS] Test 4: Palette audit passed (0% forbidden hues outside API langs)")
     print("=================== [SELFTEST PASSED 100%] ===================")
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Obsidian Titanium Developer Metrics Generator")
+    parser = argparse.ArgumentParser(description="Cyberpunk Developer Metrics Generator")
     parser.add_argument("--out", default=DEFAULT_OUT, help="Output destination folder")
     parser.add_argument("--selftest", action="store_true", help="Execute offline unit selftest")
     args = parser.parse_args()
