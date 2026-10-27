@@ -10,7 +10,6 @@
     <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/arsenal-stack.svg?v=10" alt="Core tech stack and arsenal: PHP, Laravel, HTML5, CSS3, JavaScript, TypeScript, React Native, Python, Jupyter, MySQL, PostgreSQL, Git, GitHub, VS Code, Figma, ChatGPT, Gemini, Claude, Antigravity, GitHub Copilot, Cursor, Perplexity, Ollama, Hugging Face, DeepSeek, Mistral AI, Qwen, Grok, Meta Llama" width="740" />
   </picture>
 </p>
-
 <br>
 
 ### 👾 PAC-MAN & MONSTERS CHOMPING XP
