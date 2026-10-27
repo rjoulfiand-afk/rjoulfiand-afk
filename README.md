@@ -22,7 +22,6 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/streak-stats.svg?v=10" alt="GitHub Streak" width="740" />
 </p>
-
 <p align="center">
   <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/activity-graph.svg?v=10" alt="Activity Graph" width="740" />
 </p>
