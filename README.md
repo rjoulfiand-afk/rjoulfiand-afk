@@ -32,7 +32,6 @@
 </p>
 <br>
 ### 🚀 CURRENT DIRECTIVE
-
 <table>
   <tr>
     <td align="left">
