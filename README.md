@@ -12,7 +12,6 @@
 </p>
 <br>
 ### 👾 PAC-MAN & MONSTERS CHOMPING XP
-
 <p align="center">
   <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/pacman-contribution-graph-dark.svg?v=10" alt="Pac-Man & Monsters eating contribution grid" width="740" />
 </p>
