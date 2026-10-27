@@ -1,5 +1,4 @@
 name: Generate Pac-Man & GitHub Stats
-
 on:
   schedule:
     - cron: "0 */12 * * *"
@@ -7,7 +6,6 @@ on:
   push:
     branches:
       - main
-
 concurrency:
   group: pacman-graph
   cancel-in-progress: true
