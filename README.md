@@ -25,7 +25,6 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/activity-graph.svg?v=10" alt="Activity Graph" width="740" />
 </p>
-
 <p align="center">
   <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/github-stats.svg?v=10" alt="GitHub Stats" width="362" align="top" />
   &nbsp;&nbsp;
