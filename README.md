@@ -1,6 +1,5 @@
 <div align="center">
 # ⚡ Rixsan Joulfiand
-
 <p align="center">
   <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=24&duration=2500&pause=1000&color=A855F7&center=true&vCenter=true&width=650&height=50&lines=Software+Engineer;Full-Stack+Developer;Architecting+Scalable+Solutions;Currently+Shipping+Prime+Notes" alt="Typing SVG" />
 </p>
