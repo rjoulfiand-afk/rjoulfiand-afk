@@ -11,7 +11,6 @@
   </picture>
 </p>
 <br>
-
 ### 👾 PAC-MAN & MONSTERS CHOMPING XP
 
 <p align="center">
