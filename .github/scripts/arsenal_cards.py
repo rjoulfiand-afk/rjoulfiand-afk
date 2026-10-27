@@ -11,7 +11,6 @@ import time
 import urllib.request
 import xml.etree.ElementTree as ET
 from typing import Dict, List, Optional, Tuple
-
 MANIFEST = [
     ("01", "Languages & Core Technologies", [
         ("php", "PHP", "devicon", "php/php-original.svg", False),
