@@ -30,7 +30,6 @@
   &nbsp;&nbsp;
   <img src="https://raw.githubusercontent.com/rjoulfiand-afk/rjoulfiand-afk/output/top-langs.svg?v=10" alt="Top Languages" width="362" align="top" />
 </p>
-
 <br>
 
 ### 🚀 CURRENT DIRECTIVE
