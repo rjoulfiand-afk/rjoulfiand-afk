@@ -12,7 +12,6 @@ import xml.etree.ElementTree as ET
 from collections import deque
 from dataclasses import dataclass
 from html import escape
-
 PALETTES = {
     "purple": dict(
         card_a="#0d1117", card_b="#06080d", tile="#131722", tile_edge="#2a1b40",
