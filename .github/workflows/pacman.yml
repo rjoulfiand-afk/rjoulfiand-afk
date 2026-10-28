@@ -9,7 +9,6 @@ on:
 concurrency:
   group: pacman-graph
   cancel-in-progress: true
-
 jobs:
   generate:
     permissions:
