@@ -11,25 +11,16 @@ import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 from collections import defaultdict
-
 USERNAME = "rjoulfiand-afk"
 DEFAULT_OUT = "dist"
 LANG_COLOR_MODE = "accent"
-
-
 def get_today_utc():
     return dt.datetime.now(dt.timezone.utc).date()
-
-
 def parse_iso_date(d_str):
     return dt.date.fromisoformat(d_str.split("T")[0])
-
-
 def clip_future(cal_dict, today):
     """Filter tanggal masa depan secara deterministik."""
     return {d: cnt for d, cnt in cal_dict.items() if d <= today}
-
-
 def http_json(url, headers=None, post_data=None):
     req = urllib.request.Request(
         url,
